@@ -930,6 +930,32 @@ $ShareholderIDNo        = $_POST['ShareholderID'] ?? [];
 $ShareholderAddress     = $_POST['ShareholderAddress'] ?? [];
 $ShareholderPercent     = $_POST['ShareholderPercent'] ?? [];
 
+// Validate that shareholder percentages sum to 100%
+$totalSharePercent = 0;
+$shareholderCount = 0;
+for ($i = 0; $i < count($ShareholderName); $i++) {
+    if (!empty($ShareholderName[$i]) || !empty($ShareholderNationality[$i]) || !empty($ShareholderPercent[$i])) {
+        $shareholderCount++;
+        $totalSharePercent += (float)($ShareholderPercent[$i] ?? 0);
+    }
+}
+
+$shareholderValidationFailed = false;
+if ($shareholderCount > 0 && abs($totalSharePercent - 100) > 0.01) {
+    ?> 
+    <div class="input-group mb-3">
+        <span class="form-control text-danger">
+        Shareholder percentages must sum to 100%. Current total: <?= number_format($totalSharePercent, 2) ?>%
+        </span>
+        <span class="input-group-text text-danger">✗</span>
+    </div>
+    <?php
+    // Don't insert shareholders if validation fails
+    $shareholderValidationFailed = true;
+} 
+
+if (!$shareholderValidationFailed) {
+
 $ShareholderStmt = $conn->prepare("
     INSERT INTO shareholders (
         ShareHolderID,
@@ -988,6 +1014,7 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
 
 $ShareholderStmt->close();
 
+} // End of shareholder validation block
 
 
 //on site staff

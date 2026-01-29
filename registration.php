@@ -198,7 +198,7 @@
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>
                 <td><input type="text" name="ShareholderAddress[]"></td>
-                <td><input type="number" name="ShareholderPercent[]" step="0.01"></td>
+                <td><input type="number" name="ShareholderPercent[]" step="0.01" min="0" max="100"></td>
                 <td>
                 <button type="button" onclick="deleteRow(this)">Delete</button>
                 </td>
@@ -826,7 +826,7 @@ function autoFillTestData() {
 </script>
 
 <!--    submit button--> 
-    <button type="submit">Submit</button>
+    <button type="submit" onclick="return validateShareholderTotal()">Submit</button>
 <!-- editing button-->
     <a href="VendorUpdateDate.php" class="button">Go to Update Page</a>
 

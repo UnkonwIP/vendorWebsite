@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Vendor Information Form</title>
-    
 </head>
 <body>
 <!--    css-->
@@ -15,7 +14,7 @@
     </center></div>
     
     <div class="accordion" id="accordionExample">
-    <form action="insertData.php" method="post">
+    <form id="vendorForm" action="insertData.php" method="post">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Part A: Particulars of Company</button>
@@ -818,15 +817,24 @@ function autoFillTestData() {
 
     document.querySelectorAll("input").forEach(input => {
         if (input.type === "text") input.value = "Test";
-        if (input.type === "number") input.value = 1;
+        if (input.type === "number") input.value = Math.floor(Math.random() * 100) + 1;
         if (input.type === "date") input.value = "2024-01-01";
-        if (input.type === "email") input.value = "test@gmail.com"
+        if (input.type === "email") input.value = "test@gmail.com";
+    });
+    
+    // Check first radio button in each group to provide some data
+    const radioGroups = {};
+    document.querySelectorAll("input[type='radio']").forEach(radio => {
+        if (!radioGroups[radio.name]) {
+            radio.checked = true;
+            radioGroups[radio.name] = true;
+        }
     });
 }
 </script>
 
 <!--    submit button--> 
-    <button type="submit" onclick="return validateShareholderTotal()">Submit</button>
+    <button type="button" id="submitBtn">Submit</button>
 <!-- editing button-->
     <a href="VendorUpdateDate.php" class="button">Go to Update Page</a>
 
@@ -835,9 +843,9 @@ function autoFillTestData() {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src=script.js></script>
-
-    
+    <script>console.log("registration.php start loaded");</script>
+    <script src="script.js"></script>
+    <script>console.log("registration.php try loaded");</script>
 
 </body>
 </html>

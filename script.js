@@ -1,3 +1,5 @@
+console.log("registration.js loaded")
+
 function addShareholders(){
     const table = document.getElementById("shareholderTable");
     
@@ -172,6 +174,7 @@ function addBanks(){
     deleteCell.appendChild(deleteButton);
         
 }
+
 function addCreditFacilities() {
     const table = document.getElementById("CreditTable");
     const newCreditRow = table.insertRow(-1);
@@ -217,16 +220,16 @@ function addCreditFacilities() {
     deleteCell.appendChild(deleteButton);
 }
 
-
 function turnOnCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "block"; 
 }
+
 function turnOffCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "none"; 
 }
-
+    
 function OnOthersDetails(){
     const detailsDiv = document.getElementById("CIDBOthersDetails");
     detailsDiv.style.display = "block"; 
@@ -466,21 +469,50 @@ function validateShareholderTotal() {
         // The shareholder percent input is the 5th input (index 4)
         if (inputs.length > 4) {
             const shareInput = inputs[4]; // ShareholderPercent
-            if (shareInput && shareInput.value) {
+            if (shareInput && shareInput.value && shareInput.value.trim() !== "") {
                 totalShare += parseFloat(shareInput.value) || 0;
                 hasData = true;
             }
         }
     }
 
-    // If there are shareholders, check if they sum to 100%
+    // Only validate if shareholders have percentages entered
     if (hasData) {
+        // Allow small floating point tolerance (0.01%)
         if (Math.abs(totalShare - 100) > 0.01) {
             alert(`Shareholder percentages must sum to exactly 100%. Current total: ${totalShare.toFixed(2)}%`);
             return false;
         }
     }
+    // If no shareholder data, allow submission (shareholders are optional)
     return true;
+}
+
+function validateAndSubmit() {
+    console.log("validateAndSubmit called");
+    
+    // First validate shareholders
+    if (!validateShareholderTotal()) {
+        console.log("Shareholder validation failed");
+        return; // Stop if validation fails
+    }
+    
+    // Get the form element
+    const form = document.querySelector("form");
+    console.log("Form element:", form);
+    
+    // Check if form is valid using HTML5 validation
+    if (!form.checkValidity()) {
+        // Show validation message
+        console.log("Form validation failed");
+        alert("Please fill in all required fields.");
+        form.reportValidity(); // Show which fields are invalid
+        return;
+    }
+    
+    console.log("All validations passed, submitting form");
+    // If all validations pass, submit the form
+    form.submit();
 }
 
 function submitTable() {
@@ -500,3 +532,6 @@ function submitTable() {
     document.getElementById("output").innerHTML = outputHTML;
 }
 
+
+document.getElementById("submitBtn")
+    .addEventListener("click", validateAndSubmit);

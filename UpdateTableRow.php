@@ -35,6 +35,22 @@ $AllowedTables = [
     'Management' => [
         'table' => 'management',
         'fields' => ['ManagementID','time', 'nationality', 'yearsInPosition', 'name','yearsInRelatedField']
+    ],
+    'Bank' => [
+        'table' => 'bank',
+        'fields' => ['BankID','BankName', 'BankAddress', 'SWIFTCode']
+    ],
+    'Staff' => [
+        'table' => 'staff',
+        'fields' => ['staffNO','name', 'designation', 'qualification','yearsOfExperience', 'employmentStatus','skills','ReleventCertification']
+    ],
+    'ProjectTrackRecord' => [
+        'table' => 'projecttrackrecord',
+        'fields' => ['projectRecordNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate']
+    ],
+    'CurrentProject' => [
+        'table' => 'currentproject',
+        'fields' => ['CurrentprojectNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate','progressOfTheWork']
     ]
 ];
 
@@ -64,6 +80,8 @@ if ($dataType === "number") {
 }
 
 $stmt->execute();
+
+echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
 
 if ($stmt->affected_rows > 0) {
     echo "Updated successfully";

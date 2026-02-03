@@ -27,8 +27,10 @@ function addShareholders(){
     const Percentcell = newShareholderRow.insertCell();
     const Percentinput = document.createElement("input");
     Percentinput.type = "number";
-    Percentinput.name = "shareholderID[]";
-    Percentinput.step = "0.1";
+    Percentinput.name = "ShareholderPercent[]";
+    Percentinput.step = "0.01";
+    Percentinput.min = "0";
+    Percentinput.max = "100";
     Percentcell.appendChild(Percentinput);
     
     const deleteCell = newShareholderRow.insertCell();

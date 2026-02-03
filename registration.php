@@ -8,12 +8,24 @@
 <!--    css-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="vendorStyle.css" rel="stylesheet">
+    <style>
+        .error-box {
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+        }
+    </style>
     
     <img src="Image/company%20logo.png" class="rounded mx-auto d-block" alt="Company Logo" style="width: 150px;">
     <div><center><b>CIVIL CONTRACTOR REGISTRATION FORM</b><br>
     (For all information given below, documentary evidence shall be submitted)  
     </center></div>
     
+    <div id="formErrors"></div>
     <div class="accordion" id="accordionExample">
     <form action="insertData.php" method="post">
         <div class="accordion-item">
@@ -29,7 +41,7 @@
             </div>
             <div class="grid-column">
             <label for="telephone">Telephone No</label>
-            <input type="number" name="telephone" id="telephone" required>
+            <input type="number" name="telephone" id="telephone" min="0" max="9999999999" required>
             </div>
         </div>
         <div class="grid-row">
@@ -41,22 +53,25 @@
             <div class="grid-column">
                 <label for="tax">Tax Registration Number</label>
                 <input type="number" name="tax" id="tax" required>
+                // check for tax number format
             </div>
         </div>
         <div class="grid-row">
             <div class="grid-column">
                 <label for="newCRN">Company Registration No (new)</label>
-                <input type="number" name="newCRN" id="newCRN" required>
+                <input type="number" name="newCRN" id="newCRN" min="0" max="999999999999" required>
             </div>
             <div class="grid-column">
                 <label for="FaxNo">Fax No</label>
-                <input type="number" name="FaxNo" id="FaxNo" required>
+                <input type="number" name="FaxNo" id="FaxNo" min="0" max="9999999999" required>
+
             </div>
         </div>
         <div class="grid-row">
             <div class="grid-column">
                 <label for="oldCRN">Company Registration No (old)</label>
                 <input type="number" name="oldCRN" id="oldCRN">
+                //check for old company registration number format
             </div>
             <div class="grid-column">
                 <label for="Email">Email</label>
@@ -148,11 +163,11 @@
         <div class="grid-row">
         <div class="grid-column">
             <label for="AuthorisedCapital">Authorised Capital</label>
-            <input type="number" name="AuthorisedCapital" id="AuthorisedCapital" required>
+            <input type="number" name="AuthorisedCapital" id="AuthorisedCapital" min="0" required>
         </div>
         <div class="grid-column">
             <label for="PaidUpCapital">Paid-up Capital</label>
-            <input type="number" name="PaidUpCapital" id="PaidUpCapital" required>
+            <input type="number" name="PaidUpCapital" id="PaidUpCapital" min="0" required>
         </div>
         </div>
                 </div>
@@ -194,7 +209,8 @@
                 <th>% of shares</th>
             </tr>
             <tr>
-                <td><input type="number" name="ShareholderID[]" step="1"></td>
+                <td><input type="number" name="ShareholderID[]" step="1" min="0" max="9999999999"></td>
+                //check for shareholder ID format
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>
                 <td><input type="text" name="ShareholderAddress[]"></td>

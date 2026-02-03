@@ -453,6 +453,164 @@ function deleteRow(button) {
     row.remove();
 }
 
+function validateShareholderTotal() {
+    const rows = document.querySelectorAll("#shareholderTable tr");
+    let totalShare = 0;
+    let hasData = false;
+
+    // Skip header row (row 0), start from row 1
+    for (let i = 1; i < rows.length; i++) {
+        const inputs = rows[i].querySelectorAll("input");
+        // The shareholder percent input is the 5th input (index 4)
+        if (inputs.length > 4) {
+            const shareInput = inputs[4]; // ShareholderPercent
+            if (shareInput && shareInput.value && shareInput.value.trim() !== "") {
+                totalShare += parseFloat(shareInput.value) || 0;
+                hasData = true;
+            }
+        }
+    }
+
+    // Only validate if shareholders have percentages entered
+    if (hasData) {
+        // Allow small floating point tolerance (0.01%)
+        if (Math.abs(totalShare - 100) > 0.01) {
+            alert(`Shareholder percentages must sum to exactly 100%. Current total: ${totalShare.toFixed(2)}%`);
+            return false;
+        }
+    }
+    // If no shareholder data, allow submission (shareholders are optional)
+    return true;
+}
+
+function validateBobcatRating() {
+    const bobcat = document.querySelector('input[name="BobcatRating"]');
+    if (!bobcat) return true; // nothing to validate
+
+    const val = bobcat.value;
+    if (val === null || val === undefined || val === '') return true; // allow empty
+
+    const num = parseFloat(val);
+    const min = parseFloat(bobcat.getAttribute('min'));
+    const max = parseFloat(bobcat.getAttribute('max'));
+
+    if (isNaN(num)) {
+        alert('Bobcat rating must be a number.');
+        bobcat.focus();
+        bobcat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+
+    if (num < min || num > max) {
+        alert(`Bobcat rating must be between ${min} and ${max}. You entered ${num}.`);
+        bobcat.focus();
+        bobcat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+
+    return true;
+}
+
+function validateAndSubmit() {
+    console.log("validateAndSubmit called");
+    
+    // First validate shareholders
+    if (!validateShareholderTotal()) {
+        console.log("Shareholder validation failed");
+        return; // Stop if validation fails
+    }
+
+    // Validate Bobcat rating range
+    if (!validateBobcatRating()) {
+        console.log("Bobcat rating validation failed");
+        return; // Stop if invalid
+    }
+    
+    // Get the form element
+    const form = document.getElementById('vendorForm') || document.querySelector("form");
+    console.log("Form element:", form);
+
+    const formErrorsDiv = document.getElementById('formErrors');
+    if (formErrorsDiv) formErrorsDiv.innerHTML = '';
+
+    // Ensure all accordion sections are expanded so hidden required fields are focusable
+    document.querySelectorAll('.accordion-collapse').forEach(collapse => {
+        if (!collapse.classList.contains('show')) {
+            collapse.classList.add('show');
+            const headerBtn = collapse.parentElement.querySelector('.accordion-button');
+            if (headerBtn) {
+                headerBtn.classList.remove('collapsed');
+                headerBtn.setAttribute('aria-expanded', 'true');
+            }
+        }
+    });
+
+    // Check if form is valid using HTML5 validation
+    if (!form.checkValidity()) {
+        console.log("Form validation failed");
+
+        // Collect invalid elements and group by accordion section
+        const invalidEls = Array.from(form.querySelectorAll(':invalid'));
+        const sections = {};
+
+        invalidEls.forEach(el => {
+            let sectionName = 'Other';
+            const accordionItem = el.closest('.accordion-item');
+            if (accordionItem) {
+                const headerBtn = accordionItem.querySelector('.accordion-button');
+                sectionName = headerBtn ? headerBtn.textContent.trim() : 'Section';
+
+                // Expand the accordion section so user can see the invalid fields
+                const collapse = accordionItem.querySelector('.accordion-collapse');
+                if (collapse && !collapse.classList.contains('show')) {
+                    collapse.classList.add('show');
+                }
+                if (headerBtn) {
+                    headerBtn.classList.remove('collapsed');
+                    headerBtn.setAttribute('aria-expanded', 'true');
+                }
+            }
+
+            // Determine a friendly label for the field
+            let labelText = '';
+            if (el.id) {
+                const lab = form.querySelector('label[for="' + el.id + '"]');
+                if (lab) labelText = lab.textContent.trim();
+            }
+            if (!labelText) labelText = el.name || el.placeholder || el.type || 'field';
+
+            if (!sections[sectionName]) sections[sectionName] = new Set();
+            sections[sectionName].add(labelText);
+        });
+
+        // Build and show a summary message
+        let html = '<div class="error-box"><strong>Please complete required fields:</strong><ul style="margin-top:8px;">';
+        for (const [sec, fields] of Object.entries(sections)) {
+            html += '<li><strong>' + sec + ':</strong> ' + Array.from(fields).join(', ') + '</li>';
+        }
+        html += '</ul></div>';
+
+        if (formErrorsDiv) {
+            formErrorsDiv.innerHTML = html;
+        } else {
+            alert('Please complete required fields.');
+        }
+
+        // Focus the first invalid field and scroll into view
+        if (invalidEls.length) {
+            invalidEls[0].focus();
+            invalidEls[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        form.reportValidity();
+        return;
+    }
+
+    console.log("All validations passed, submitting form");
+    // If all validations pass, submit the form
+    form.submit();
+}
+
 function submitTable() {
     const rows = document.querySelectorAll("#shareholderTable tr");
     let outputHTML = "<h3>Submitted Data:</h3><ul>";

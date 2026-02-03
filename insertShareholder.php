@@ -17,6 +17,7 @@ if ($table === 'Shareholders'){
     ";
 
     $stmt = $conn->prepare($sql);
+
     $stmt->bind_param(
         "iissssd",
         $_POST['ShareHolderID'],

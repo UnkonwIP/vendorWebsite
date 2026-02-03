@@ -176,8 +176,10 @@
         
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><label>Part B: Particulars of Shareolders</label></button>
-            </h2>
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <label>Part B: Particulars of Shareholders</label>
+            </button>
+        </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
         <div class="grid-row">
@@ -515,7 +517,7 @@
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="5M-9.9M" id="5M-9.9M">
-                    <label for="5M-9.9M">Rm5M and mroe but less than 9.9M</label>
+                    <label for="5M-9.9M">RM5M and more but less than RM9.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="1M-4.9M" id="1M-4.9M">

@@ -484,7 +484,7 @@
 
 
             <td>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this,'Shareholders','Shareholderid')">Edit</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this,'Shareholders','ShareHolderID')">Edit</button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="deleteEditRow(this,'Shareholders','ShareHolderID')">Delete</button>
             </td>
         </tr>
@@ -683,21 +683,20 @@
         
             <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-        <div><label for="bankruptcy">Does the Company have history of backruptcy?</label></div>
+        <div><label for="bankruptcy">Does the Company have history of bankruptcy?</label></div>
+        
         <div class="grid-row">
-            <div class="grid-row-radio" id="BankruptcyGroup" data-field="bankruptHistory">
-            
-            <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" disabled
-                        <?= $RegistrationRow['bankruptHistory'] === 'yes' ? 'checked' : '' ?>>
-            <label for="bankrupt-yes">yes</label></div>
+            <div class="grid-row-radio" id="BankruptcyGroup" data-field="bankruptHistory">        <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" required>
+        <label for="bankrupt-yes">yes</label></div>
+        
+        <div><input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()" disabled
+            <?= $RegistrationRow['bankruptHistory'] === 'no' ? 'checked' : '' ?>>       
+        <label for="bankrupt-no">no</label></div>
 
-            <div><input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()" disabled
-                        <?= $RegistrationRow['bankruptHistory'] === 'no' ? 'checked' : '' ?>>
-            <label for="bankrupt-no">no</label></div>
-            <button type="button"
-                    class="btn btn-outline-primary mt-2"
-                    onclick="editRadioGroup(this, 'BankruptcyGroup', 'RegistrationForm')">
-                    Edit
+        <button type="button"
+                class="btn btn-outline-primary mt-2"
+                onclick="editRadioGroup(this, 'BankruptcyGroup', 'RegistrationForm')">
+                Edit
                 </button>
             </div>
         </div>
@@ -775,50 +774,50 @@
         <table id="bankTable" class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Name of the Bank</th>
-                    <th>Address of the Bank</th>
-                    <th>SWIFT Code</th>
+                    <th>Name of Bank</th>
+                    <th>Address of Bank</th>
+                    <th>Swift Code of Bank</th>
                     <th>Action</th>
                 </tr>
             </thead>
-
+            
             <tbody>
                 <?php while ($row = $BankTable->fetch_assoc()): ?>
                 <tr data-id="<?= $row['BankID'] ?>">
                     <td>
                         <input type="text"
-                               data-field="BankName"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['BankName']) ?>"
-                               readonly>
+                            data-field="bankName"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['bankName']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="BankAddress"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['BankAddress']) ?>"
-                               readonly>
+                            data-field="bankAddress"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['bankAddress']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="SWIFTCode"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['SWIFTCode']) ?>"
-                               readonly>
+                            data-field="swiftCode"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['swiftCode']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <button type="button"
                                 class="btn btn-outline-primary btn-sm"
-                                onclick="editTableRow(this,'Bank','BankID')">
+                                onclick="editTableRow(this,'Banks','BankID')">
                             Edit
                         </button>
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'Bank','BankID')">
+                                onclick="deleteEditRow(this,'Banks','BankID')">
                             Delete
                         </button>
                     </td>
@@ -826,15 +825,14 @@
                 <?php endwhile; ?>
             </tbody>
         </table>
-
         <div>
             <button type="button"
-                    onclick='addEditShareholders("Bank","bankTable")'>
+                    onclick='addEditShareholders("Banks","bankTable")'>
                 Add
             </button>
         </div>
-
         </div>
+
         <div><p>Please include the last 6 months Bank Statement.</p></div>
         
         <div>
@@ -1088,17 +1086,17 @@ The Contractor is required to complete the form by listing all plant and machine
         
         <table id="StaffTeamTable" class="table table-bordered">
             <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Qualification</th>
-                    <th>Employment Status</th>
-                    <th>Skills / Expertise</th>
-                    <th>Relevant Certification</th>
-                    <th>Year of Experience</th>
-                    <th>Action</th>
-                </tr>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Qualification</th>
+                <th>Employment Status (Permanent / Contract / Seconded)</th>
+                <th>Skills / Expertise (Civil / HDD / Cable / TMP/ others contractor to indicate)</th>
+                <th>Relevant Certification (CIDB / EOSP/ others contractor to indicate)</th>
+                <th>Year of Experience</th>
+                <th>Action</th>
+            </tr>
             </thead>
 
             <tbody>
@@ -1106,68 +1104,68 @@ The Contractor is required to complete the form by listing all plant and machine
                 <tr data-id="<?= $row['staffNO'] ?>">
                     <td>
                         <input type="number"
-                               data-field="staffNO"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['staffNO']) ?>"
-                               readonly>
+                            data-field="staffNO"
+                            class="form-control"
+                            min="1"
+                            value="<?= htmlspecialchars($row['staffNO']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="name"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['name']) ?>"
-                               readonly>
+                            data-field="name"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['name']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="designation"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['designation']) ?>"
-                               readonly>
+                            data-field="designation"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['designation']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="qualification"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['qualification']) ?>"
-                               readonly>
+                            data-field="qualification"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['qualification']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="employmentStatus"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['employmentStatus']) ?>"
-                               readonly>
+                            data-field="employmentStatus"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['employmentStatus']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="skills"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['skills']) ?>"
-                               readonly>
+                            data-field="skills"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['skills']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="ReleventCertification"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['ReleventCertification']) ?>"
-                               readonly>
+                            data-field="ReleventCertification"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['ReleventCertification']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="number"
-                               data-field="yearsOfExperience"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['yearsOfExperience']) ?>"
-                               readonly>
+                            data-field="yearsOfExperience"
+                            class="form-control"
+                            min="1"
+                            value="<?= htmlspecialchars($row['yearsOfExperience']) ?>"
+                            readonly>
                     </td>
 
                     <td>
@@ -1179,7 +1177,7 @@ The Contractor is required to complete the form by listing all plant and machine
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'Staff','staffNO')">
+                                onclick="deleteEditRow(this,'Staff','StaffNO')">
                             Delete
                         </button>
                     </td>
@@ -1189,8 +1187,8 @@ The Contractor is required to complete the form by listing all plant and machine
         </table>
 
         <div>
-            <button type="button"
-                    onclick='addEditShareholders("Staff","StaffTeamTable")'>
+            <button type="button"                  
+                onclick='addEditShareholders("Staff","StaffTeamTable")'>
                 Add
             </button>
         </div>
@@ -1202,15 +1200,14 @@ The Contractor is required to complete the form by listing all plant and machine
         <table id="ProjectRecordTable" class="table table-bordered">
             <thead>
                 <tr>
-                    <th>No.</th>
-                    <th>Project Title / Description</th>
+                    <th>NO.</th>
+                    <th>Project Title /Description</th>
                     <th>Project Nature</th>
                     <th>Location of the Project (Negeri / Daerah)</th>
                     <th>Client Name</th>
                     <th>Project Value</th>
                     <th>Commencement Date</th>
                     <th>Completion Date</th>
-                    <th>Action</th>
                 </tr>
             </thead>
 
@@ -1219,67 +1216,67 @@ The Contractor is required to complete the form by listing all plant and machine
                 <tr data-id="<?= $row['projectRecordNo'] ?>">
                     <td>
                         <input type="number"
-                               data-field="projectRecordNo"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['projectRecordNo']) ?>"
-                               readonly>
+                            data-field="projectRecordNo"
+                            class="form-control"
+                            min="1"
+                            value="<?= htmlspecialchars($row['projectRecordNo']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="projectTitle"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectTitle']) ?>"
-                               readonly>
+                            data-field="projectTitle"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['projectTitle']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="projectNature"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectNature']) ?>"
-                               readonly>
+                            data-field="projectNature"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['projectNature']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="location"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['location']) ?>"
-                               readonly>
+                            data-field="location"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['location']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="clientName"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['clientName']) ?>"
-                               readonly>
+                            data-field="clientName"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['clientName']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="projectValue"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectValue']) ?>"
-                               readonly>
+                            data-field="projectValue"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['projectValue']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="date"
-                               data-field="commencement"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['commencement']) ?>"
-                               readonly>
+                            data-field="commencement"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['commencement']) ?>"
+                            readonly>
                     </td>
 
                     <td>
                         <input type="date"
-                               data-field="completionDate"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['completionDate']) ?>"
-                               readonly>
+                            data-field="completionDate"
+                            class="form-control"
+                            value="<?= htmlspecialchars($row['completionDate']) ?>"
+                            readonly>
                     </td>
 
                     <td>
@@ -1305,104 +1302,104 @@ The Contractor is required to complete the form by listing all plant and machine
                     onclick='addEditShareholders("ProjectTrackRecord","ProjectRecordTable")'>
                 Add
             </button>
-        </div>
-
+        </div>       
+        
         <br>
         <div><label>Current Projects</label></div>
         <div><p>The Contractor is required to provide details of all current projects undertaken by the company. The list shall be expanded, where necessary.</p></div>
         <div>
             <table id="CurrentProjTable" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Project Title / Description</th>
-                        <th>Project Nature</th>
-                        <th>Location of the Project (Negeri / Daerah)</th>
-                        <th>Client Name</th>
-                        <th>Project Value</th>
-                        <th>Commencement Date</th>
-                        <th>Completion Date</th>
-                        <th>Progress of the Works (%)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+            <thead>
+            <tr>
+                    <th>No.</th>
+                    <th>Project Title / Description</th>
+                    <th>Project Nature</th>
+                    <th>Location of the Project (Negeri / Daerah)</th>
+                    <th>Client Name</th>
+                    <th>Project Value</th>
+                    <th>Commencement Date</th>
+                    <th>Completion Date</th>
+                    <th>Progress of the Works (%)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-                <tbody>
+<tbody>
                     <?php while ($row = $CurrentProjTable->fetch_assoc()): ?>
                     <tr data-id="<?= $row['CurrentprojectNo'] ?>">
                         <td>
                             <input type="number"
-                                   data-field="CurrentprojectNo"
-                                   class="form-control"
-                                   min="1"
-                                   value="<?= htmlspecialchars($row['CurrentprojectNo']) ?>"
-                                   readonly>
+                                data-field="CurrentprojectNo"
+                                class="form-control"
+                                min="1"
+                                value="<?= htmlspecialchars($row['CurrentprojectNo']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="text"
-                                   data-field="projectTitle"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectTitle']) ?>"
-                                   readonly>
+                                data-field="projectTitle"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['projectTitle']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="text"
-                                   data-field="projectNature"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectNature']) ?>"
-                                   readonly>
+                                data-field="projectNature"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['projectNature']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="text"
-                                   data-field="location"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['location']) ?>"
-                                   readonly>
+                                data-field="location"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['location']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="text"
-                                   data-field="clientName"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['clientName']) ?>"
-                                   readonly>
+                                data-field="clientName"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['clientName']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="text"
-                                   data-field="projectValue"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectValue']) ?>"
-                                   readonly>
+                                data-field="projectValue"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['projectValue']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="date"
-                                   data-field="commencement"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['commencement']) ?>"
-                                   readonly>
+                                data-field="commencement"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['commencement']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="date"
-                                   data-field="completionDate"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['completionDate']) ?>"
-                                   readonly>
+                                data-field="completionDate"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['completionDate']) ?>"
+                                readonly>
                         </td>
 
                         <td>
                             <input type="number"
-                                   data-field="progressOfTheWork"
-                                   class="form-control"
-                                   min="1"
-                                   max="100"
-                                   value="<?= htmlspecialchars($row['progressOfTheWork']) ?>"
-                                   readonly>
+                                data-field="progressOfTheWork"
+                                class="form-control"
+                                min="1"
+                                max="100"
+                                value="<?= htmlspecialchars($row['progressOfTheWork']) ?>"
+                                readonly>
                         </td>
 
                         <td>
@@ -1428,7 +1425,7 @@ The Contractor is required to complete the form by listing all plant and machine
                         onclick='addEditShareholders("CurrentProject","CurrentProjTable")'>
                     Add
                 </button>
-            </div>
+        </div>
 
         </div></div></div>
         
@@ -1519,11 +1516,11 @@ The Contractor is required to complete the form by listing all plant and machine
         <br>
         <div>
         <ul class="o-list">
-          <li>declares that he/she has, or has obtained from the relevant authority, the proper mandate and authority to disclose such information;</li>
-          <li>consents to the processing of such information for the purpose described in the Notice of Disclosure;</li>
-          <li>acknowledges that the processing of such information may be conducted by a third party on behalf of MSAR which may occur in another country than the country of disclosure; and</li>
-          <li>represents that the information provided in this document is, to the best of his/her knowledge, accurate, current and complete as of the date of disclosure.</li>
-          <li>pursuant to the Credit Reporting Agencies Act 2010 (“the CRA”) and Central Bank of Malaysia Act 2009, the Company do hereby give our consent to MSAR and CTOS Data Systems Sdn. Bhd. (“CTOS”), a registered credit reporting agency under the CRA to process our Company’s personal data as per the Personal Data Protection Act 2010 including for the purpose of conducting credit/trade check.</li>
+        <li>declares that he/she has, or has obtained from the relevant authority, the proper mandate and authority to disclose such information;</li>
+        <li>consents to the processing of such information for the purpose described in the Notice of Disclosure;</li>
+        <li>acknowledges that the processing of such information may be conducted by a third party on behalf of MSAR which may occur in another country than the country of disclosure; and</li>
+        <li>represents that the information provided in this document is, to the best of his/her knowledge, accurate, current and complete as of the date of disclosure.</li>
+        <li>pursuant to the Credit Reporting Agencies Act 2010 (“the CRA”) and Central Bank of Malaysia Act 2009, the Company do hereby give our consent to MSAR and CTOS Data Systems Sdn. Bhd. (“CTOS”), a registered credit reporting agency under the CRA to process our Company’s personal data as per the Personal Data Protection Act 2010 including for the purpose of conducting credit/trade check.</li>
         </ul>
         </div>
         <div class="grid-row">

@@ -42,7 +42,7 @@ if ($table === 'Shareholders'){
     }
 } else if($table === 'DirectorAndSecretary'){
     $sql = "
-    INSERT INTO directorandsecretary
+    INSERT INTO DirectorAndSecretary
     (NewCompanyRegistration, time, nationality, name, position, appoitmentDate, DOB)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";

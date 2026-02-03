@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Vendor Information Form</title>
+    
 </head>
 <body>
 <!--    css-->
@@ -26,7 +27,7 @@
     
     <div id="formErrors"></div>
     <div class="accordion" id="accordionExample">
-    <form id="vendorForm" action="insertData.php" method="post">
+    <form action="insertData.php" method="post">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Part A: Particulars of Company</button>
@@ -89,7 +90,7 @@
         </div >
         <div class="grid-row">
             <div class="grid-column">
-                <label for="CompanyOrganisation">Company Organisation</label>
+                <label for="CompanyOrganisation">Comapany Organisation</label>
                 <div class="grid-row-radio">
                     <label class="radio-item">
                         <input type="radio" name="CompanyOrganisation" value="More than 15" required>
@@ -215,7 +216,7 @@
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>
                 <td><input type="text" name="ShareholderAddress[]"></td>
-                <td><input type="number" name="ShareholderPercent[]" step="0.01" min="0" max="100"></td>
+                <td><input type="number" name="ShareholderPercent[]" step="0.01"></td>
                 <td>
                 <button type="button" onclick="deleteRow(this)">Delete</button>
                 </td>
@@ -226,7 +227,7 @@
             
         <div class="accordion-item">
         <h2 class="accordion-header" id="headingThree">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><label>Part C : Particulars of Directors & Company Secretary</label></button>
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><label>Part C : Particulars of Directors & Company Secretery</label></button>
         </h2>
         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
         <div class="accordion-body">
@@ -267,7 +268,7 @@
                 <th>Years in Industry/ Related Field</th>
             </tr>
             <tr>
-                <td><input type="text" name="ManagementName[]"></td>
+                <td><input type="text" name="MangementName[]"></td>
                 <td><input type="text" name="ManagementNationality[]"></td>
                 <td><input type="text" name="ManagementPosition[]"></td>
                 <td><input type="number" min="0" max="99" name="ManagementYearInPosition[]"></td>
@@ -284,7 +285,7 @@
         
             <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-        <div><label for="bankruptcy">Does the Company have history of bankruptcy?</label></div>
+        <div><label for="bankruptcy">Does the Company have history of backruptcy?</label></div>
         
         <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" required>
         <label for="bankrupt-yes">yes</label></div>
@@ -520,7 +521,7 @@
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="1M-4.9M" id="1M-4.9M">
-                    <label for="1M-4.9M">RM1M and more but less than RM4.9M</label>
+                    <label for="1M-4.9M">RM1M and more but less than Rm4.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="<1M" id="<1M">
@@ -531,19 +532,19 @@
                 <div for="ValueOfCurrentProject"><p>Value of Current On Going Project</p></div>
                 <div>
                     <input type="radio" name="ValueOfCurrentProject" id=">5M" value=">5M" required>
-                    <label for=">5M">More than RM5M</label>
+                    <label for=">5M">More than Rm5M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfCurrentProject" id="2M-4.9M" value="2M-4.9M">
-                    <label for="2M-4.9M">RM2M and more but less than RM4.9M</label>
+                    <label for="2M-4.9M">Rm2M and more but less than Rm4.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfCurrentProject" id="0.5M-1.9M" value="0.5M-1.9M">
-                    <label for="0.5M-1.9M">RM0.5M and more but less than RM1.9M</label>
+                    <label for="0.5M-1.9M">Rm0.5M and more but less than Rm1.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfCurrentProject" id="<0.5M" value="<0.5M">
-                    <label for="<0.5M">Less than RM0.5M</label>
+                    <label for="<0.5M">Less than Rm0.5M</label>
                 </div>
             </div>
         </div>
@@ -700,7 +701,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <tr>
                     <td><input min="1" type="number" name="CurrentProjectNo[]"></td>
                     <td><input type="text" name="CurrentProjTitle[]"></td>
-                    <td><input type="text" name="CurrentProjNature[]"></td>
+                    <td><input type="text" name="CurrentPorjNature[]"></td>
                     <td><input type="text" name="CurrentProjLocation[]"></td>
                     <td><input type="text" name="CurrentProjName[]"></td>
                     <td><input type="text" name="CurrentProjValue[]"></td>
@@ -729,7 +730,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="PrimaryTelephone">Telephone Number</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
+            <label for="PrimaryTelephone">Telephone Nuumber</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="PrimaryEmail">Email</label><input type="Email" id="PrimaryEmail" name="PrimaryEmail" required>
@@ -747,7 +748,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="SecondaryTelephone">Telephone Number</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
+            <label for="SecondaryTelephone">Telephone Nuumber</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="SecondaryEmail">Email</label><input type="Email" id="SecondaryEmail" name="SecondaryEmail" required>
@@ -835,24 +836,15 @@ function autoFillTestData() {
 
     document.querySelectorAll("input").forEach(input => {
         if (input.type === "text") input.value = "Test";
-        if (input.type === "number") input.value = Math.floor(Math.random() * 100) + 1;
+        if (input.type === "number") input.value = 1;
         if (input.type === "date") input.value = "2024-01-01";
-        if (input.type === "email") input.value = "test@gmail.com";
-    });
-    
-    // Check first radio button in each group to provide some data
-    const radioGroups = {};
-    document.querySelectorAll("input[type='radio']").forEach(radio => {
-        if (!radioGroups[radio.name]) {
-            radio.checked = true;
-            radioGroups[radio.name] = true;
-        }
+        if (input.type === "email") input.value = "test@gmail.com"
     });
 }
 </script>
 
 <!--    submit button--> 
-    <button type="button" id="submitBtn">Submit</button>
+    <button type="submit">Submit</button>
 <!-- editing button-->
     <a href="VendorUpdateDate.php" class="button">Go to Update Page</a>
 
@@ -861,7 +853,9 @@ function autoFillTestData() {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src=script.js></script>
+
+    
 
 </body>
 </html>

@@ -81,6 +81,8 @@ if ($dataType === "number") {
 $stmt->execute();
 echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
 
+echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
+
 if ($stmt->affected_rows > 0) {
     echo "Updated successfully";
 } else {

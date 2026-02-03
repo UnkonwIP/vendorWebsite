@@ -172,7 +172,6 @@ function addBanks(){
     deleteCell.appendChild(deleteButton);
         
 }
-
 function addCreditFacilities() {
     const table = document.getElementById("CreditTable");
     const newCreditRow = table.insertRow(-1);
@@ -218,16 +217,16 @@ function addCreditFacilities() {
     deleteCell.appendChild(deleteButton);
 }
 
+
 function turnOnCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "block"; 
 }
-
 function turnOffCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "none"; 
 }
-    
+
 function OnOthersDetails(){
     const detailsDiv = document.getElementById("CIDBOthersDetails");
     detailsDiv.style.display = "block"; 
@@ -403,7 +402,7 @@ function addCurrentProjectRecord() {
 
     const fields = [
         "CurrentProjTitle[]",
-        "CurrentProjNature[]",
+        "CurrentPorjNature[]",
         "CurrentProjLocation[]",
         "CurrentProjName[]",
         "CurrentProjValue[]",
@@ -631,6 +630,3 @@ function submitTable() {
     document.getElementById("output").innerHTML = outputHTML;
 }
 
-
-document.getElementById("submitBtn")
-    .addEventListener("click", validateAndSubmit);

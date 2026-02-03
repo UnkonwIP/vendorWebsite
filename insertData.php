@@ -116,7 +116,7 @@ $stmt = $conn->prepare("
         name,
         designation,
         DateOfVerification,
-        AuditorCompayName,
+        AuditorCompanyName,
         AuditorCompanyAddress,
         AuditorName,
         AuditorEmail,
@@ -251,7 +251,7 @@ for ($i = 0; $i < count($bankNames); $i++){
 }
 
 try{
-    $BankStmt->execute()
+    if($BankStmt->execute()) {
     ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -261,6 +261,7 @@ try{
     </div>
         
         <?php
+    }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -313,7 +314,7 @@ $ContactStmt->bind_param(
 );
 
 try { 
-    $ContactStmt->execute() 
+    if($ContactStmt->execute()) {
     ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -323,6 +324,7 @@ try {
     </div>
         
         <?php
+    }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -348,7 +350,9 @@ $ContactStmt->bind_param(
 );
         
 
-try{ $ContactStmt->execute()  ?> 
+try{ 
+    if($ContactStmt->execute()) {
+    ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         SecondaryContact Data inserted successfully
@@ -357,6 +361,7 @@ try{ $ContactStmt->execute()  ?>
     </div>
         
         <?php
+    }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -416,7 +421,9 @@ for ($i = 0; $i < count($TypeOfCredit); $i++){
     );
     
     
-    try{ $CreditStmt->execute()  ?> 
+    try{ 
+        if($CreditStmt->execute()) {
+        ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Credit data inserted successfully
@@ -425,6 +432,7 @@ for ($i = 0; $i < count($TypeOfCredit); $i++){
     </div>
         
         <?php
+        }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -494,7 +502,7 @@ for ($i = 0; $i < count($CurrentProjectNo); $i++) {
     );
 
     try{
-        $ProjectStmt->execute()
+        if($ProjectStmt->execute()) {
         ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -504,6 +512,7 @@ for ($i = 0; $i < count($CurrentProjectNo); $i++) {
     </div>
         
         <?php
+    }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -561,7 +570,7 @@ for ($i = 0; $i < count($DirectorName); $i++) {
 
     
     try{
-        $DirectorStmt->execute()
+        if($DirectorStmt->execute()) {
         ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -571,6 +580,7 @@ for ($i = 0; $i < count($DirectorName); $i++) {
     </div>
         
         <?php
+        }
 } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -687,7 +697,7 @@ foreach ($equipmentData as $eq) {
 
     
     try{ 
-        $EquipmentStmt->execute()  
+        if($EquipmentStmt->execute()) {
         ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -697,6 +707,7 @@ foreach ($equipmentData as $eq) {
     </div>
         
         <?php
+        }
     } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -755,7 +766,7 @@ for ($i = 0; $i < count($ManagementName); $i++) {
 
     
     try{ 
-        $ManagementStmt->execute()
+        if($ManagementStmt->execute()) {
         ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -765,6 +776,7 @@ for ($i = 0; $i < count($ManagementName); $i++) {
     </div>
         
         <?php
+        }
     } catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
@@ -827,7 +839,9 @@ foreach ($totalLiabilities as $year => $liability) {
     );
 
     
-    try{ $FinanceStmt->execute() ?> 
+    try{ 
+        if($FinanceStmt->execute()) {
+        ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Nett worth & working capital data inserted successfully
@@ -903,7 +917,9 @@ for ($i = 0; $i < count($ProjectRecordNo); $i++) {
     );
 
     
-    try{ $ProjectStmt->execute() ?> 
+    try{ 
+        if($ProjectStmt->execute()) {
+        ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Project record data inserted successfully
@@ -995,7 +1011,9 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
         $ShareholderPercent[$i]          // d
     );
 
-    try{ $ShareholderStmt->execute()  ?> 
+    try{ 
+        if($ShareholderStmt->execute()) {
+        ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Shareholder data inserted successfully
@@ -1072,7 +1090,9 @@ for ($i = 0; $i < count($StaffNo); $i++) {
         $StaffCertification[$i]     // s
     );
 
-    try{ $StaffStmt->execute()  ?> 
+    try{ 
+        if($StaffStmt->execute()) {
+        ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Staff team data inserted successfully

@@ -77,8 +77,6 @@ if ($conn->connect_error) {
     die('Connection Failed : ' . $conn->connect_error);
 }
 
-echo "<!-- Form submitted to insertData.php -->\n";
-
 $stmt = $conn->prepare("
     INSERT INTO registrationform (
         NewCompanyRegistration,
@@ -186,7 +184,7 @@ $stmt->bind_param(
 
 
 try {
-    if ($stmt->execute()) {
+    $stmt->execute()  
     ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
@@ -196,10 +194,7 @@ try {
     </div>
         
         <?php
-    } else {
-        throw new Exception("Execute failed");
-    }
-} catch(Exception $e) {
+} catch(mysqli_sql_exception $e) {
     ?> 
     <div class="input-group mb-3">
         <span class="form-control text-danger">
@@ -986,7 +981,7 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
 
     $ShareholderStmt->bind_param(
         "iissssd",
-        $ShareholderIDNo[$i],
+        $ShareholderIDNo,
         $newCRN,                         // i
         $currentDate,                    // s (DATE)
         $ShareholderNationality[$i],     // s

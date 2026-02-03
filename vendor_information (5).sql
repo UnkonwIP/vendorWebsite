@@ -398,11 +398,7 @@ INSERT INTO `staff` (`staffNO`, `NewCompanyRegistration`, `time`, `name`, `desig
 CREATE TABLE `vendoraccount` (
   `accountID` varchar(15) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `role` varchar(10) NOT NULL,
-  `vendor_type` varchar(50) DEFAULT NULL,
-  `reset_token` varchar(64) DEFAULT NULL,
-  `reset_expiry` datetime DEFAULT NULL
+  `role` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

@@ -48,38 +48,6 @@
     $stmt->execute();
     
     $ManagementTable = $stmt->get_result();
-    
-    //Bank
-    $stmt = $conn->prepare("SELECT * FROM bank WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
-    $stmt->execute();
-    
-    $BankTable = $stmt->get_result();
-    
-    //StaffTeamTable
-    $stmt = $conn->prepare("SELECT * FROM staff WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
-    $stmt->execute();
-    
-    $StaffTeamTable = $stmt->get_result();
-    
-    //project track record
-    $stmt = $conn->prepare("SELECT * FROM projectTrackRecord WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
-    $stmt->execute();
-    
-    $ProjectRecordTable = $stmt->get_result();
-    
-    //current project table
-    $stmt = $conn->prepare("SELECT * FROM currentproject WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
-    $stmt->execute();
-    
-    $CurrentProjTable = $stmt->get_result();
 ?>
     <input type="hidden" id="NewCompanyRegistration"
        value="<?= htmlspecialchars($newCRN) ?>">
@@ -236,7 +204,7 @@
         </div >
         <div class="grid-row">
             <div class="grid-column">
-                <label for="CompanyOrganisation">Comapany Organisation</label>
+                <label for="CompanyOrganisation">Company Organisation</label>
                 <div class="grid-row-radio" id="CompanyOrganisationGroup" data-field="companyOrganisation">
                     <label class="radio-item">
                         <input type="radio" name="CompanyOrganisation" value="More than 15" disabled
@@ -476,7 +444,7 @@
     <tbody>
         <?php while ($row = $ShareHoldersTable->fetch_assoc()): ?>
         <tr data-id="<?= $row['ShareHolderID'] ?>">
-            <td><input type="number" data-field="ShareHolderID" class="form-control" value="<?= htmlspecialchars($row['ShareHolderID']) ?>" min="1" readonly></td>
+            <td><input type="number" data-field="ShareHolderID" class="form-control" value="<?= htmlspecialchars($row['ShareHolderID']) ?>" readonly></td>
             <td><input type="text" data-field="name" class="form-control" value="<?= htmlspecialchars($row['name']) ?>" readonly></td>
             <td><input type="text" data-field="nationality" class="form-control" value="<?= htmlspecialchars($row['nationality']) ?>" readonly></td>
             <td><input type="text" data-field="address" class="form-control" value="<?= htmlspecialchars($row['address']) ?>" readonly></td>
@@ -485,7 +453,7 @@
 
             <td>
                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this,'Shareholders','Shareholderid')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteEditRow(this,'Shareholders','ShareHolderID')">Delete</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteEditRow(this,'Shareholders')">Delete</button>
             </td>
         </tr>
         <?php endwhile; ?>
@@ -496,7 +464,7 @@
             
         <div class="accordion-item">
         <h2 class="accordion-header" id="headingThree">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><label>Part C : Particulars of Directors & Company Secretery</label></button>
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><label>Part C : Particulars of Directors & Company Secretary</label></button>
         </h2>
         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
         <div class="accordion-body">
@@ -659,7 +627,7 @@
 
                         <button type="button"
                                 class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'Management','ManagementID')">
+                                onclick="deleteEditRow(this,'Management')">
                             Delete
                         </button>
                     </td>
@@ -683,24 +651,14 @@
         
             <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-        <div><label for="bankruptcy">Does the Company have history of backruptcy?</label></div>
-        <div class="grid-row">
-            <div class="grid-row-radio" id="BankruptcyGroup" data-field="bankruptHistory">
-            
-            <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" disabled
-                        <?= $RegistrationRow['bankruptHistory'] === 'yes' ? 'checked' : '' ?>>
-            <label for="bankrupt-yes">yes</label></div>
-
-            <div><input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()" disabled
-                        <?= $RegistrationRow['bankruptHistory'] === 'no' ? 'checked' : '' ?>>
-            <label for="bankrupt-no">no</label></div>
-            <button type="button"
-                    class="btn btn-outline-primary mt-2"
-                    onclick="editRadioGroup(this, 'BankruptcyGroup', 'RegistrationForm')">
-                    Edit
-                </button>
-            </div>
-        </div>
+        <div><label for="bankruptcy">Does the Company have history of bankruptcy?</label></div>
+        
+        <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" required>
+        <label for="bankrupt-yes">yes</label></div>
+        
+        <div><input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()">
+        <label for="bankrupt-no">no</label></div>
+        
         <div id="bankruptcy-details" style="display: none;">
             <div><label for="details">Please provide a brief description on the bankruptcy</label></div>
             <div>
@@ -772,69 +730,21 @@
         </div>
                 <br>
         <div>
-        <table id="bankTable" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Name of the Bank</th>
-                    <th>Address of the Bank</th>
-                    <th>SWIFT Code</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php while ($row = $BankTable->fetch_assoc()): ?>
-                <tr data-id="<?= $row['BankID'] ?>">
-                    <td>
-                        <input type="text"
-                               data-field="BankName"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['BankName']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="BankAddress"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['BankAddress']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="SWIFTCode"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['SWIFTCode']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                onclick="editTableRow(this,'Bank','BankID')">
-                            Edit
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'Bank','BankID')">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
+        <table id="bankTable">
+            <tr>
+                <th>Name of the Bank</th>
+                <th>Address of the Bank</th>
+                <th>SWIFT Code</th>
+            </tr>
+            <tr>
+                <td><input type="text" name="NameOfBank[]"></td>
+                <td><input type="text" name="AddressOfBank[]"></td>
+                <td><input type="text" name="SwiftCodeOfBank[]"></td>
+                <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
+            </tr>
         </table>
-
-        <div>
-            <button type="button"
-                    onclick='addEditShareholders("Bank","bankTable")'>
-                Add
-            </button>
         </div>
-
-        </div>
+        <div><button type ="button" onclick="addBanks()">add</button></div>
         <div><p>Please include the last 6 months Bank Statement.</p></div>
         
         <div>
@@ -973,11 +883,11 @@
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="5M-9.9M" id="5M-9.9M">
-                    <label for="5M-9.9M">Rm5M and mroe but less than 9.9M</label>
+                    <label for="5M-9.9M">RM5M and more but less than RM9.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="1M-4.9M" id="1M-4.9M">
-                    <label for="1M-4.9M">RM1M and more but less than Rm4.9M</label>
+                    <label for="1M-4.9M">RM1M and more but less than RM4.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="<1M" id="<1M">
@@ -1086,121 +996,63 @@ The Contractor is required to complete the form by listing all plant and machine
         <div><label>List of Site Team and Site Staff</label></div>
         <div><p>The Contractor is required to complete this form by listing all site supervisors and workers under its employment, categorised according to their respective skills (Civil / HDD / Cable / TMP).<b> The Contractor shall also provide the curriculum vitae (CV) of the Site Supervisor and any other key personnel,</b> where applicable. The list shall be expanded, where necessary, to accurately reflect all personnel currently employed by the Contractor. </p></div>
         
-        <table id="StaffTeamTable" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Qualification</th>
-                    <th>Employment Status</th>
-                    <th>Skills / Expertise</th>
-                    <th>Relevant Certification</th>
-                    <th>Year of Experience</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php while ($row = $StaffTeamTable->fetch_assoc()): ?>
-                <tr data-id="<?= $row['staffNO'] ?>">
-                    <td>
-                        <input type="number"
-                               data-field="staffNO"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['staffNO']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="name"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['name']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="designation"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['designation']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="qualification"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['qualification']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="employmentStatus"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['employmentStatus']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="skills"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['skills']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="ReleventCertification"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['ReleventCertification']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="number"
-                               data-field="yearsOfExperience"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['yearsOfExperience']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                onclick="editTableRow(this,'Staff','StaffNO')">
-                            Edit
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'Staff','staffNO')">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
+        <table id="StaffTeamTable">
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Qualification</th>
+                <th>Employment Status (Permanent / Contract / Seconded)</th>
+                <th>Skills / Expertise (Civil / HDD / Cable / TMP/ others contractor to indicate)</th>
+                <th>Relevant Certification (CIDB / EOSP/ others contractor to indicate)</th>
+                <th>Year of Experience</th>
+            </tr>
+            <tr>
+                <td><input type="number" name="StaffNo[]" min="1"></td>
+                <td><input type="text" name="StaffName[]"></td>
+                <td><input type="text" name="StaffDesignation[]"></td>
+                <td><input type="text" name="StaffQualification[]"></td>
+                <td><input type="text" name="StaffEmploymentStatus[]"></td>
+                <td><input type="text" name="StaffSkills[]"></td>
+                <td><input type="text" name="StaffCertification[]"></td>
+                <td><input type="number" name="StaffExperience[]" min="1"></td>
+                <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
+            </tr>
         </table>
-
-        <div>
-            <button type="button"
-                    onclick='addEditShareholders("Staff","StaffTeamTable")'>
-                Add
-            </button>
-        </div>
-
+        <div><button type="button" onclick="addStaffList()">add</button></div>
         <br>
         <div><label>Project Track Record</label></div>
         <div><p>The Contractor is required to provide details of relevant project experience <u><b>within the last five (5) years </b></u>related to fibre optic infrastructure systems, including but not limited to Outside Plant (OSP), Inside Plant (ISP), and Operation & Maintenance (O&M). The list shall be expanded, where necessary.</p></div>
         
-        <table id="ProjectRecordTable" class="table table-bordered">
-            <thead>
+        <table id="ProjectRecordTable">
+            <tr>
+                <th>NO.</th>
+                <th>Project Title /Description</th>
+                <th>Project Nature</th>
+                <th>Location of the Project (Negeri / Daerah)</th>
+                <th>Client Name</th>
+                <th>Project Value</th>
+                <th>Commencement Date</th>
+                <th>Completion Date</th>
+            </tr>
+            <tr>
+                <td><input min="1" type="number" name="ProjectRecordNo[]"></td>
+                <td><input type="text" name="ProjectTitle[]"></td>
+                <td><input type="text" name="ProjectNature[]"></td>
+                <td><input type="text" name="ProjectLocation[]"></td>
+                <td><input type="text" name="ProjectClientName[]"></td>
+                <td><input type="text" name="ProjectValue[]"></td>
+                <td><input type="date" name="ProjectCommencementDate[]"></td>
+                <td><input type="date" name="ProjectCompletionDate[]"></td>
+                <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+        </table>
+        <div><button type="button" onclick="addProjectRecord()">add</button></div>
+        <br>
+        <div><label>Current Projects</label></div>
+        <div><p>The Contractor is required to provide details of all current projects undertaken by the company. The list shall be expanded, where necessary.</p></div>
+        <div>
+            <table id="CurrentProjTable">
                 <tr>
                     <th>No.</th>
                     <th>Project Title / Description</th>
@@ -1210,226 +1062,23 @@ The Contractor is required to complete the form by listing all plant and machine
                     <th>Project Value</th>
                     <th>Commencement Date</th>
                     <th>Completion Date</th>
-                    <th>Action</th>
+                    <th>Progress of the Works (%)</th>
                 </tr>
-            </thead>
-
-            <tbody>
-                <?php while ($row = $ProjectRecordTable->fetch_assoc()): ?>
-                <tr data-id="<?= $row['projectRecordNo'] ?>">
-                    <td>
-                        <input type="number"
-                               data-field="projectRecordNo"
-                               class="form-control"
-                               min="1"
-                               value="<?= htmlspecialchars($row['projectRecordNo']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="projectTitle"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectTitle']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="projectNature"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectNature']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="location"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['location']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="clientName"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['clientName']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                               data-field="projectValue"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['projectValue']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="date"
-                               data-field="commencement"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['commencement']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <input type="date"
-                               data-field="completionDate"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['completionDate']) ?>"
-                               readonly>
-                    </td>
-
-                    <td>
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                onclick="editTableRow(this,'ProjectTrackRecord','projectRecordNo')">
-                            Edit
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                onclick="deleteEditRow(this,'ProjectTrackRecord','projectRecordNo')">
-                            Delete
-                        </button>
-                    </td>
+                <tr>
+                    <td><input min="1" type="number" name="CurrentProjectNo[]"></td>
+                    <td><input type="text" name="CurrentProjTitle[]"></td>
+                    <td><input type="text" name="CurrentProjNature[]"></td>
+                    <td><input type="text" name="CurrentProjLocation[]"></td>
+                    <td><input type="text" name="CurrentProjName[]"></td>
+                    <td><input type="text" name="CurrentProjValue[]"></td>
+                    <td><input type="date" name="CurrentProjStartDate[]"></td>
+                    <td><input type="date" name="CurrentProjEndDate[]"></td>
+                    <td><input min="1" max="100" type="number" name="CurrentProjProgress[]"></td>
+                    <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
                 </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-
-        <div>
-            <button type="button"
-                    onclick='addEditShareholders("ProjectTrackRecord","ProjectRecordTable")'>
-                Add
-            </button>
-        </div>
-
-        <br>
-        <div><label>Current Projects</label></div>
-        <div><p>The Contractor is required to provide details of all current projects undertaken by the company. The list shall be expanded, where necessary.</p></div>
-        <div>
-            <table id="CurrentProjTable" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Project Title / Description</th>
-                        <th>Project Nature</th>
-                        <th>Location of the Project (Negeri / Daerah)</th>
-                        <th>Client Name</th>
-                        <th>Project Value</th>
-                        <th>Commencement Date</th>
-                        <th>Completion Date</th>
-                        <th>Progress of the Works (%)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <?php while ($row = $CurrentProjTable->fetch_assoc()): ?>
-                    <tr data-id="<?= $row['CurrentprojectNo'] ?>">
-                        <td>
-                            <input type="number"
-                                   data-field="CurrentprojectNo"
-                                   class="form-control"
-                                   min="1"
-                                   value="<?= htmlspecialchars($row['CurrentprojectNo']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   data-field="projectTitle"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectTitle']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   data-field="projectNature"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectNature']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   data-field="location"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['location']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   data-field="clientName"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['clientName']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   data-field="projectValue"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['projectValue']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="date"
-                                   data-field="commencement"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['commencement']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="date"
-                                   data-field="completionDate"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($row['completionDate']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <input type="number"
-                                   data-field="progressOfTheWork"
-                                   class="form-control"
-                                   min="1"
-                                   max="100"
-                                   value="<?= htmlspecialchars($row['progressOfTheWork']) ?>"
-                                   readonly>
-                        </td>
-
-                        <td>
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm"
-                                    onclick="editTableRow(this,'CurrentProject','CurrentprojectNo')">
-                                Edit
-                            </button>
-
-                            <button type="button"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="deleteEditRow(this,'CurrentProject','CurrentprojectNo')">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                </tbody>
             </table>
-
-            <div>
-                <button type="button"
-                        onclick='addEditShareholders("CurrentProject","CurrentProjTable")'>
-                    Add
-                </button>
-            </div>
-
+        </div>
+        <div><button type="button" onclick="addCurrentProjectRecord()">add</button></div>
         </div></div></div>
         
         <div class="accordion-item">
@@ -1447,7 +1096,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="PrimaryTelephone">Telephone Nuumber</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
+            <label for="PrimaryTelephone">Telephone Number</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="PrimaryEmail">Email</label><input type="Email" id="PrimaryEmail" name="PrimaryEmail" required>
@@ -1465,7 +1114,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="SecondaryTelephone">Telephone Nuumber</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
+            <label for="SecondaryTelephone">Telephone Number</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="SecondaryEmail">Email</label><input type="Email" id="SecondaryEmail" name="SecondaryEmail" required>

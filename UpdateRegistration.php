@@ -20,7 +20,7 @@ $table  = $_POST['Table'];
 $dataType  = $_POST['dataType'];
 
 //table data
-$rowId = $_POST['rowId'] ?? '';
+$rowId = $_POST['rowId'];
 
 /* ✅ ALLOWED TABLES */
 $AllowedTables = [

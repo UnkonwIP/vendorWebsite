@@ -4,7 +4,7 @@ include "database.php";
 
 // Protect admin page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: index.php");
+    header("Location: login.php");
     exit();
 }
 
@@ -43,18 +43,6 @@ $keyword = $_GET['keyword'] ?? '';
         .add-btn:hover {
             background-color: #0056b3;
         }
-        .clear-btn {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .clear-btn:hover {
-            background-color: #a71d2a;
-        }
         table {
             border-collapse: collapse;
             margin-bottom: 40px;
@@ -80,9 +68,6 @@ $keyword = $_GET['keyword'] ?? '';
 <h1>Admin Panel</h1>
 <div class="top-right">
     <a href="create_vendor_account.php" class="add-btn">+ Add Account</a>
-    <form method="post" action="ClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database? \nThis action cannot be undone.');">
-        <button type="submit" name="clear_database" class="clear-btn">Clear Database</button>
-    </form>
 </div>
 <p>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></p>
 <a href="logout.php">Logout</a>

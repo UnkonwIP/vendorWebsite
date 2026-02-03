@@ -216,9 +216,48 @@ function addEditShareholders(tableName, formName) {
         { name: "yearsInPosition", type: "number", min: 0, max: 99 },
         { name: "yearsInRelatedField", type: "number", min: 0, max: 99 }
     ];
-}
-
-    
+    } else if (tableName === "Bank") {
+        fields = [
+            { name: "BankName", type: "text" },
+            { name: "BankAddress", type: "text" },
+            { name: "SWIFTCode", type: "text" }
+        ];
+    } else if (tableName === "Staff") {
+        fields = [
+            { name: "staffNO", type: "number", min: 1 },
+            { name: "name", type: "text" },
+            { name: "designation", type: "text" },
+            { name: "qualification", type: "text" },
+            { name: "employmentStatus", type: "text" },
+            { name: "skills", type: "text" },
+            { name: "ReleventCertification", type: "text" },
+            { name: "yearsOfExperience", type: "number", min: 1 }
+        ];
+        
+    } else if (tableName === "ProjectTrackRecord") {
+        fields = [
+            { name: "projectRecordNo", type: "number", min: 1 },
+            { name: "projectTitle", type: "text" },
+            { name: "projectNature", type: "text" },
+            { name: "location", type: "text" },
+            { name: "clientName", type: "text" },
+            { name: "projectValue", type: "text" },
+            { name: "commencement", type: "date" },
+            { name: "completionDate", type: "date" }
+        ];
+    } else if (tableName === "CurrentProject") {
+        fields = [
+            { name: "CurrentprojectNo", type: "number", min: 1 },
+            { name: "CurrentProjTitle", type: "text" },
+            { name: "CurrentProjNature", type: "text" },
+            { name: "CurrentProjLocation", type: "text" },
+            { name: "CurrentProjName", type: "text" },
+            { name: "CurrentProjValue", type: "text" },
+            { name: "CurrentProjStartDate", type: "date" },
+            { name: "CurrentProjEndDate", type: "date" },
+            { name: "CurrentProjProgress", type: "number", min: 1, max: 100 }
+        ];
+    }
     
     fields.forEach(f => {
         const cell = row.insertCell();

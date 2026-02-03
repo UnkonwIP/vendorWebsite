@@ -11,30 +11,22 @@ $table = $_POST['Table'];
 
 if ($table === 'Shareholders'){
     $sql = "
-    INSERT INTO shareholders
+    INSERT INTO Shareholders
     (ShareHolderID, NewCompanyRegistration, time, nationality, name, address, share)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";
 
     $stmt = $conn->prepare($sql);
-    // assign to variables because bind_param requires variables (passed by reference)
-    $shareHolderID = isset($_POST['ShareHolderID']) ? (int)$_POST['ShareHolderID'] : 0;
-    $newCompanyRegistration = isset($_POST['NewCompanyRegistration']) ? (int)$_POST['NewCompanyRegistration'] : 0;
-    $time = $_POST['time'] ?? '';
-    $nationality = $_POST['nationality'] ?? '';
-    $name = $_POST['name'] ?? '';
-    $address = $_POST['address'] ?? '';
-    $share = isset($_POST['share']) ? (float)$_POST['share'] : 0.0;
 
     $stmt->bind_param(
         "iissssd",
-        $shareHolderID,
-        $newCompanyRegistration,
-        $time,
-        $nationality,
-        $name,
-        $address,
-        $share
+        $_POST['ShareHolderID'],
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['nationality'],
+        $_POST['name'],
+        $_POST['address'],
+        $_POST['share']
     );
 
     if ($stmt->execute()) {
@@ -56,23 +48,15 @@ if ($table === 'Shareholders'){
     ";
 
     $stmt = $conn->prepare($sql);
-    $newCompanyRegistration = isset($_POST['NewCompanyRegistration']) ? (int)$_POST['NewCompanyRegistration'] : 0;
-    $time = $_POST['time'] ?? '';
-    $nationality = $_POST['nationality'] ?? '';
-    $name = $_POST['name'] ?? '';
-    $position = $_POST['position'] ?? '';
-    $appoitmentDate = $_POST['appoitmentDate'] ?? '';
-    $DOB = $_POST['DOB'] ?? '';
-
     $stmt->bind_param(
         "issssss",
-        $newCompanyRegistration,
-        $time,
-        $nationality,
-        $name,
-        $position,
-        $appoitmentDate,
-        $DOB
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['nationality'],
+        $_POST['name'],
+        $_POST['position'],
+        $_POST['appoitmentDate'],
+        $_POST['DOB']
     );
 
     if ($stmt->execute()) {
@@ -93,23 +77,15 @@ if ($table === 'Shareholders'){
     ";
 
     $stmt = $conn->prepare($sql);
-    $newCompanyRegistration = isset($_POST['NewCompanyRegistration']) ? (int)$_POST['NewCompanyRegistration'] : 0;
-    $time = $_POST['time'] ?? '';
-    $nationality = $_POST['nationality'] ?? '';
-    $name = $_POST['name'] ?? '';
-    $position = $_POST['position'] ?? '';
-    $yearsInPosition = isset($_POST['yearsInPosition']) ? (int)$_POST['yearsInPosition'] : 0;
-    $yearsInRelatedField = isset($_POST['yearsInRelatedField']) ? (int)$_POST['yearsInRelatedField'] : 0;
-
     $stmt->bind_param(
         "issssii",
-        $newCompanyRegistration,
-        $time,
-        $nationality,
-        $name,
-        $position,
-        $yearsInPosition,
-        $yearsInRelatedField
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['nationality'],
+        $_POST['name'],
+        $_POST['position'],
+        $_POST['yearsInPosition'],
+        $_POST['yearsInRelatedField']
     );
 
     if ($stmt->execute()) {
@@ -122,4 +98,133 @@ if ($table === 'Shareholders'){
             "error" => $stmt->error
         ]);
     }
+} else if($table === 'Bank'){
+    $sql = "
+    INSERT INTO bank
+    (NewCompanyRegistration, time, BankID, BankName, BankAddress, SWIFTCode)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "isisss",
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['BankID'],
+        $_POST['BankName'],
+        $_POST['BankAddress'],
+        $_POST['SWIFTCode']
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode([
+            "success" => true,
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "error" => $stmt->error
+        ]);
+    }
+} else if($table === 'Staff'){
+    $sql = "
+    INSERT INTO staff
+    (staffNO, NewCompanyRegistration, time, name, designation, qualification, yearsOfExperience, employmentStatus, skills, ReleventCertification)
+    VALUES (?,?,?,?,?,?,?,?,?,?)
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "iissssisss",
+        $_POST['staffNO'],
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['name'],
+        $_POST['designation'],
+        $_POST['qualification'],
+        $_POST['yearsOfExperience'],
+        $_POST['employmentStatus'],
+        $_POST['skills'],
+        $_POST['ReleventCertification']
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode([
+            "success" => true,
+            "id" => $_POST['staffNO']
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "error" => $stmt->error
+        ]);
+    }
+} else if($table === 'ProjectTrackRecord'){
+    $sql = "
+    INSERT INTO ProjectTrackRecord
+    (projectRecordNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate)
+    VALUES (?,?,?,?,?,?,?,?,?,?)
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "iisssssdss",
+        $_POST['projectRecordNo'],
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['projectTitle'],
+        $_POST['projectNature'],
+        $_POST['location'],
+        $_POST['clientName'],
+        $_POST['projectValue'],
+        $_POST['commencement'],
+        $_POST['completionDate']
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode([
+            "success" => true,
+            "id" => $_POST['projectRecordNo']
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "error" => $stmt->error
+        ]);
+    }
+} else if($table === 'CurrentProject'){
+    $sql = "
+    INSERT INTO CurrentProject
+    (CurrentprojectNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate,progressOfTheWork)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "iisssssdssi",
+        $_POST['CurrentprojectNo'],
+        $_POST['NewCompanyRegistration'],
+        $_POST['time'],
+        $_POST['projectTitle'],
+        $_POST['projectNature'],
+        $_POST['location'],
+        $_POST['clientName'],
+        $_POST['projectValue'],
+        $_POST['commencement'],
+        $_POST['completionDate'],
+        $_POST['progressOfTheWork']
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode([
+            "success" => true,
+            "id" => $_POST['CurrentprojectNo']
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "error" => $stmt->error
+        ]);
+    }
 }
+

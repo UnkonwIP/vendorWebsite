@@ -27,10 +27,8 @@ function addShareholders(){
     const Percentcell = newShareholderRow.insertCell();
     const Percentinput = document.createElement("input");
     Percentinput.type = "number";
-    Percentinput.name = "ShareholderPercent[]";
-    Percentinput.step = "0.01";
-    Percentinput.min = "0";
-    Percentinput.max = "100";
+    Percentinput.name = "shareholderID[]";
+    Percentinput.step = "0.1";
     Percentcell.appendChild(Percentinput);
     
     const deleteCell = newShareholderRow.insertCell();
@@ -402,7 +400,7 @@ function addCurrentProjectRecord() {
 
     const fields = [
         "CurrentProjTitle[]",
-        "CurrentProjNature[]",
+        "CurrentPorjNature[]",
         "CurrentProjLocation[]",
         "CurrentProjName[]",
         "CurrentProjValue[]",
@@ -453,34 +451,6 @@ function addCurrentProjectRecord() {
 function deleteRow(button) {
     const row = button.closest("tr");
     row.remove();
-}
-
-function validateShareholderTotal() {
-    const rows = document.querySelectorAll("#shareholderTable tr");
-    let totalShare = 0;
-    let hasData = false;
-
-    // Skip header row (row 0), start from row 1
-    for (let i = 1; i < rows.length; i++) {
-        const inputs = rows[i].querySelectorAll("input");
-        // The shareholder percent input is the 5th input (index 4)
-        if (inputs.length > 4) {
-            const shareInput = inputs[4]; // ShareholderPercent
-            if (shareInput && shareInput.value) {
-                totalShare += parseFloat(shareInput.value) || 0;
-                hasData = true;
-            }
-        }
-    }
-
-    // If there are shareholders, check if they sum to 100%
-    if (hasData) {
-        if (Math.abs(totalShare - 100) > 0.01) {
-            alert(`Shareholder percentages must sum to exactly 100%. Current total: ${totalShare.toFixed(2)}%`);
-            return false;
-        }
-    }
-    return true;
 }
 
 function submitTable() {

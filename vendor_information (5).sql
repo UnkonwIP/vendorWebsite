@@ -316,7 +316,7 @@ CREATE TABLE `registrationform` (
   `name` varchar(20) DEFAULT NULL,
   `designation` varchar(20) DEFAULT NULL,
   `DateOfVerification` date DEFAULT NULL,
-  `AuditorCompayName` varchar(20) DEFAULT NULL,
+  `AuditorCompanyName` varchar(20) DEFAULT NULL,
   `AuditorCompanyAddress` varchar(20) DEFAULT NULL,
   `AuditorName` varchar(20) DEFAULT NULL,
   `AuditorEmail` varchar(100) DEFAULT NULL,
@@ -335,7 +335,7 @@ CREATE TABLE `registrationform` (
 -- Dumping data for table `registrationform`
 --
 
-INSERT INTO `registrationform` (`NewCompanyRegistration`, `time`, `companyName`, `taxRegistrationNumber`, `faxNo`, `companyOrganisation`, `OldCompanyRegistration`, `otherNames`, `telephoneNumber`, `email`, `EmailAddress`, `website`, `branch`, `authorisedCapital`, `paidUpCapital`, `CountryOfIncorporation`, `DateOfIncorporation`, `NatureAndLineOfBusiness`, `registeredAddress`, `correspondenceAddress`, `TypeOfOrganisation`, `parentCompany`, `parentCompanyCountry`, `ultimateParentCompany`, `ultimateParentCompanyCountry`, `bankruptHistory`, `discription`, `CIDB`, `CIDBValidationTill`, `trade`, `ValueOfSimilarProject`, `ValueOfCurrentProject`, `name`, `designation`, `DateOfVerification`, `AuditorCompayName`, `AuditorCompanyAddress`, `AuditorName`, `AuditorEmail`, `AuditorPhone`, `AdvocatesCompanyName`, `AdvocatesCompanyAddress`, `AdvocatesName`, `AdvocatesEmail`, `AdvocatesPhone`, `AuditorYearOfService`, `AdvocatesYearOfService`, `Status`) VALUES
+INSERT INTO `registrationform` (`NewCompanyRegistration`, `time`, `companyName`, `taxRegistrationNumber`, `faxNo`, `companyOrganisation`, `OldCompanyRegistration`, `otherNames`, `telephoneNumber`, `email`, `EmailAddress`, `website`, `branch`, `authorisedCapital`, `paidUpCapital`, `CountryOfIncorporation`, `DateOfIncorporation`, `NatureAndLineOfBusiness`, `registeredAddress`, `correspondenceAddress`, `TypeOfOrganisation`, `parentCompany`, `parentCompanyCountry`, `ultimateParentCompany`, `ultimateParentCompanyCountry`, `bankruptHistory`, `discription`, `CIDB`, `CIDBValidationTill`, `trade`, `ValueOfSimilarProject`, `ValueOfCurrentProject`, `name`, `designation`, `DateOfVerification`, `AuditorCompanyName`, `AuditorCompanyAddress`, `AuditorName`, `AuditorEmail`, `AuditorPhone`, `AdvocatesCompanyName`, `AdvocatesCompanyAddress`, `AdvocatesName`, `AdvocatesEmail`, `AdvocatesPhone`, `AuditorYearOfService`, `AdvocatesYearOfService`, `Status`) VALUES
 (1, '2026-01-10', 'Test', 1, 1, '5 - 10', 1, 'Test', 1, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 1.00, 1.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Sdn Bhd', 'Test', 'Test', 'Test', 'Test', 'no', 'Test', 'Test', '2024-01-01', 'O&M', 1.00, 2.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 1, 1, 'pending');
 
 -- --------------------------------------------------------

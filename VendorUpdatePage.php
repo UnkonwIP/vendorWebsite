@@ -3,89 +3,70 @@
     <title>Edit Registration</title>
 </head>
 <body>
-<?php
-//connect to the database
-    $conn = new mysqli('localhost', 'root', '','vendor_information');
+    <?php
+    // Connect to the database
+    $conn = new mysqli('localhost', 'root', '', 'vendor_information');
 
-
-    //search data
+    // Search data
     $newCRN = $_POST['NewRegistration'] ?? '';
     $selectedValue = $_POST['AvailableTimes'] ?? '';
 
     $stmt = $conn->prepare("SELECT * FROM registrationform WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $RegistrationTable = $stmt->get_result();
-    
-    if($RegistrationTable-> num_rows === 0){
+    if ($RegistrationTable->num_rows === 0) {
         dis("No data found");
     }
-    $RegistrationRow = $RegistrationTable -> fetch_assoc();
-    
-    
-    //shareholders
+    $RegistrationRow = $RegistrationTable->fetch_assoc();
+
+    // Shareholders
     $stmt = $conn->prepare("SELECT * FROM shareHolders WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $ShareHoldersTable = $stmt->get_result();
-    
-    //Directors
+
+    // Directors
     $stmt = $conn->prepare("SELECT * FROM directorandsecretary WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $DirectorsTable = $stmt->get_result();
-    
-    //Management
+
+    // Management
     $stmt = $conn->prepare("SELECT * FROM management WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $ManagementTable = $stmt->get_result();
-    
-    //Bank
+
+    // Bank
     $stmt = $conn->prepare("SELECT * FROM bank WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $BankTable = $stmt->get_result();
-    
-    //StaffTeamTable
+
+    // StaffTeamTable
     $stmt = $conn->prepare("SELECT * FROM staff WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $StaffTeamTable = $stmt->get_result();
-    
-    //project track record
+
+    // Project track record
     $stmt = $conn->prepare("SELECT * FROM projectTrackRecord WHERE NewCompanyRegistration = ? AND time = ?");
-
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $ProjectRecordTable = $stmt->get_result();
-    
-    //current project table
-    $stmt = $conn->prepare("SELECT * FROM currentproject WHERE NewCompanyRegistration = ? AND time = ?");
 
-    $stmt->bind_param("ss", $newCRN,$selectedValue);
+    // Current project table
+    $stmt = $conn->prepare("SELECT * FROM currentproject WHERE NewCompanyRegistration = ? AND time = ?");
+    $stmt->bind_param("ss", $newCRN, $selectedValue);
     $stmt->execute();
-    
     $CurrentProjTable = $stmt->get_result();
-?>
+    ?>
     <input type="hidden" id="NewCompanyRegistration"
-       value="<?= htmlspecialchars($newCRN) ?>">
+    value="<?= htmlspecialchars($newCRN) ?>">
 
     <input type="hidden" id="time"
-           value="<?= htmlspecialchars($selectedValue) ?>">
+        value="<?= htmlspecialchars($selectedValue) ?>">
 
 <!--    css-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -110,12 +91,12 @@
 
                 <div class="input-group">
                     <input type="text"
-                           name="CompanyName"
-                           class="form-control"
-                           id="CompanyName"
-                           data-field="companyName"
-                           value="<?php echo htmlspecialchars($RegistrationRow['companyName']); ?>"
-                           readonly>
+                        name="CompanyName"
+                        class="form-control"
+                        id="CompanyName"
+                        data-field="companyName"
+                        value="<?php echo htmlspecialchars($RegistrationRow['companyName']); ?>"
+                        readonly>
 
                     <button type="button"
                             class="btn btn-outline-primary"
@@ -517,26 +498,26 @@
         <tr data-id="<?= $row['DirectorID'] ?>">
             <td>
                 <input type="text"
-                       data-field="name"
-                       class="form-control"
-                       value="<?= htmlspecialchars($row['name']) ?>"
-                       readonly>
+                    data-field="name"
+                    class="form-control"
+                    value="<?= htmlspecialchars($row['name']) ?>"
+                    readonly>
             </td>
 
             <td>
                 <input type="text"
-                       data-field="nationality"
-                       class="form-control"
-                       value="<?= htmlspecialchars($row['nationality']) ?>"
-                       readonly>
+                    data-field="nationality"
+                    class="form-control"
+                    value="<?= htmlspecialchars($row['nationality']) ?>"
+                    readonly>
             </td>
 
             <td>
                 <input type="text"
-                       data-field="position"
-                       class="form-control"
-                       value="<?= htmlspecialchars($row['position']) ?>"
-                       readonly>
+                    data-field="position"
+                    class="form-control"
+                    value="<?= htmlspecialchars($row['position']) ?>"
+                    readonly>
             </td>
 
             <td>
@@ -608,46 +589,46 @@
                 <tr data-id="<?= $row['ManagementID'] ?>">
                     <td>
                         <input type="text"
-                               data-field="name"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['name']) ?>"
-                               readonly>
+                                data-field="name"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['name']) ?>"
+                                readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="nationality"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['nationality']) ?>"
-                               readonly>
+                                data-field="nationality"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['nationality']) ?>"
+                                readonly>
                     </td>
 
                     <td>
                         <input type="text"
-                               data-field="position"
-                               class="form-control"
-                               value="<?= htmlspecialchars($row['position']) ?>"
-                               readonly>
+                                data-field="position"
+                                class="form-control"
+                                value="<?= htmlspecialchars($row['position']) ?>"
+                                readonly>
                     </td>
 
                     <td>
                         <input type="number"
-                               data-field="yearsInPosition"
-                               class="form-control"
-                               min="0"
-                               max="99"
-                               value="<?= htmlspecialchars($row['yearsInPosition']) ?>"
-                               readonly>
+                                data-field="yearsInPosition"
+                                class="form-control"
+                                min="0"
+                                max="99"
+                                value="<?= htmlspecialchars($row['yearsInPosition']) ?>"
+                                readonly>
                     </td>
 
                     <td>
                         <input type="number"
-                               data-field="yearsInRelatedField"
-                               class="form-control"
-                               min="0"
-                               max="99"
-                               value="<?= htmlspecialchars($row['yearsInRelatedField']) ?>"
-                               readonly>
+                                data-field="yearsInRelatedField"
+                                class="form-control"
+                                min="0"
+                                max="99"
+                                value="<?= htmlspecialchars($row['yearsInRelatedField']) ?>"
+                                readonly>
                     </td>
 
                     <td>
@@ -686,13 +667,15 @@
         <div><label for="bankruptcy">Does the Company have history of bankruptcy?</label></div>
         
         <div class="grid-row">
-            <div class="grid-row-radio" id="BankruptcyGroup" data-field="bankruptHistory">        <div><input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" required>
-        <label for="bankrupt-yes">yes</label></div>
-        
-        <div><input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()" disabled
-            <?= $RegistrationRow['bankruptHistory'] === 'no' ? 'checked' : '' ?>>       
-        <label for="bankrupt-no">no</label></div>
-
+            <div class="grid-row-radio" id="BankruptcyGroup" data-field="bankruptHistory">
+                <div>
+                    <input type="radio" name="bankruptcy" id="bankrupt-yes" value="yes" onclick="bankruptYes()" required>
+                    <label for="bankrupt-yes">yes</label>
+                </div>
+                <div>
+                    <input type="radio" name="bankruptcy" id="bankrupt-no" value="no" onclick="bankruptNO()" disabled <?= $RegistrationRow['bankruptHistory'] === 'no' ? 'checked' : '' ?>>
+                    <label for="bankrupt-no">no</label>
+                </div>
         <button type="button"
                 class="btn btn-outline-primary mt-2"
                 onclick="editRadioGroup(this, 'BankruptcyGroup', 'RegistrationForm')">
@@ -971,11 +954,11 @@
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="5M-9.9M" id="5M-9.9M">
-                    <label for="5M-9.9M">Rm5M and mroe but less than 9.9M</label>
+                    <label for="5M-9.9M">RM5M and more but less than RM9.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="1M-4.9M" id="1M-4.9M">
-                    <label for="1M-4.9M">RM1M and more but less than Rm4.9M</label>
+                    <label for="1M-4.9M">RM1M and more but less than RM4.9M</label>
                 </div>
                 <div>
                     <input type="radio" name="ValueOfSimilarProject" value="<1M" id="<1M">
@@ -1444,7 +1427,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="PrimaryTelephone">Telephone Nuumber</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
+            <label for="PrimaryTelephone">Telephone Number</label><input type="text" id="PrimaryTelephone" name="PrimaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="PrimaryEmail">Email</label><input type="Email" id="PrimaryEmail" name="PrimaryEmail" required>
@@ -1462,7 +1445,7 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <div class="grid-row">
             <div class="grid-column">
-            <label for="SecondaryTelephone">Telephone Nuumber</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
+            <label for="SecondaryTelephone">Telephone Number</label><input type="text" id="SecondaryTelephone" name="SecondaryTelephone" required>
             </div>
             <div class="grid-column">
             <label for="SecondaryEmail">Email</label><input type="Email" id="SecondaryEmail" name="SecondaryEmail" required>

@@ -21,7 +21,7 @@ if (isset($_GET['token'])) {
     // Validate token against database
     $stmt = $conn->prepare(
         "SELECT accountID, email FROM vendoraccount 
-         WHERE reset_token = ? AND reset_expiry > NOW() AND accountID LIKE 'PENDING_%'"
+        WHERE reset_token = ? AND reset_expiry > NOW() AND accountID LIKE 'PENDING_%'"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
@@ -41,7 +41,7 @@ $userVendorType = '';
 if ($tokenValid) {
     $stmt = $conn->prepare(
         "SELECT role, vendor_type FROM vendoraccount 
-         WHERE reset_token = ? AND reset_expiry > NOW()"
+        WHERE reset_token = ? AND reset_expiry > NOW()"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
     // Get the email from the valid token
     $stmt = $conn->prepare(
         "SELECT email FROM vendoraccount 
-         WHERE reset_token = ? AND reset_expiry > NOW()"
+        WHERE reset_token = ? AND reset_expiry > NOW()"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
@@ -94,8 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
             
             $updateStmt = $conn->prepare(
                 "UPDATE vendoraccount 
-                 SET accountID = ?, password = ?, reset_token = NULL, reset_expiry = NULL
-                 WHERE email = ? AND reset_token = ?"
+                SET accountID = ?, password = ?, reset_token = NULL, reset_expiry = NULL
+                WHERE email = ? AND reset_token = ?"
             );
             $updateStmt->bind_param("ssss", $accountID, $hashedPassword, $email, $setupToken);
             

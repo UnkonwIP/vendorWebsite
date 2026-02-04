@@ -1,3 +1,4 @@
+// VendorUpdateDate.php not used in new version
 <!DOCTYPE html>
 <html lang="en">
 <head>

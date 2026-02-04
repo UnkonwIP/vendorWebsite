@@ -172,6 +172,7 @@ function addBanks(){
     deleteCell.appendChild(deleteButton);
         
 }
+
 function addCreditFacilities() {
     const table = document.getElementById("CreditTable");
     const newCreditRow = table.insertRow(-1);
@@ -217,11 +218,11 @@ function addCreditFacilities() {
     deleteCell.appendChild(deleteButton);
 }
 
-
 function turnOnCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "block"; 
 }
+
 function turnOffCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");
     detailsDiv.style.display = "none"; 
@@ -629,4 +630,3 @@ function submitTable() {
     outputHTML += "</ul>";
     document.getElementById("output").innerHTML = outputHTML;
 }
-

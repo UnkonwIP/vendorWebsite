@@ -52,6 +52,7 @@ $AllowedTables = [
         'table' => 'currentproject',
         'fields' => ['CurrentProjectNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate','progressOfTheWork']
     ]
+];
 
 if (!isset($AllowedTables[$table])) {
     http_response_code(403);
@@ -79,8 +80,6 @@ if ($dataType === "number") {
 }
 
 $stmt->execute();
-echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
-
 echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
 
 if ($stmt->affected_rows > 0) {

@@ -9,27 +9,36 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'vendor') {
     exit();
 }
 
-// Get vendor's email from session
-$vendorEmail = $_SESSION['email'] ?? '';
+// Get vendor's company registration number from vendoraccount
+$vendorAccountID = $_SESSION['accountID'] ?? '';
+$vendorNewCompanyRegistration = '';
 
-if (empty($vendorEmail)) {
-    // header("Location: logout.php");
-    // exit();
-    echo "Error: Vendor email not found in session.";
+if (empty($vendorAccountID)) {
+    echo "Error: Vendor account ID not found in session.";
+} else {
+    $stmtAcc = $conn->prepare("SELECT NewCompanyRegistration FROM vendoraccount WHERE accountID = ?");
+    $stmtAcc->bind_param("s", $vendorAccountID);
+    $stmtAcc->execute();
+    $accResult = $stmtAcc->get_result();
+    if ($accRow = $accResult->fetch_assoc()) {
+        $vendorNewCompanyRegistration = $accRow['NewCompanyRegistration'];
+    }
 }
 
-$stmt = $conn->prepare("
-    SELECT NewCompanyRegistration, companyName AS CompanyName, time, Status AS status
-    FROM registrationform
-    WHERE EmailAddress = ?
-    ORDER BY time DESC
-");
-$stmt->bind_param("s", $vendorEmail);
-$stmt->execute();
-$formsResult = $stmt->get_result();
 $forms = [];
-while ($row = $formsResult->fetch_assoc()) {
-    $forms[] = $row;
+if (!empty($vendorNewCompanyRegistration)) {
+    $stmt = $conn->prepare("
+        SELECT NewCompanyRegistration, companyName AS CompanyName, time, Status AS status
+        FROM registrationform
+        WHERE NewCompanyRegistration = ?
+        ORDER BY time DESC
+    ");
+    $stmt->bind_param("s", $vendorNewCompanyRegistration);
+    $stmt->execute();
+    $formsResult = $stmt->get_result();
+    while ($row = $formsResult->fetch_assoc()) {
+        $forms[] = $row;
+    }
 }
 ?>
 

@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
     $role = trim($_POST['role']);
     $vendorType = trim($_POST['vendor_type']);
+    $newCompanyRegistration = isset($_POST['newcompanyregistration']) ? trim($_POST['newcompanyregistration']) : '';
 
     // Allowed roles and vendor types
     $allowedRoles = ['admin', 'vendor'];
@@ -40,6 +41,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif ($role === 'vendor' && (empty($vendorType) || !in_array($vendorType, $allowedVendorTypes))) {
         $message = "Please select a valid vendor type.";
         $messageType = "error";
+    } elseif ($role === 'vendor' && empty($newCompanyRegistration)) {
+        $message = "Company Registration Number is required for vendor accounts.";
+        $messageType = "error";
+    } elseif ($role === 'vendor' && !ctype_digit($newCompanyRegistration)) {
+        $message = "Company Registration Number must be a number.";
+        $messageType = "error";
     } else {
         // Check if email already exists
         $checkStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE email = ?");
@@ -50,6 +57,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($checkResult->num_rows > 0) {
             $message = "This email is already registered.";
             $messageType = "error";
+        }elseif ($role === 'vendor') {
+            // Check if company registration number already exists for vendor accounts
+            $checkCRStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE NewCompanyRegistration = ?");
+            $checkCRStmt->bind_param("s", $newCompanyRegistration);
+            $checkCRStmt->execute();
+            $checkCRResult = $checkCRStmt->get_result();
+
+            if ($checkCRResult->num_rows > 0) {
+                $message = "This Company Registration Number is already registered.";
+                $messageType = "error";
+            } 
         } else {
             // Generate setup token
             $setupToken = bin2hex(random_bytes(32));
@@ -60,11 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             
             // For admin accounts, vendor_type is NULL; for vendors, store the type
             $storeVendorType = ($role === 'vendor') ? $vendorType : NULL;
-            
+            $storeNewCompanyRegistration = ($role === 'vendor') ? $newCompanyRegistration : NULL;
+
             $stmt = $conn->prepare(
-                "INSERT INTO vendoraccount (accountID, email, role, vendor_type, reset_token, reset_expiry) VALUES (?, ?, ?, ?, ?, ?)"
+                "INSERT INTO vendoraccount (NewCompanyRegistration, accountID, email, role, vendor_type, reset_token, reset_expiry) VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
-            $stmt->bind_param("ssssss", $tempAccountID, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
+            $stmt->bind_param("sssssss", $storeNewCompanyRegistration, $tempAccountID, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
 
             if ($stmt->execute()) {
                 // Send setup email
@@ -258,14 +277,21 @@ function toggleVendorType() {
     const roleSelect = document.getElementById('roleSelect');
     const vendorTypeDiv = document.getElementById('vendorTypeDiv');
     const vendorTypeSelect = document.getElementById('vendorTypeSelect');
+    const companyRegDiv = document.getElementById('companyRegDiv');
+    const companyRegInput = document.getElementById('newcompanyregistration');
     
     if (roleSelect.value === 'vendor') {
         vendorTypeDiv.style.display = 'block';
         vendorTypeSelect.required = true;
+        companyRegDiv.style.display = 'block';
+        companyRegInput.required = true;
     } else {
         vendorTypeDiv.style.display = 'none';
         vendorTypeSelect.required = false;
         vendorTypeSelect.value = '';
+        companyRegDiv.style.display = 'none';
+        companyRegInput.required = false;
+        companyRegInput.value = '';
     }
 }
 
@@ -299,6 +325,13 @@ window.addEventListener('load', function() {
                 <option value="vendor">Vendor</option>
             </select>
         </div>
+        <div id="companyRegDiv" style="display:none;">
+            <div class="form-group">
+                <label>Company Registration Number</label>
+                <input type="text" name="newcompanyregistration" id="newcompanyregistration" placeholder="Enter Company Registration Number" required>
+            </div>
+        </div>
+
 
         <div id="vendorTypeDiv" style="display:none;">
             <div class="form-group">

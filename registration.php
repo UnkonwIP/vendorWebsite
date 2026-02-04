@@ -59,7 +59,21 @@
         <div class="grid-row">
             <div class="grid-column">
                 <label for="newCRN">Company Registration No (new)</label>
-                <input type="number" name="newCRN" id="newCRN" min="0" max="999999999999" required>
+                <?php
+                $autoCRN = '';
+                session_start();
+                include_once "database.php";
+                if (isset($_SESSION['accountID'])) {
+                    $stmt = $conn->prepare("SELECT NewCompanyRegistration FROM vendoraccount WHERE accountID = ?");
+                    $stmt->bind_param("s", $_SESSION['accountID']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if ($row = $result->fetch_assoc()) {
+                        $autoCRN = $row['NewCompanyRegistration'];
+                    }
+                }
+                ?>
+                <input type="number" name="newCRN" id="newCRN" min="0" max="999999999999" value="<?php echo htmlspecialchars($autoCRN); ?>" readonly>
             </div>
             <div class="grid-column">
                 <label for="FaxNo">Fax No</label>

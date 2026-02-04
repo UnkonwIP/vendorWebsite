@@ -396,6 +396,7 @@ INSERT INTO `staff` (`staffNO`, `NewCompanyRegistration`, `time`, `name`, `desig
 --
 
 CREATE TABLE `vendoraccount` (
+  `NewCompanyRegistration` int(20)  NULL,
   `accountID` varchar(15) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
@@ -409,8 +410,8 @@ CREATE TABLE `vendoraccount` (
 -- Dumping data for table `vendoraccount`
 --
 
-INSERT INTO `vendoraccount` (`accountID`, `password`, `role`) VALUES
-('admin1', '$2y$10$TjVy4x.c0bKmmBHwSIzuW.0A2bLopqW5vhEbBhSnuJH4LclSt76Ye', 'admin');
+INSERT INTO `vendoraccount` (`NewCompanyRegistration`, `accountID`, `password`, `role`) VALUES
+(NULL, 'admin1', '$2y$10$TjVy4x.c0bKmmBHwSIzuW.0A2bLopqW5vhEbBhSnuJH4LclSt76Ye', 'admin');
 
 --
 -- Indexes for dumped tables
@@ -509,7 +510,7 @@ ALTER TABLE `staff`
 -- Indexes for table `vendoraccount`
 --
 ALTER TABLE `vendoraccount`
-  ADD PRIMARY KEY (`accountID`);
+  ADD PRIMARY KEY (`NewCompanyRegistration`, `accountID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -570,8 +571,10 @@ ALTER TABLE `staff`
   MODIFY `staffNO` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- Constraints for dumped tables
+-- Constraints for table `vendoraccount`
 --
+ALTER TABLE `vendoraccount`
+  ADD CONSTRAINT `vendoraccount_ibfk_1` FOREIGN KEY (`NewCompanyRegistration`) REFERENCES `registrationform` (`NewCompanyRegistration`);
 
 --
 -- Constraints for table `shareholders`

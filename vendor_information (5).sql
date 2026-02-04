@@ -41,7 +41,13 @@ CREATE TABLE `bank` (
 --
 
 INSERT INTO `bank` (`NewCompanyRegistration`, `time`, `BankID`, `BankName`, `BankAddress`, `SWIFTCode`) VALUES
-(1, '2026-01-10', 33, 'Test', 'Test', 'Test');
+(91, '2026-01-31', 1, 'Test', 'Test', 'Test'),
+(95, '2026-01-31', 2, 'Test', 'Test', 'Test'),
+(65, '2026-01-31', 3, 'Test', 'Test', 'Test'),
+(53, '2026-02-01', 4, 'Test', 'Test', 'Test'),
+(81, '2026-02-01', 5, 'Test', 'Test', 'Test'),
+(91, '2026-02-03', 6, 'Test', 'Test', 'Test'),
+(91, '2026-02-04', 7, 'Test', 'Test', 'Test');
 
 -- --------------------------------------------------------
 
@@ -65,8 +71,20 @@ CREATE TABLE `contacts` (
 --
 
 INSERT INTO `contacts` (`contactID`, `NewCompanyRegistration`, `time`, `ContactPersonName`, `department`, `telephone`, `email`, `contactStatus`) VALUES
-(37, 1, '2026-01-10', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
-(38, 1, '2026-01-10', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary');
+(1, 91, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(2, 91, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(3, 95, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(4, 95, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(5, 65, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(6, 65, '2026-01-31', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(7, 53, '2026-02-01', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(8, 53, '2026-02-01', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(9, 81, '2026-02-01', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(10, 81, '2026-02-01', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(11, 91, '2026-02-03', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(12, 91, '2026-02-03', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary'),
+(13, 91, '2026-02-04', 'Test', 'Test', 0, 'test@gmail.com', 'Primary'),
+(14, 91, '2026-02-04', 'Test', 'Test', 0, 'test@gmail.com', 'Secondary');
 
 -- --------------------------------------------------------
 
@@ -91,7 +109,13 @@ CREATE TABLE `creditfacilities` (
 --
 
 INSERT INTO `creditfacilities` (`facilityID`, `NewCompanyRegistration`, `time`, `typeOfCreditFaciliites`, `financialInstitution`, `totalAmount`, `expirydate`, `unutilesedAmountCurrentlyAvailable`, `asAtDate`) VALUES
-(19, 1, '2026-01-10', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01');
+(1, 91, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(2, 95, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(3, 65, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(4, 53, '2026-02-01', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(5, 81, '2026-02-01', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(6, 91, '2026-02-03', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
+(7, 91, '2026-02-04', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01');
 
 -- --------------------------------------------------------
 
@@ -118,7 +142,13 @@ CREATE TABLE `currentproject` (
 --
 
 INSERT INTO `currentproject` (`CurrentprojectNo`, `NewCompanyRegistration`, `time`, `projectTitle`, `projectNature`, `location`, `clientName`, `projectValue`, `commencement`, `completionDate`, `progressOfTheWork`) VALUES
-(1, 1, '2026-01-10', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 1.00);
+(48, 65, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 75.00),
+(63, 81, '2026-02-01', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 76.00),
+(70, 53, '2026-02-01', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 92.00),
+(73, 95, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 58.00),
+(80, 91, '2026-02-03', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 18.00),
+(84, 91, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 53.00),
+(84, 91, '2026-02-04', 'Test', NULL, 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01', 82.00);
 
 -- --------------------------------------------------------
 
@@ -142,8 +172,13 @@ CREATE TABLE `directorandsecretary` (
 --
 
 INSERT INTO `directorandsecretary` (`DirectorID`, `NewCompanyRegistration`, `time`, `nationality`, `name`, `position`, `appoitmentDate`, `DOB`) VALUES
-(1, 1, '2026-01-10', 'Test', 'Test', 'something', '2024-01-01', '2024-01-01'),
-(2, 1, '2026-01-10', 'asdf', 'asdf', 'asdf', '2026-01-12', '2026-01-06');
+(1, 91, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(2, 95, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(3, 65, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(4, 53, '2026-02-01', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(5, 81, '2026-02-01', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(6, 91, '2026-02-03', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
+(7, 91, '2026-02-04', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01');
 
 -- --------------------------------------------------------
 
@@ -169,11 +204,53 @@ CREATE TABLE `equipment` (
 
 INSERT INTO `equipment` (`equipmentID`, `NewCompanyRegistration`, `time`, `quantity`, `brand`, `rating`, `ownership`, `yearsOfManufacture`, `registrationNo`) VALUES
 (1, 1, '2026-01-10', 0, 'Test', 1.0, 'Test', '2024-01-01', 2024),
+(1, 53, '2026-02-01', 0, 'Test', 5.0, 'Test', '2024-01-01', 2024),
+(1, 65, '2026-01-31', 0, 'Test', 3.0, 'Test', '2024-01-01', 2024),
+(1, 81, '2026-02-01', 0, 'Test', 1.0, 'Test', '2024-01-01', 2024),
+(1, 91, '2026-01-31', 0, 'Test', 1.0, 'Test', '2024-01-01', 2024),
+(1, 91, '2026-02-03', 0, 'Test', 9.9, 'Test', '2024-01-01', 2024),
+(1, 91, '2026-02-04', 0, 'Test', 9.0, 'Test', '2024-01-01', 2024),
+(1, 95, '2026-01-31', 0, 'Test', 1.0, 'Test', '2024-01-01', 2024),
 (2, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 53, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 65, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 81, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 91, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 91, '2026-02-03', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 91, '2026-02-04', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(2, 95, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
 (3, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 53, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 65, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 81, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 91, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 91, '2026-02-03', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 91, '2026-02-04', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(3, 95, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
 (4, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 53, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 65, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 81, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 91, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 91, '2026-02-03', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 91, '2026-02-04', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(4, 95, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
 (5, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
-(6, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024);
+(5, 53, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 65, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 81, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 91, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 91, '2026-02-03', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 91, '2026-02-04', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(5, 95, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 1, '2026-01-10', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 53, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 65, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 81, '2026-02-01', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 91, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 91, '2026-02-03', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 91, '2026-02-04', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024),
+(6, 95, '2026-01-31', 0, 'Test', 0.0, 'Test', '2024-01-01', 2024);
 
 -- --------------------------------------------------------
 
@@ -220,8 +297,12 @@ CREATE TABLE `management` (
 --
 
 INSERT INTO `management` (`ManagementID`, `NewCompanyRegistration`, `time`, `nationality`, `name`, `position`, `yearsInPosition`, `yearsInRelatedField`) VALUES
-(1, 1, '2026-01-10', 'Test', 'Test', 'Test', 1, 2),
-(2, 1, '2026-01-10', 'test', 'test', 'test', 2, 3);
+(1, 91, '2026-01-31', 'Test', 'Test', 'Test', 16, 98),
+(2, 95, '2026-01-31', 'Test', 'Test', 'Test', 64, 8),
+(3, 65, '2026-01-31', 'Test', 'Test', 'Test', 55, 48),
+(4, 53, '2026-02-01', 'Test', 'Test', 'Test', 37, 25),
+(5, 81, '2026-02-01', 'Test', 'Test', 'Test', 34, 17),
+(6, 91, '2026-02-03', 'Test', 'Test', 'Test', 89, 22);
 
 -- --------------------------------------------------------
 
@@ -244,9 +325,27 @@ CREATE TABLE `nettworth` (
 --
 
 INSERT INTO `nettworth` (`NewCompanyRegistration`, `time`, `YearOf`, `TotalLiabilities`, `TotalAssets`, `NetWorth`, `WorkingCapital`) VALUES
-(1, '2026-01-10', 2023, 0.00, 0.00, 0.00, 0.00),
-(1, '2026-01-10', 2024, 0.00, 0.00, 0.00, 0.00),
-(1, '2026-01-10', 2025, 0.00, 0.00, 0.00, 0.00);
+(53, '2026-02-01', 2023, 0.00, 0.00, 0.00, 0.00),
+(53, '2026-02-01', 2024, 0.00, 0.00, 0.00, 0.00),
+(53, '2026-02-01', 2025, 0.00, 0.00, 0.00, 0.00),
+(65, '2026-01-31', 2023, 0.00, 0.00, 0.00, 0.00),
+(65, '2026-01-31', 2024, 0.00, 0.00, 0.00, 0.00),
+(65, '2026-01-31', 2025, 0.00, 0.00, 0.00, 0.00),
+(81, '2026-02-01', 2023, 0.00, 0.00, 0.00, 0.00),
+(81, '2026-02-01', 2024, 0.00, 0.00, 0.00, 0.00),
+(81, '2026-02-01', 2025, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-01-31', 2023, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-01-31', 2024, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-01-31', 2025, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-03', 2023, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-03', 2024, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-03', 2025, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-04', 2023, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-04', 2024, 0.00, 0.00, 0.00, 0.00),
+(91, '2026-02-04', 2025, 0.00, 0.00, 0.00, 0.00),
+(95, '2026-01-31', 2023, 0.00, 0.00, 0.00, 0.00),
+(95, '2026-01-31', 2024, 0.00, 0.00, 0.00, 0.00),
+(95, '2026-01-31', 2025, 0.00, 0.00, 0.00, 0.00);
 
 -- --------------------------------------------------------
 
@@ -272,7 +371,13 @@ CREATE TABLE `projecttrackrecord` (
 --
 
 INSERT INTO `projecttrackrecord` (`projectRecordNo`, `NewCompanyRegistration`, `time`, `projectTitle`, `projectNature`, `location`, `clientName`, `projectValue`, `commencement`, `completionDate`) VALUES
-(1, 1, '2026-01-10', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01');
+(14, 95, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(29, 81, '2026-02-01', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(40, 53, '2026-02-01', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(60, 91, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(76, 65, '2026-01-31', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(83, 91, '2026-02-04', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01'),
+(98, 91, '2026-02-03', 'Test', 'Test', 'Test', 'Test', 0.00, '2024-01-01', '2024-01-01');
 
 -- --------------------------------------------------------
 
@@ -336,7 +441,13 @@ CREATE TABLE `registrationform` (
 --
 
 INSERT INTO `registrationform` (`NewCompanyRegistration`, `time`, `companyName`, `taxRegistrationNumber`, `faxNo`, `companyOrganisation`, `OldCompanyRegistration`, `otherNames`, `telephoneNumber`, `email`, `EmailAddress`, `website`, `branch`, `authorisedCapital`, `paidUpCapital`, `CountryOfIncorporation`, `DateOfIncorporation`, `NatureAndLineOfBusiness`, `registeredAddress`, `correspondenceAddress`, `TypeOfOrganisation`, `parentCompany`, `parentCompanyCountry`, `ultimateParentCompany`, `ultimateParentCompanyCountry`, `bankruptHistory`, `discription`, `CIDB`, `CIDBValidationTill`, `trade`, `ValueOfSimilarProject`, `ValueOfCurrentProject`, `name`, `designation`, `DateOfVerification`, `AuditorCompanyName`, `AuditorCompanyAddress`, `AuditorName`, `AuditorEmail`, `AuditorPhone`, `AdvocatesCompanyName`, `AdvocatesCompanyAddress`, `AdvocatesName`, `AdvocatesEmail`, `AdvocatesPhone`, `AuditorYearOfService`, `AdvocatesYearOfService`, `Status`) VALUES
-(1, '2026-01-10', 'Test', 1, 1, '5 - 10', 1, 'Test', 1, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 1.00, 1.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Sdn Bhd', 'Test', 'Test', 'Test', 'Test', 'no', 'Test', 'Test', '2024-01-01', 'O&M', 1.00, 2.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 1, 1, 'pending');
+(53, '2026-02-01', 'Test', 79, 74, 'More than 15', 81, 'Test', 31, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 60.00, 95.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 40, 30, 'pending'),
+(65, '2026-01-31', 'Test', 1, 14, 'More than 15', 20, 'Test', 25, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 50.00, 86.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 38, 98, 'pending'),
+(81, '2026-02-01', 'Test', 80, 6, 'More than 15', 72, 'Test', 27, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 50.00, 13.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 97, 83, 'pending'),
+(91, '2026-01-31', 'Test', 35, 86, 'More than 15', 12, 'Test', 47, 'test@gmail.com', 'danielhozhixuan@gmail.com', 'Test', 'Test', 51.00, 24.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 57, 47, 'pending'),
+(91, '2026-02-03', 'Asia Pacific University of Technology & ', 36, 44, 'More than 15', 71, 'Test', 143682865, 'danielhozhixuan@gmail.com', 'test@gmail.com', 'Test', 'Test', 95.00, 18.00, 'Malaysia', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 8, 6, 'pending'),
+(91, '2026-02-04', 'Test', 4, 2147483647, 'More than 15', 53, 'Test', 2147483647, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 78.00, 59.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 71, 54, 'pending'),
+(95, '2026-01-31', 'Test', 35, 95, 'More than 15', 25, 'Test', 27, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 6.00, 63.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 46, 68, 'pending');
 
 -- --------------------------------------------------------
 
@@ -359,9 +470,11 @@ CREATE TABLE `shareholders` (
 --
 
 INSERT INTO `shareholders` (`ShareHolderID`, `NewCompanyRegistration`, `time`, `nationality`, `name`, `address`, `share`) VALUES
-(2, 1, '2026-01-10', 'ioup', 'iou', 'asdad', 40.00),
-(3, 1, '2026-01-10', 'asdasd', 'asdf', 'asdad', 35.00),
-(4, 1, '2026-01-10', 'asdqwe', 'qweasd', 'asdqwe', 25.00);
+(16, 95, '2026-01-31', 'Test', 'Test', 'Test', 100.00),
+(29, 81, '2026-02-01', 'Test', 'Test', 'Test', 100.00),
+(50, 91, '2026-02-03', 'Test', 'Test', 'Test', 100.00),
+(54, 65, '2026-01-31', 'Test', 'Test', 'Test', 100.00),
+(73, 53, '2026-02-01', 'Test', 'Test', 'Test', 100.00);
 
 -- --------------------------------------------------------
 
@@ -387,7 +500,13 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`staffNO`, `NewCompanyRegistration`, `time`, `name`, `designation`, `qualification`, `yearsOfExperience`, `employmentStatus`, `skills`, `ReleventCertification`) VALUES
-(1, 1, '2026-01-10', 'Test', 'Test', 'Test', 1, 'Test', 'Test', 'Test');
+(4, 81, '2026-02-01', 'Test', 'Test', 'Test', 49, 'Test', 'Test', 'Test'),
+(8, 91, '2026-02-04', 'Test', 'Test', 'Test', 59, 'Test', 'Test', 'Test'),
+(10, 95, '2026-01-31', 'Test', 'Test', 'Test', 94, 'Test', 'Test', 'Test'),
+(26, 91, '2026-02-03', 'Test', 'Test', 'Test', 36, 'Test', 'Test', 'Test'),
+(34, 65, '2026-01-31', 'Test', 'Test', 'Test', 87, 'Test', 'Test', 'Test'),
+(83, 53, '2026-02-01', 'Test', 'Test', 'Test', 17, 'Test', 'Test', 'Test'),
+(93, 91, '2026-01-31', 'Test', 'Test', 'Test', 11, 'Test', 'Test', 'Test');
 
 -- --------------------------------------------------------
 

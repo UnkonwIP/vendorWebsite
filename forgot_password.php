@@ -172,7 +172,7 @@ if (isset($_POST['reset'])) {
             $update->execute();
 
             // Create reset link with token
-            $resetLink = "http://localhost/Vendor_Website/reset_password.php?token=" . urlencode($token);
+            $resetLink = "http://localhost/vendorWebsite/reset_password.php?token=" . urlencode($token);
 
             // Send email via PHPMailer
             $mail = new PHPMailer(true);
@@ -181,12 +181,12 @@ if (isset($_POST['reset'])) {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = '3superdreams@gmail.com';
-                $mail->Password   = 'czlz zywn klxn wguw';
+                $mail->Username   = $_ENV['MAIL_USERNAME'];
+                $mail->Password   = $_ENV['MAIL_PASSWORD'];
                 $mail->SMTPSecure = 'tls';
                 $mail->Port       = 587;
 
-                $mail->setFrom('3superdreams@gmail.com', 'Vendor System');
+                $mail->setFrom($_ENV['MAIL_USERNAME'], 'Vendor System');
                 $mail->addAddress($email);
 
                 $mail->isHTML(true);

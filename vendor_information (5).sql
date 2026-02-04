@@ -108,7 +108,7 @@ CREATE TABLE `creditfacilities` (
 -- Dumping data for table `creditfacilities`
 --
 
-INSERT INTO `creditfacilities` (`facilityID`, `NewCompanyRegistration`, `time`, `typeOfCreditFaciliites`, `financialInstitution`, `totalAmount`, `expirydate`, `unutilesedAmountCurrentlyAvailable`, `asAtDate`) VALUES
+INSERT INTO `creditfacilities` (`facilityID`, `NewCompanyRegistration`, `time`, `typeOfCreditFacilities`, `financialInstitution`, `totalAmount`, `expirydate`, `unutilisedAmountCurrentlyAvailable`, `asAtDate`) VALUES
 (1, 91, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
 (2, 95, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
 (3, 65, '2026-01-31', 'Test', 'Test', 0.00, '2024-01-01', 0.00, '2024-01-01'),
@@ -171,7 +171,7 @@ CREATE TABLE `directorandsecretary` (
 -- Dumping data for table `directorandsecretary`
 --
 
-INSERT INTO `directorandsecretary` (`DirectorID`, `NewCompanyRegistration`, `time`, `nationality`, `name`, `position`, `appoitmentDate`, `DOB`) VALUES
+INSERT INTO `directorandsecretary` (`DirectorID`, `NewCompanyRegistration`, `time`, `nationality`, `name`, `position`, `appointmentDate`, `DOB`) VALUES
 (1, 91, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
 (2, 95, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
 (3, 65, '2026-01-31', 'Test', 'Test', 'Test', '2024-01-01', '2024-01-01'),
@@ -440,7 +440,7 @@ CREATE TABLE `registrationform` (
 -- Dumping data for table `registrationform`
 --
 
-INSERT INTO `registrationform` (`NewCompanyRegistration`, `time`, `companyName`, `taxRegistrationNumber`, `faxNo`, `companyOrganisation`, `OldCompanyRegistration`, `otherNames`, `telephoneNumber`, `email`, `EmailAddress`, `website`, `branch`, `authorisedCapital`, `paidUpCapital`, `CountryOfIncorporation`, `DateOfIncorporation`, `NatureAndLineOfBusiness`, `registeredAddress`, `correspondenceAddress`, `TypeOfOrganisation`, `parentCompany`, `parentCompanyCountry`, `ultimateParentCompany`, `ultimateParentCompanyCountry`, `bankruptHistory`, `discription`, `CIDB`, `CIDBValidationTill`, `trade`, `ValueOfSimilarProject`, `ValueOfCurrentProject`, `name`, `designation`, `DateOfVerification`, `AuditorCompanyName`, `AuditorCompanyAddress`, `AuditorName`, `AuditorEmail`, `AuditorPhone`, `AdvocatesCompanyName`, `AdvocatesCompanyAddress`, `AdvocatesName`, `AdvocatesEmail`, `AdvocatesPhone`, `AuditorYearOfService`, `AdvocatesYearOfService`, `Status`) VALUES
+INSERT INTO `registrationform` (`NewCompanyRegistration`, `time`, `companyName`, `taxRegistrationNumber`, `faxNo`, `companyOrganisation`, `OldCompanyRegistration`, `otherNames`, `telephoneNumber`, `email`, `EmailAddress`, `website`, `branch`, `authorisedCapital`, `paidUpCapital`, `CountryOfIncorporation`, `DateOfIncorporation`, `NatureAndLineOfBusiness`, `registeredAddress`, `correspondenceAddress`, `TypeOfOrganisation`, `parentCompany`, `parentCompanyCountry`, `ultimateParentCompany`, `ultimateParentCompanyCountry`, `bankruptHistory`, `description`, `CIDB`, `CIDBValidationTill`, `trade`, `ValueOfSimilarProject`, `ValueOfCurrentProject`, `name`, `designation`, `DateOfVerification`, `AuditorCompanyName`, `AuditorCompanyAddress`, `AuditorName`, `AuditorEmail`, `AuditorPhone`, `AdvocatesCompanyName`, `AdvocatesCompanyAddress`, `AdvocatesName`, `AdvocatesEmail`, `AdvocatesPhone`, `AuditorYearOfService`, `AdvocatesYearOfService`, `Status`) VALUES
 (53, '2026-02-01', 'Test', 79, 74, 'More than 15', 81, 'Test', 31, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 60.00, 95.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 40, 30, 'pending'),
 (65, '2026-01-31', 'Test', 1, 14, 'More than 15', 20, 'Test', 25, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 50.00, 86.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 38, 98, 'pending'),
 (81, '2026-02-01', 'Test', 80, 6, 'More than 15', 72, 'Test', 27, 'test@gmail.com', 'test@gmail.com', 'Test', 'Test', 50.00, 13.00, 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'Berhad', 'Test', 'Test', 'Test', 'Test', 'yes', 'Test', 'Test', '2024-01-01', 'ISP', 0.00, 0.00, 'Test', 'Test', '2024-01-01', 'Test', 'Test', 'Test', 'test@gmail.com', 0, 'Test', 'Test', 'Test', 'test@gmail.com', 0, 97, 83, 'pending'),
@@ -629,7 +629,7 @@ ALTER TABLE `staff`
 -- Indexes for table `vendoraccount`
 --
 ALTER TABLE `vendoraccount`
-  ADD PRIMARY KEY (`NewCompanyRegistration`, `accountID`);
+  ADD PRIMARY KEY (`accountID`);
 
 --
 -- AUTO_INCREMENT for dumped tables

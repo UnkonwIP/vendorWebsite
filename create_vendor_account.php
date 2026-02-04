@@ -29,107 +29,121 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $allowedRoles = ['admin', 'vendor'];
     $allowedVendorTypes = ['Civil Contractor', 'Supplier', 'TMP Contractor', 'General Contractor'];
 
+    $hasError = false;
     if (empty($email)) {
         $message = "Email is required.";
         $messageType = "error";
+        $hasError = true;
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "Please enter a valid email address.";
         $messageType = "error";
+        $hasError = true;
     } elseif (empty($role) || !in_array($role, $allowedRoles)) {
         $message = "Please select a valid role.";
         $messageType = "error";
+        $hasError = true;
     } elseif ($role === 'vendor' && (empty($vendorType) || !in_array($vendorType, $allowedVendorTypes))) {
         $message = "Please select a valid vendor type.";
         $messageType = "error";
+        $hasError = true;
     } elseif ($role === 'vendor' && empty($newCompanyRegistration)) {
         $message = "Company Registration Number is required for vendor accounts.";
         $messageType = "error";
+        $hasError = true;
     } elseif ($role === 'vendor' && !ctype_digit($newCompanyRegistration)) {
         $message = "Company Registration Number must be a number.";
         $messageType = "error";
-    } else {
-        // Check if email already exists
+        $hasError = true;
+    }
+
+    // Check if email already exists
+    if (!$hasError) {
         $checkStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE email = ?");
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         $checkResult = $checkStmt->get_result();
-
         if ($checkResult->num_rows > 0) {
             $message = "This email is already registered.";
             $messageType = "error";
-        }elseif ($role === 'vendor') {
-            // Check if company registration number already exists for vendor accounts
-            $checkCRStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE NewCompanyRegistration = ?");
-            $checkCRStmt->bind_param("s", $newCompanyRegistration);
-            $checkCRStmt->execute();
-            $checkCRResult = $checkCRStmt->get_result();
+            $hasError = true;
+        }
+    }
 
-            if ($checkCRResult->num_rows > 0) {
-                $message = "This Company Registration Number is already registered.";
-                $messageType = "error";
-            } 
-        } else {
-            // Generate setup token
-            $setupToken = bin2hex(random_bytes(32));
-            $tokenExpiry = date("Y-m-d H:i:s", strtotime("+24 hours"));
-            
-            // Create temporary account with setup token
-            $tempAccountID = "PENDING_" . bin2hex(random_bytes(4));
-            
-            // For admin accounts, vendor_type is NULL; for vendors, store the type
-            $storeVendorType = ($role === 'vendor') ? $vendorType : NULL;
-            $storeNewCompanyRegistration = ($role === 'vendor') ? $newCompanyRegistration : NULL;
+    // For vendors, check company registration number
+    if (!$hasError && $role === 'vendor') {
+        $checkCRStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE NewCompanyRegistration = ?");
+        $checkCRStmt->bind_param("s", $newCompanyRegistration);
+        $checkCRStmt->execute();
+        $checkCRResult = $checkCRStmt->get_result();
+        if ($checkCRResult->num_rows > 0) {
+            $message = "This Company Registration Number is already registered.";
+            $messageType = "error";
+            $hasError = true;
+        }
+    }
 
-            $stmt = $conn->prepare(
-                "INSERT INTO vendoraccount (NewCompanyRegistration, accountID, email, role, vendor_type, reset_token, reset_expiry) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            );
-            $stmt->bind_param("sssssss", $storeNewCompanyRegistration, $tempAccountID, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
+    // If no errors, create account and send email
+    if (!$hasError) {
+        // Generate setup token
+        $setupToken = bin2hex(random_bytes(32));
+        $tokenExpiry = date("Y-m-d H:i:s", strtotime("+24 hours"));
 
-            if ($stmt->execute()) {
-                // Send setup email
-                $mail = new PHPMailer(true);
+        // Create temporary account with setup token
+        $tempAccountID = "PENDING_" . bin2hex(random_bytes(4));
 
-                try {
-                    $mail->isSMTP();
-                    $mail->Host       = 'smtp.gmail.com';
-                    $mail->SMTPAuth   = true;
-                    $mail->Username   = '3superdreams@gmail.com';
-                    $mail->Password   = 'czlz zywn klxn wguw';
-                    $mail->SMTPSecure = 'tls';
-                    $mail->Port       = 587;
+        // For admin accounts, vendor_type is NULL; for vendors, store the type
+        $storeVendorType = ($role === 'vendor') ? $vendorType : NULL;
+        $storeNewCompanyRegistration = ($role === 'vendor') ? $newCompanyRegistration : NULL;
 
-                    $mail->setFrom('3superdreams@gmail.com', 'Vendor System');
-                    $mail->addAddress($email);
+        $stmt = $conn->prepare(
+            "INSERT INTO vendoraccount (NewCompanyRegistration, accountID, email, role, vendor_type, reset_token, reset_expiry) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->bind_param("sssssss", $storeNewCompanyRegistration, $tempAccountID, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
 
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Complete Your Account Setup';
-                    
-                    $setupLink = "http://localhost/vendorWebsite/VendorSetup.php?token=" . urlencode($setupToken);
-                    
-                    $mail->Body = "
-                        <h2>Welcome to the Vendor System</h2><br><br>
-                        You have been invited to create an account.<br><br>
-                        Please click the link below to set up your account:<br>
-                        <a href='" . htmlspecialchars($setupLink) . "'>Complete Your Account Setup</a><br><br>
-                        This link will expire in 24 hours.<br><br>
-                        If you did not request this, please ignore this email.<br><br>
-                        Regards,<br>
-                        Vendor System Team
-                    ";
+        if ($stmt->execute()) {
+            // Send setup email
+            $mail = new PHPMailer(true);
 
-                    $mail->send();
+            try {
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.gmail.com';
+                $mail->SMTPAuth   = true;
+                $mail->Username   = $_ENV['MAIL_USERNAME'];
+                $mail->Password   = $_ENV['MAIL_PASSWORD'];
+                $mail->SMTPSecure = 'tls';
+                $mail->Port       = 587;
 
-                    $message = "Setup link has been sent to " . htmlspecialchars($email) . ". Please check your email to complete account setup.";
-                    $messageType = "success";
-                } catch (Exception $e) {
-                    // Account was created but email failed
-                    $message = "Account invitation created but failed to send email. Error: " . $mail->ErrorInfo;
-                    $messageType = "error";
-                }
-            } else {
-                $message = "Error creating account invitation. Please try again.";
+                $mail->setFrom($_ENV['MAIL_USERNAME'], 'Vendor System');
+                $mail->addAddress($email);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Complete Your Account Setup';
+
+                $setupLink = "http://localhost/vendorWebsite/VendorSetup.php?token=" . urlencode($setupToken);
+
+                $mail->Body = "
+                    <h2>Welcome to the Vendor System</h2><br><br>
+                    You have been invited to create an account.<br><br>
+                    Please click the link below to set up your account:<br>
+                    <a href='" . htmlspecialchars($setupLink) . "'>Complete Your Account Setup</a><br><br>
+                    This link will expire in 24 hours.<br><br>
+                    If you did not request this, please ignore this email.<br><br>
+                    Regards,<br>
+                    Vendor System Team
+                ";
+
+                $mail->send();
+
+                $message = "Setup link has been sent to " . htmlspecialchars($email) . ". Please check your email to complete account setup.";
+                $messageType = "success";
+            } catch (Exception $e) {
+                // Account was created but email failed
+                $message = "Account invitation created but failed to send email. Error: " . $mail->ErrorInfo;
                 $messageType = "error";
             }
+        } else {
+            $message = "Error creating account invitation. Please try again.";
+            $messageType = "error";
         }
     }
 }

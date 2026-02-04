@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
-    <head></head>
-    <body>
-        <!--    css-->
+<head></head>
+<body>
+    <!-- css -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="vendorStyle.css">
 <?php
 
-//connect to the database
-$conn = new mysqli('localhost', 'root', '','vendor_information');
+    // connect to the database
+    $conn = new mysqli('localhost', 'root', '', 'vendor_information');
 
 
 //primarykey
@@ -42,9 +42,9 @@ $ParentCompanyCountry =$_POST['ParentCompanyCountry'] ?? '';
 $UltimateParentCompany =$_POST['UltimateParentCompany'] ?? '';
 $UParentCompanyCountry =$_POST['UParentCompanyCountry'] ?? '';
 
-//bankrupt / bankrupt discription
+//bankrupt / bankrupt description
 $bankruptcy =$_POST['bankruptcy'] ?? '';
-$bankruptcyDiscription = $_POST['bankruptcy-details'] ?? '';
+$bankruptcyDescription = $_POST['bankruptcy-details'] ?? '';
 
 $CIDB =$_POST['CIDB'] ?? '';
 $CIDBValidityDate =$_POST['CIDBValidityDate'] ?? '';
@@ -73,11 +73,11 @@ $AdvocatesYearOfService = $_POST['AdvocatesYearOfService'] ?? '';
 //status
 $Status = "pending";
         
-if ($conn->connect_error) {
-    die('Connection Failed : ' . $conn->connect_error);
-}
+    if ($conn->connect_error) {
+        die('Connection Failed : ' . $conn->connect_error);
+    }
 
-echo "<!-- Form submitted to insertData.php -->\n";
+    echo "<!-- Form submitted to insertData.php -->\n";
 
 $stmt = $conn->prepare("
     INSERT INTO registrationform (
@@ -107,7 +107,7 @@ $stmt = $conn->prepare("
         ultimateParentCompany,
         ultimateParentCompanyCountry,
         bankruptHistory,
-        discription,
+        description,
         CIDB,
         CIDBValidationTill,
         trade,
@@ -160,7 +160,7 @@ $stmt->bind_param(
     $UltimateParentCompany,
     $UParentCompanyCountry,
     $bankruptcy,
-    $bankruptcyDiscription,
+    $bankruptcyDescription,
     $CIDB,
     $CIDBValidityDate,
     $CIDBTrade,
@@ -185,31 +185,25 @@ $stmt->bind_param(
 );
 
 
-try {
     if ($stmt->execute()) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-success">
-        Registration inserted successfully
-        </span>
-        <span class="input-group-text text-success">✓</span>
-    </div>
-        
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-success">
+                Registration inserted successfully
+            </span>
+            <span class="input-group-text text-success">✓</span>
+        </div>
         <?php
     } else {
-        throw new Exception("Execute failed");
-    }
-} catch(Exception $e) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($stmt->error) ?>
-        </span>
-        <span class="input-group-text text-danger">✗</span>
-    </div>
-        
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-danger">
+                Insert failed: <?= htmlspecialchars($stmt->error) ?>
+            </span>
+            <span class="input-group-text text-danger">✗</span>
+        </div>
         <?php
-}
+    }
 
 $stmt->close();
 
@@ -226,53 +220,43 @@ BankAddress,
 SWIFTCode
 ) VALUES (?,?,?,?,?)");
 
-for ($i = 0; $i < count($bankNames); $i++){
-    //skip empty
-    if(
-        empty($bankNames[$i]) &&
-        empty($AddressOfBank[$i]) &&
-        empty($SwiftCodeOfBank[$i])
-    ){
-        continue;
+    for ($i = 0; $i < count($bankNames); $i++) {
+        // skip empty
+        if (
+            empty($bankNames[$i]) &&
+            empty($AddressOfBank[$i]) &&
+            empty($SwiftCodeOfBank[$i])
+        ) {
+            continue;
+        }
+        $BankStmt->bind_param(
+            "issss",
+            $newCRN,
+            $currentDate,
+            $bankNames[$i],
+            $AddressOfBank[$i],
+            $SwiftCodeOfBank[$i]
+        );
+        if ($BankStmt->execute()) {
+            ?>
+            <div class="input-group mb-3">
+                <span class="form-control text-success">
+                    Bank Data inserted successfully
+                </span>
+                <span class="input-group-text text-success">✓</span>
+            </div>
+            <?php
+        } else {
+            ?>
+            <div class="input-group mb-3">
+                <span class="form-control text-danger">
+                    Insert failed: <?= htmlspecialchars($BankStmt->error) ?>
+                </span>
+                <span class="input-group-text text-danger">✗</span>
+            </div>
+            <?php
+        }
     }
-    
-    $BankStmt->bind_param(
-        "issss",
-        $newCRN,
-        $currentDate,
-        $bankNames[$i],
-        $AddressOfBank[$i],
-        $SwiftCodeOfBank[$i]
-    );
-    
-    
-    
-    
-}
-
-try{
-    if($BankStmt->execute()) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-success">
-        Bank Data inserted successfully
-        </span>
-        <span class="input-group-text text-success">✓</span>
-    </div>
-        
-        <?php
-    }
-} catch(mysqli_sql_exception $e) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($BankStmt->error) ?>
-        </span>
-        <span class="input-group-text text-danger">✗</span>
-    </div>
-        
-        <?php
-}
 
 $BankStmt->close();
 
@@ -301,78 +285,66 @@ email,
 contactStatus
 ) VALUES (?,?,?,?,?,?,?)");
 
-// Primary contact
-$ContactStmt->bind_param(
-    "isssiss",
-    $newCRN,
-    $currentDate, // or whatever date you use
-    $PrimaryContactPerson,
-    $PrimaryDepartment,
-    $PrimaryTelephone,
-    $PrimaryEmail,
-    $PrimaryStatus
-);
-
-try { 
-    if($ContactStmt->execute()) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-success">
-        PrimaryContact Data inserted successfully
-        </span>
-        <span class="input-group-text text-success">✓</span>
-    </div>
-        
+    // Primary contact 
+    $ContactStmt->bind_param(
+        "issssss",
+        $newCRN,
+        $currentDate,
+        $PrimaryContactPerson,
+        $PrimaryDepartment,
+        $PrimaryTelephone,
+        $PrimaryEmail,
+        $PrimaryStatus
+    );
+    if ($ContactStmt->execute()) {
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-success">
+                Primary Contact Data inserted successfully
+            </span>
+            <span class="input-group-text text-success">✓</span>
+        </div>
+        <?php
+    } else {
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-danger">
+                Insert failed: <?= htmlspecialchars($ContactStmt->error) ?>
+            </span>
+            <span class="input-group-text text-danger">✗</span>
+        </div>
         <?php
     }
-} catch(mysqli_sql_exception $e) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ContactStmt->execute()) ?>
-        </span>
-        <span class="input-group-text text-danger">✗</span>
-    </div>
-        
+    // Secondary contact
+    $ContactStmt->bind_param(
+        "issssss",
+        $newCRN,
+        $currentDate,
+        $SecondaryContactPerson,
+        $SecondaryDepartment,
+        $SecondaryTelephone,
+        $SecondaryEmail,
+        $SecondaryStatus
+    );
+    if ($ContactStmt->execute()) {
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-success">
+                Secondary Contact Data inserted successfully
+            </span>
+            <span class="input-group-text text-success">✓</span>
+        </div>
         <?php
-}
-
-// Secondary contact
-$ContactStmt->bind_param(
-    "isssiss",
-    $newCRN,
-    $currentDate,
-    $SecondaryContactPerson,
-    $SecondaryDepartment,
-    $SecondaryTelephone,
-    $SecondaryEmail,
-    $SecondaryStatus
-);
-        
-
-try{ 
-    if($ContactStmt->execute()) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-success">
-        SecondaryContact Data inserted successfully
-        </span>
-        <span class="input-group-text text-success">✓</span>
-    </div>
-        
+    } else {
+        ?>
+        <div class="input-group mb-3">
+            <span class="form-control text-danger">
+                Insert failed: <?= htmlspecialchars($ContactStmt->error) ?>
+            </span>
+            <span class="input-group-text text-danger">✗</span>
+        </div>
         <?php
     }
-} catch(mysqli_sql_exception $e) {
-    ?> 
-    <div class="input-group mb-3">
-        <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ContactStmt->error) ?>
-        </span>
-        <span class="input-group-text text-danger">✗</span>
-    </div>
-        
-        <?php
-}
 
 $ContactStmt->close();
 
@@ -387,11 +359,11 @@ $CreditAsAtDate = $_POST['CreditAsAtDate'] ?? [];
 $CreditStmt = $conn->prepare("INSERT INTO Creditfacilities (
 NewCompanyRegistration,
 time,
-typeOfCreditFaciliites,
+typeOfCreditFacilities,
 financialInstitution,
 totalAmount,
 expirydate,
-unutilesedAmountCurrentlyAvailable,
+unutilisedAmountCurrentlyAvailable,
 asAtDate
 ) VALUES (?,?,?,?,?,?,?,?)");
 
@@ -421,29 +393,25 @@ for ($i = 0; $i < count($TypeOfCredit); $i++){
     );
     
     
-    try{ 
-        if($CreditStmt->execute()) {
-        ?> 
+    if($CreditStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Credit data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-        }
-} catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
         Insert failed: <?= htmlspecialchars($CreditStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $CreditStmt->close();
@@ -501,29 +469,25 @@ for ($i = 0; $i < count($CurrentProjectNo); $i++) {
         $CurrentProjProgress[$i]   
     );
 
-    try{
-        if($ProjectStmt->execute()) {
-        ?> 
+    if($ProjectStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Current Project statement inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-    }
-} catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ProjectStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($ProjectStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 $ProjectStmt->close();
 
@@ -541,7 +505,7 @@ $DirectorStmt = $conn->prepare("
         nationality,
         name,
         position,
-        appoitmentDate,
+        appointmentDate,
         DOB
     ) VALUES (?,?,?,?,?,?,?)
 ");
@@ -569,29 +533,25 @@ for ($i = 0; $i < count($DirectorName); $i++) {
     );
 
     
-    try{
-        if($DirectorStmt->execute()) {
-        ?> 
+    if($DirectorStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Director data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-        }
-} catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($DirectorStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($DirectorStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $DirectorStmt->close();
@@ -696,29 +656,25 @@ foreach ($equipmentData as $eq) {
     );
 
     
-    try{ 
-        if($EquipmentStmt->execute()) {
-        ?> 
+    if($EquipmentStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Equipment data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-        }
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($EquipmentStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($EquipmentStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $EquipmentStmt->close();
@@ -765,29 +721,25 @@ for ($i = 0; $i < count($ManagementName); $i++) {
     );
 
     
-    try{ 
-        if($ManagementStmt->execute()) {
-        ?> 
+    if($ManagementStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Management data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-        }
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ManagementStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($ManagementStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $ManagementStmt->close();
@@ -839,28 +791,25 @@ foreach ($totalLiabilities as $year => $liability) {
     );
 
     
-    try{ 
-        if($FinanceStmt->execute()) {
-        ?> 
+    if($FinanceStmt->execute()) {
+    ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Nett worth & working capital data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($FinanceStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($FinanceStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $FinanceStmt->close();
@@ -917,28 +866,25 @@ for ($i = 0; $i < count($ProjectRecordNo); $i++) {
     );
 
     
-    try{ 
-        if($ProjectStmt->execute()) {
-        ?> 
+    if($ProjectStmt->execute()) {
+    ?> 
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Project record data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ProjectStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($ProjectStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $ProjectStmt->close();
@@ -1011,28 +957,25 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
         $ShareholderPercent[$i]          // d
     );
 
-    try{ 
-        if($ShareholderStmt->execute()) {
-        ?> 
+    if($ShareholderStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Shareholder data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($ShareholderStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($ShareholderStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $ShareholderStmt->close();
@@ -1061,7 +1004,7 @@ $StaffStmt = $conn->prepare("
         yearsOfExperience,
         employmentStatus,
         skills,
-        ReleventCertification
+        RelevantCertification
     ) VALUES (?,?,?,?,?,?,?,?,?,?)
 ");
 
@@ -1090,28 +1033,25 @@ for ($i = 0; $i < count($StaffNo); $i++) {
         $StaffCertification[$i]     // s
     );
 
-    try{ 
-        if($StaffStmt->execute()) {
-        ?> 
+    if($StaffStmt->execute()) {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-success">
         Staff team data inserted successfully
         </span>
         <span class="input-group-text text-success">✓</span>
     </div>
-        
-        <?php
-    } catch(mysqli_sql_exception $e) {
-    ?> 
+    <?php
+    } else {
+    ?>
     <div class="input-group mb-3">
         <span class="form-control text-danger">
-        Insert failed: <?= htmlspecialchars($StaffStmt->execute()) ?>
+        Insert failed: <?= htmlspecialchars($StaffStmt->error) ?>
         </span>
         <span class="input-group-text text-danger">✗</span>
     </div>
-        
-        <?php
-}
+    <?php
+    }
 }
 
 $StaffStmt->close();

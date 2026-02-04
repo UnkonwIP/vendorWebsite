@@ -402,16 +402,16 @@ function addCurrentProjectRecord() {
 
     const fields = [
         "CurrentProjTitle[]",
-        "CurrentPorjNature[]",
+        "CurrentProjNature[]",
         "CurrentProjLocation[]",
         "CurrentProjName[]",
         "CurrentProjValue[]",
     ];
-    
+
     const dateFields = [
         "CurrentProjStartDate[]",
         "CurrentProjEndDate[]",
-    ]
+    ];
 
     // Text fields
     fields.forEach(name => {
@@ -430,7 +430,7 @@ function addCurrentProjectRecord() {
         input.name = name;
         cell.appendChild(input);
     });
-    
+
     let progressCell = newStaffRow.insertCell();
     let Processinput = document.createElement("input");
     Processinput.type = "number";

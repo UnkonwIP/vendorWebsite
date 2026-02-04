@@ -30,7 +30,7 @@ $AllowedTables = [
     ],
     'DirectorAndSecretary' => [
         'table' => 'directorandsecretary',
-        'fields' => ['DirectorID','time', 'nationality', 'position', 'name','appoitmentDate','DOB']
+        'fields' => ['DirectorID','time', 'nationality', 'position', 'name','appointmentDate','DOB']
     ],
     'Management' => [
         'table' => 'management',
@@ -42,7 +42,7 @@ $AllowedTables = [
     ],
     'Staff' => [
         'table' => 'staff',
-        'fields' => ['staffNO','name', 'designation', 'qualification','yearsOfExperience', 'employmentStatus','skills','ReleventCertification']
+        'fields' => ['staffNO','name', 'designation', 'qualification','yearsOfExperience', 'employmentStatus','skills','RelevantCertification']
     ],
     'ProjectTrackRecord' => [
         'table' => 'projecttrackrecord',
@@ -50,7 +50,7 @@ $AllowedTables = [
     ],
     'CurrentProject' => [
         'table' => 'currentproject',
-        'fields' => ['CurrentprojectNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate','progressOfTheWork']
+        'fields' => ['CurrentProjectNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate','progressOfTheWork']
     ]
 
 if (!isset($AllowedTables[$table])) {

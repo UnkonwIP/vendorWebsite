@@ -541,9 +541,9 @@
 
             <td>
                 <input type="date"
-                       data-field="appoitmentDate"
+                       data-field="appointmentDate"
                        class="form-control"
-                       value="<?= htmlspecialchars($row['appoitmentDate']) ?>"
+                       value="<?= htmlspecialchars($row['appointmentDate']) ?>"
                        readonly>
             </td>
 
@@ -1153,9 +1153,9 @@ The Contractor is required to complete the form by listing all plant and machine
 
                     <td>
                         <input type="text"
-                            data-field="ReleventCertification"
+                            data-field="RelevantCertification"
                             class="form-control"
-                            value="<?= htmlspecialchars($row['ReleventCertification']) ?>"
+                            value="<?= htmlspecialchars($row['RelevantCertification']) ?>"
                             readonly>
                     </td>
 
@@ -1326,13 +1326,13 @@ The Contractor is required to complete the form by listing all plant and machine
 
 <tbody>
                     <?php while ($row = $CurrentProjTable->fetch_assoc()): ?>
-                    <tr data-id="<?= $row['CurrentprojectNo'] ?>">
+                    <tr data-id="<?= $row['CurrentProjectNo'] ?>">
                         <td>
                             <input type="number"
-                                data-field="CurrentprojectNo"
+                                data-field="CurrentProjectNo"
                                 class="form-control"
                                 min="1"
-                                value="<?= htmlspecialchars($row['CurrentprojectNo']) ?>"
+                                value="<?= htmlspecialchars($row['CurrentProjectNo']) ?>"
                                 readonly>
                         </td>
 
@@ -1405,13 +1405,13 @@ The Contractor is required to complete the form by listing all plant and machine
                         <td>
                             <button type="button"
                                     class="btn btn-outline-primary btn-sm"
-                                    onclick="editTableRow(this,'CurrentProject','CurrentprojectNo')">
+                                    onclick="editTableRow(this,'CurrentProject','CurrentProjectNo')">
                                 Edit
                             </button>
 
                             <button type="button"
                                     class="btn btn-danger btn-sm"
-                                    onclick="deleteEditRow(this,'CurrentProject','CurrentprojectNo')">
+                                    onclick="deleteEditRow(this,'CurrentProject','CurrentProjectNo')">
                                 Delete
                             </button>
                         </td>

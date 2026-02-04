@@ -197,7 +197,7 @@ function addEditShareholders(tableName, formName) {
         { name: "name", type: "text"},
         { name: "position", type: "text"},
         { name: "nationality", type: "text"},
-        { name: "appoitmentDate", type: "date"},
+            { name: "appointmentDate", type: "date"},
         { name: "DOB", type: "date"}
         ]
     } else if (tableName === "Shareholders"){
@@ -230,7 +230,7 @@ function addEditShareholders(tableName, formName) {
             { name: "qualification", type: "text" },
             { name: "employmentStatus", type: "text" },
             { name: "skills", type: "text" },
-            { name: "ReleventCertification", type: "text" },
+                { name: "RelevantCertification", type: "text" },
             { name: "yearsOfExperience", type: "number", min: 1 }
         ];
         
@@ -247,7 +247,7 @@ function addEditShareholders(tableName, formName) {
         ];
     } else if (tableName === "CurrentProject") {
         fields = [
-            { name: "CurrentprojectNo", type: "number", min: 1 },
+                { name: "CurrentProjectNo", type: "number", min: 1 },
             { name: "CurrentProjTitle", type: "text" },
             { name: "CurrentProjNature", type: "text" },
             { name: "CurrentProjLocation", type: "text" },

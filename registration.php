@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Vendor Information Form</title>
-    
-</head>
-<body>
-<!--    css-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="vendorStyle.css" rel="stylesheet">
-    <style>
-        .error-box {
-            background: #fef2f2;
-            color: #b91c1c;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #fecaca;
-            font-size: 14px;
-        }
-    </style>
-    
-    <img src="Image/company%20logo.png" class="rounded mx-auto d-block" alt="Company Logo" style="width: 150px;">
-    <div><center><b>CIVIL CONTRACTOR REGISTRATION FORM</b><br>
-    (For all information given below, documentary evidence shall be submitted)  
-    </center></div>
-    
-    <div id="formErrors"></div>
-    <div class="accordion" id="accordionExample">
-    <form action="insertData.php" method="post">
+    <head>
+        <title>Vendor Information Form</title>
+    </head>
+    <body>
+        <!-- css -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="vendorStyle.css" rel="stylesheet">
+        <style>
+            .error-box {
+                background: #fef2f2;
+                color: #b91c1c;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #fecaca;
+                font-size: 14px;
+            }
+        </style>
+
+        <img src="Image/company%20logo.png" class="rounded mx-auto d-block" alt="Company Logo" style="width: 150px;">
+        <div>
+            <center>
+                <b>CIVIL CONTRACTOR REGISTRATION FORM</b><br>
+                (For all information given below, documentary evidence shall be submitted)
+            </center>
+        </div>
+
+        <div id="formErrors"></div>
+        <div class="accordion" id="accordionExample">
+            <form id="vendorForm" action="insertData.php" method="post">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Part A: Particulars of Company</button>
@@ -840,36 +842,84 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
             </div></div></div>
         <!--    auto fill button remove later-->
-    <button type="button" onclick="autoFillTestData()">
-    Auto-Fill Test Data
-</button>
 
-<script>
-function autoFillTestData() {
-    console.log("Auto-fill function called");
+                <button type="button" onclick="autoFillTestData()">
+                    Auto-Fill Test Data
+                </button>
 
-    document.querySelectorAll("input").forEach(input => {
-        if (input.type === "text") input.value = "Test";
-        if (input.type === "number") input.value = 1;
-        if (input.type === "date") input.value = "2024-01-01";
-        if (input.type === "email") input.value = "test@gmail.com"
-    });
-}
-</script>
+                <script>
+                    function autoFillTestData() {
+                        console.log("Auto-fill function called");
 
-<!--    submit button--> 
-    <button type="submit">Submit</button>
-<!-- editing button-->
-    <a href="VendorUpdateDate.php" class="button">Go to Update Page</a>
+                        document.querySelectorAll("input").forEach(input => {
+                            if (input.readOnly || input.disabled) return;
+                            switch (input.type) {
+                                case "text":
+                                    input.value = "Test";
+                                    break;
+                                case "number":
+                                    // If min/max are set, use them
+                                    let min = input.min ? parseInt(input.min) : 1;
+                                    let max = input.max ? parseInt(input.max) : 100;
+                                    if (!isNaN(min) && !isNaN(max) && max > min) {
+                                        input.value = Math.floor(Math.random() * (max - min + 1)) + min;
+                                    } else {
+                                        input.value = Math.floor(Math.random() * 100) + 1;
+                                    }
+                                    break;
+                                case "date":
+                                    input.value = "2024-01-01";
+                                    break;
+                                case "email":
+                                    input.value = "test@gmail.com";
+                                    break;
+                                case "radio":
+                                case "checkbox":
+                                    // handled below
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
 
-        
-    </form>
-    </div>
+                        // Check first radio button in each group to provide some data
+                        const radioGroups = {};
+                        document.querySelectorAll("input[type='radio']").forEach(radio => {
+                            if (!radioGroups[radio.name]) {
+                                radio.checked = true;
+                                radioGroups[radio.name] = true;
+                            }
+                        });
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src=script.js></script>
+                        // Check the first checkbox in each group (if any)
+                        const checkboxGroups = {};
+                        document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+                            if (!checkboxGroups[checkbox.name]) {
+                                checkbox.checked = true;
+                                checkboxGroups[checkbox.name] = true;
+                            }
+                        });
+                    }
+                </script>
 
-    
-
-</body>
+                <!-- submit button -->
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="script.js"></script>
+        <script>
+        // Ensure form only submits when validation passes
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('vendorForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // Call validateAndSubmit, which will submit if valid
+                    e.preventDefault();
+                    validateAndSubmit();
+                });
+            }
+        });
+        </script>
+    </body>
 </html>

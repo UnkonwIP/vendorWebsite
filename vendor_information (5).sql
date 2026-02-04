@@ -78,11 +78,11 @@ CREATE TABLE `creditfacilities` (
   `facilityID` int(10) NOT NULL,
   `NewCompanyRegistration` int(20) DEFAULT NULL,
   `time` date DEFAULT NULL,
-  `typeOfCreditFaciliites` varchar(20) DEFAULT NULL,
+  `typeOfCreditFacilities` varchar(20) DEFAULT NULL,
   `financialInstitution` varchar(30) DEFAULT NULL,
   `totalAmount` double(10,2) DEFAULT NULL,
   `expirydate` date DEFAULT NULL,
-  `unutilesedAmountCurrentlyAvailable` double(10,2) DEFAULT NULL,
+  `unutilisedAmountCurrentlyAvailable` double(10,2) DEFAULT NULL,
   `asAtDate` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -133,7 +133,7 @@ CREATE TABLE `directorandsecretary` (
   `nationality` varchar(20) DEFAULT NULL,
   `name` varchar(30) DEFAULT NULL,
   `position` varchar(15) DEFAULT NULL,
-  `appoitmentDate` date DEFAULT NULL,
+  `appointmentDate` date DEFAULT NULL,
   `DOB` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -307,7 +307,7 @@ CREATE TABLE `registrationform` (
   `ultimateParentCompany` varchar(40) DEFAULT NULL,
   `ultimateParentCompanyCountry` varchar(56) DEFAULT NULL,
   `bankruptHistory` varchar(4) DEFAULT NULL,
-  `discription` varchar(200) DEFAULT NULL,
+  `description` varchar(200) DEFAULT NULL,
   `CIDB` varchar(20) DEFAULT NULL,
   `CIDBValidationTill` date DEFAULT NULL,
   `trade` varchar(15) DEFAULT NULL,

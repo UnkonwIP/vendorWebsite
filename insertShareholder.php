@@ -43,7 +43,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'DirectorAndSecretary'){
     $sql = "
     INSERT INTO DirectorAndSecretary
-    (NewCompanyRegistration, time, nationality, name, position, appoitmentDate, DOB)
+    (NewCompanyRegistration, time, nationality, name, position, appointmentDate, DOB)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";
 
@@ -55,7 +55,7 @@ if ($table === 'Shareholders'){
         $_POST['nationality'],
         $_POST['name'],
         $_POST['position'],
-        $_POST['appoitmentDate'],
+        $_POST['appointmentDate'],
         $_POST['DOB']
     );
 
@@ -129,7 +129,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'Staff'){
     $sql = "
     INSERT INTO staff
-    (staffNO, NewCompanyRegistration, time, name, designation, qualification, yearsOfExperience, employmentStatus, skills, ReleventCertification)
+    (staffNO, NewCompanyRegistration, time, name, designation, qualification, yearsOfExperience, employmentStatus, skills, RelevantCertification)
     VALUES (?,?,?,?,?,?,?,?,?,?)
     ";
 
@@ -145,7 +145,7 @@ if ($table === 'Shareholders'){
         $_POST['yearsOfExperience'],
         $_POST['employmentStatus'],
         $_POST['skills'],
-        $_POST['ReleventCertification']
+        $_POST['RelevantCertification']
     );
 
     if ($stmt->execute()) {
@@ -194,15 +194,15 @@ if ($table === 'Shareholders'){
     }
 } else if($table === 'CurrentProject'){
     $sql = "
-    INSERT INTO CurrentProject
-    (CurrentprojectNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate,progressOfTheWork)
+    INSERT INTO currentproject
+    (CurrentProjectNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate,progressOfTheWork)
     VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
         "iisssssdssi",
-        $_POST['CurrentprojectNo'],
+        $_POST['CurrentProjectNo'],
         $_POST['NewCompanyRegistration'],
         $_POST['time'],
         $_POST['projectTitle'],
@@ -218,7 +218,7 @@ if ($table === 'Shareholders'){
     if ($stmt->execute()) {
         echo json_encode([
             "success" => true,
-            "id" => $_POST['CurrentprojectNo']
+            "id" => $_POST['CurrentProjectNo']
         ]);
     } else {
         echo json_encode([

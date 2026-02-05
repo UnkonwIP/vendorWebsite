@@ -25,7 +25,6 @@ $companyOrganisation = $_POST['CompanyOrganisation'] ?? '';
 $oldCRN = $_POST['oldCRN'] ?? '';
 $OtherName = $_POST['OtherName'] ?? '';
 $telephone = $_POST['telephone'] ?? '';
-$Email = $_POST['Email'] ?? '';
 $EmailAddress = $_POST['EmailAddress'] ?? '';
 $website = $_POST['Website'] ?? '';
 $BranchAddress = $_POST['BranchAddress'] ?? '';
@@ -82,106 +81,114 @@ $Status = "pending";
 $stmt = $conn->prepare("
     INSERT INTO registrationform (
         newCompanyRegistrationNumber,
-        time,
+        formFirstSubmissionDate,
         companyName,
         taxRegistrationNumber,
         faxNo,
         companyOrganisation,
-        OldCompanyRegistration,
+        oldCompanyRegistrationNumber,
         otherNames,
         telephoneNumber,
-        email,
-        EmailAddress,
+        emailAddress,
         website,
         branch,
         authorisedCapital,
         paidUpCapital,
-        CountryOfIncorporation,
-        DateOfIncorporation,
-        NatureAndLineOfBusiness,
+        countryOfIncorporation,
+        dateOfIncorporation,
+        natureAndLineOfBusiness,
         registeredAddress,
         correspondenceAddress,
-        TypeOfOrganisation,
+        typeOfOrganisation,
         parentCompany,
         parentCompanyCountry,
         ultimateParentCompany,
         ultimateParentCompanyCountry,
         bankruptHistory,
         description,
-        CIDB,
-        CIDBValidationTill,
+        cidb,
+        cidbValidationTill,
         trade,
-        ValueOfSimilarProject,
-        ValueOfCurrentProject,
-        name,
-        designation,
-        DateOfVerification,
-        AuditorCompanyName,
-        AuditorCompanyAddress,
-        AuditorName,
-        AuditorEmail,
-        AuditorPhone,
-        AdvocatesCompanyName,
-        AdvocatesCompanyAddress,
-        AdvocatesName,
-        AdvocatesEmail,
-        AdvocatesPhone,
-        AuditorYearOfService,
-        AdvocatesYearOfService,
-        Status
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        valueOfSimilarProject,
+        valueOfCurrentProject,
+        verifierName,
+        verifierDesignation,
+        dateOfVerification,
+        auditorCompanyName,
+        auditorCompanyAddress,
+        auditorName,
+        auditorEmail,
+        auditorPhone,
+        advocatesCompanyName,
+        advocatesCompanyAddress,
+        advocatesName,
+        advocatesEmail,
+        advocatesPhone,
+        auditorYearOfService,
+        advocatesYearOfService,
+        status
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
+
 $stmt->bind_param(
-    "issiisisissssddsssssssssssssssddsssssssissssiiis",
-    $newCRN,
-    $currentDate,              // date as string
-    $CompanyName,
-    $tax,
-    $FaxNo,
-    $companyOrganisation,
-    $oldCRN,
-    $OtherName,
-    $telephone,
-    $Email,
-    $EmailAddress,
-    $website,
-    $BranchAddress,
-    $AuthorisedCapital,
-    $PaidUpCapital,
-    $CountryOfIncorporation,
-    $DateOfIncorporation,
-    $NatureOfBusiness,
-    $RegisteredAddress,
-    $CorrespondenceAddress,
-    $TypeOfOrganisation,
-    $ParentCompany,
-    $ParentCompanyCountry,
-    $UltimateParentCompany,
-    $UParentCompanyCountry,
-    $bankruptcy,
-    $bankruptcyDescription,
-    $CIDB,
-    $CIDBValidityDate,
-    $CIDBTrade,
-    $ValueOfSimilarProject,
-    $ValueOfCurrentProject,
-    $name,
-    $DesignationOfWritter,
-    $DateOfWritting,
-    $AuditorCompanyName,
-    $AuditorCompanyAddress,
-    $AuditorPersonName,
-    $AuditorPersonEmail,
-    $AuditorPersonPhone,
-    $AdvocatesCompanyName,
-    $AdvocatesCompanyAddress,
-    $AdvocatesPersonName,
-    $AdvocatesPersonEmail,
-    $AdvocatesPersonPhone,
-    $AuditorYearOfService,
-    $AdvocatesYearOfService,
-    $Status
+    "ssssssssssssddsssssssssssssssddssssssssisssssis",
+    $newCRN,                  // s: newCRN
+    $currentDate,             // s: currentDate
+    $CompanyName,             // s: CompanyName
+    $tax,                     // s: tax
+    $FaxNo,                   // s: FaxNo
+
+    $companyOrganisation,     // s: companyOrganisation
+    $oldCRN,                  // s: oldCRN
+    $OtherName,               // s: OtherName
+    $telephone,               // s: telephone
+    $EmailAddress,            // s: EmailAddress
+
+    $website,                 // s: website
+    $BranchAddress,           // s: BranchAddress
+    $AuthorisedCapital,       // d: AuthorisedCapital
+    $PaidUpCapital,           // d: PaidUpCapital
+    $CountryOfIncorporation,  // s: CountryOfIncorporation
+    
+    $DateOfIncorporation,     // s: DateOfIncorporation
+    $NatureOfBusiness,        // s: NatureOfBusiness
+    $RegisteredAddress,       // s: RegisteredAddress
+    $CorrespondenceAddress,   // s: CorrespondenceAddress
+    $TypeOfOrganisation,      // s: TypeOfOrganisation
+    
+    $ParentCompany,           // s: ParentCompany
+    $ParentCompanyCountry,    // s: ParentCompanyCountry
+    $UltimateParentCompany,   // s: UltimateParentCompany
+    $UParentCompanyCountry,   // s: UParentCompanyCountry
+    $bankruptcy,              // s: bankruptcy
+    
+    $bankruptcyDescription,   // s: bankruptcyDescription
+    $CIDB,                    // s: CIDB
+    $CIDBValidityDate,        // s: CIDBValidityDate
+    $CIDBTrade,               // s: CIDBTrade
+    $ValueOfSimilarProject,   // d: ValueOfSimilarProject
+    
+    $ValueOfCurrentProject,   // d: ValueOfCurrentProject
+    $name,                    // s: name
+    $DesignationOfWritter,    // s: DesignationOfWritter
+    $DateOfWritting,          // s: DateOfWritting
+    $AuditorCompanyName,      // s: AuditorCompanyName
+    
+    $AuditorCompanyAddress,   // s: AuditorCompanyAddress
+    $AuditorPersonName,       // s: AuditorPersonName
+    $AuditorPersonEmail,      // s: AuditorPersonEmail
+    $AuditorPersonPhone,      // s: AuditorPersonPhone
+    $AuditorYearOfService,    // i: AuditorYearOfService
+    
+    $AdvocatesCompanyName,    // s: AdvocatesCompanyName
+    $AdvocatesCompanyAddress, // s: AdvocatesCompanyAddress
+    $AdvocatesPersonName,     // s: AdvocatesPersonName
+    $AdvocatesPersonEmail,    // s: AdvocatesPersonEmail
+    $AdvocatesPersonPhone,    // s: AdvocatesPersonPhone
+
+    $AdvocatesYearOfService,  // i: AdvocatesYearOfService
+    $Status                   // s: Status
 );
 
 
@@ -207,18 +214,20 @@ $stmt->bind_param(
 
 $stmt->close();
 
+// Get the registrationFormID of the newly inserted registrationform row
+$registrationFormID = $conn->insert_id;
+
 
 //inserting into bank table
 $bankNames = $_POST['NameOfBank'] ?? [];
 $AddressOfBank = $_POST['AddressOfBank'] ?? [];
 $SwiftCodeOfBank = $_POST['SwiftCodeOfBank'] ?? [];
 
-$BankStmt = $conn->prepare("INSERT INTO bank (newCompanyRegistrationNumber,
-time,
-BankName,
-BankAddress,
-SWIFTCode
-) VALUES (?,?,?,?,?)");
+$BankStmt = $conn->prepare("INSERT INTO bank (registrationFormID,
+bankName,
+bankAddress,
+swiftCode
+) VALUES (?,?,?,?)");
 
     for ($i = 0; $i < count($bankNames); $i++) {
         // skip empty
@@ -230,9 +239,8 @@ SWIFTCode
             continue;
         }
         $BankStmt->bind_param(
-            "issss",
-            $newCRN,
-            $currentDate,
+            "isss",
+            $registrationFormID,
             $bankNames[$i],
             $AddressOfBank[$i],
             $SwiftCodeOfBank[$i]
@@ -276,20 +284,18 @@ $SecondaryTelephone = $_POST['SecondaryTelephone'] ?? '';
 $SecondaryEmail = $_POST['SecondaryEmail'] ?? '';
 $SecondaryStatus = 'Secondary';
 
-$ContactStmt = $conn->prepare("INSERT INTO contacts (newCompanyRegistrationNumber,
-time,
-ContactPersonName,
+$ContactStmt = $conn->prepare("INSERT INTO contacts (registrationFormID,
+contactPersonName,
 department,
-telephone,
-email,
+telephoneNumber,
+emailAddress,
 contactStatus
-) VALUES (?,?,?,?,?,?,?)");
+) VALUES (?,?,?,?,?,?)");
 
     // Primary contact 
     $ContactStmt->bind_param(
-        "issssss",
-        $newCRN,
-        $currentDate,
+        "isssss",
+        $registrationFormID,
         $PrimaryContactPerson,
         $PrimaryDepartment,
         $PrimaryTelephone,
@@ -317,9 +323,8 @@ contactStatus
     }
     // Secondary contact
     $ContactStmt->bind_param(
-        "issssss",
-        $newCRN,
-        $currentDate,
+        "isssss",
+        $registrationFormID,
         $SecondaryContactPerson,
         $SecondaryDepartment,
         $SecondaryTelephone,
@@ -358,14 +363,13 @@ $CreditAsAtDate = $_POST['CreditAsAtDate'] ?? [];
 
 $CreditStmt = $conn->prepare("INSERT INTO Creditfacilities (
 registrationFormID,
-time,
 typeOfCreditFacilities,
 financialInstitution,
 totalAmount,
 expirydate,
 unutilisedAmountCurrentlyAvailable,
 asAtDate
-) VALUES (?,?,?,?,?,?,?,?)");
+) VALUES (?,?,?,?,?,?,?)");
 
 for ($i = 0; $i < count($TypeOfCredit); $i++){
     //skip empty
@@ -381,9 +385,8 @@ for ($i = 0; $i < count($TypeOfCredit); $i++){
     }
     
     $CreditStmt->bind_param(
-        "isssdsds",
-        $newCRN,                    //i
-        $currentDate,               //s
+        "issdsds",
+        $registrationFormID,        //i
         $TypeOfCredit[$i],          //s
         $FinancialInstitution[$i],  //s
         $CreditTotalAmount[$i],     //d
@@ -417,37 +420,36 @@ for ($i = 0; $i < count($TypeOfCredit); $i++){
 $CreditStmt->close();
     
 //CurrentProject
-$CurrentProjectNo       = $_POST['CurrentProjectNo'] ?? [];
+// Current Project record (normalized schema)
+$CurrentProjectRecordNo       = $_POST['CurrentProjectRecordNo'] ?? [];
 $CurrentProjTitle       = $_POST['CurrentProjTitle'] ?? [];
 $CurrentProjNature      = $_POST['CurrentProjNature'] ?? [];
 $CurrentProjLocation    = $_POST['CurrentProjLocation'] ?? [];
-$CurrentProjName        = $_POST['CurrentProjName'] ?? [];
+$CurrentProjClientName  = $_POST['CurrentProjClientName'] ?? [];
 $CurrentProjValue       = $_POST['CurrentProjValue'] ?? [];
 $CurrentProjStartDate   = $_POST['CurrentProjStartDate'] ?? [];
 $CurrentProjEndDate     = $_POST['CurrentProjEndDate'] ?? [];
 $CurrentProjProgress    = $_POST['CurrentProjProgress'] ?? [];
 
 $ProjectStmt = $conn->prepare("
-    INSERT INTO currentProject (
-        CurrentprojectNo,
-        NewCompanyRegistration,
-        time,
+    INSERT INTO currentproject (
+        registrationFormID,
+        currentProjectRecordNo,
         projectTitle,
         projectNature,
         location,
         clientName,
         projectValue,
-        commencement,
+        commencementDate,
         completionDate,
         progressOfTheWork
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?,?,?,?,?)
 ");
 
-for ($i = 0; $i < count($CurrentProjectNo); $i++) {
-
+for ($i = 0; $i < count($CurrentProjectRecordNo); $i++) {
     // Skip empty rows
     if (
-        empty($CurrentProjectNo[$i]) &&
+        empty($CurrentProjectRecordNo[$i]) &&
         empty($CurrentProjTitle[$i]) &&
         empty($CurrentProjNature[$i])
     ) {
@@ -455,18 +457,17 @@ for ($i = 0; $i < count($CurrentProjectNo); $i++) {
     }
 
     $ProjectStmt->bind_param(
-        "iisssssdssd",
-        $CurrentProjectNo[$i],
-        $newCRN,
-        $currentDate,
-        $CurrentProjTitle[$i],     
-        $CurrentProjNature[$i],    
-        $CurrentProjLocation[$i],  
-        $CurrentProjName[$i],      
-        $CurrentProjValue[$i],     
-        $CurrentProjStartDate[$i], 
-        $CurrentProjEndDate[$i],   
-        $CurrentProjProgress[$i]   
+        "iissssddds",           
+        $registrationFormID,            // i
+        $CurrentProjectRecordNo[$i],    // i
+        $CurrentProjTitle[$i],          // s
+        $CurrentProjNature[$i],         // s
+        $CurrentProjLocation[$i],       // s
+        $CurrentProjClientName[$i],     // s
+        $CurrentProjValue[$i],          // d
+        $CurrentProjStartDate[$i],      // s (date)
+        $CurrentProjEndDate[$i],        // s (date)
+        $CurrentProjProgress[$i]        // d (decimal)
     );
 
     if($ProjectStmt->execute()) {
@@ -501,13 +502,12 @@ $DirectorDOB              = $_POST['DirectorDOB'] ?? [];
 $DirectorStmt = $conn->prepare("
     INSERT INTO directorandsecretary (
         registrationFormID,
-        time,
         nationality,
         name,
         position,
         appointmentDate,
-        DOB
-    ) VALUES (?,?,?,?,?,?,?)
+        dob
+    ) VALUES (?,?,?,?,?,?)
 ");
 
 for ($i = 0; $i < count($DirectorName); $i++) {
@@ -522,9 +522,8 @@ for ($i = 0; $i < count($DirectorName); $i++) {
     }
 
     $DirectorStmt->bind_param(
-        "issssss",
-        $newCRN,                          // i
-        $currentDate,                     // s
+        "isssss",
+        $registrationFormID,             // i
         $DirectorNationality[$i],         // s
         $DirectorName[$i],                // s
         $DirectorPosition[$i],            // s
@@ -556,22 +555,18 @@ for ($i = 0; $i < count($DirectorName); $i++) {
 
 $DirectorStmt->close();
 
-
-
-
 //equipment
 $EquipmentStmt = $conn->prepare("
     INSERT INTO equipment (
+        registrationFormID,
         equipmentID,
-        NewCompanyRegistration,
-        time,
         quantity,
         brand,
         rating,
         ownership,
         yearsOfManufacture,
         registrationNo
-    ) VALUES (?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?,?,?)
 ");
 
 $equipmentData = [
@@ -580,54 +575,54 @@ $equipmentData = [
         'quantity' => $_POST['BobcatQuality'] ?? '',
         'brand'    => $_POST['BobcatBrandModel'] ?? '',
         'rating'   => $_POST['BobcatRating'] ?? '',
-        'owner'    => $_POST['BobcatOwnership'] ?? '',
-        'year'     => $_POST['BobcatYearOfManufacture'] ?? '',
-        'reg'      => $_POST['BobcatRegistrationNo'] ?? ''
+        'ownership'    => $_POST['BobcatOwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['BobcatYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['BobcatRegistrationNo'] ?? ''
     ],
     [
         'equipmentID' => 2,
         'quantity' => $_POST['HDDQuality'] ?? '',
         'brand'    => $_POST['HDDBrandModel'] ?? '',
         'rating'   => $_POST['HDDRating'] ?? '',
-        'owner'    => $_POST['HDDOwnership'] ?? '',
-        'year'     => $_POST['HDDYearOfManufacture'] ?? '',
-        'reg'      => $_POST['HDDRegistrationNo'] ?? ''
+        'ownership'    => $_POST['HDDOwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['HDDYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['HDDRegistrationNo'] ?? ''
     ],
     [
         'equipmentID' => 3,
         'quantity' => $_POST['SplicingQuality'] ?? '',
         'brand'    => $_POST['SplicingBrandModel'] ?? '',
         'rating'   => $_POST['SplicingRating'] ?? '',
-        'owner'    => $_POST['SplicingOwnership'] ?? '',
-        'year'     => $_POST['SplicingYearOfManufacture'] ?? '',
-        'reg'      => $_POST['SplicingRegistrationNo'] ?? ''
+        'ownership'    => $_POST['SplicingOwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['SplicingYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['SplicingRegistrationNo'] ?? ''
     ],
     [
         'equipmentID' => 4,
         'quantity' => $_POST['OPMQuality'] ?? '',
         'brand'    => $_POST['OPMBrandModel'] ?? '',
         'rating'   => $_POST['OPMRating'] ?? '',
-        'owner'    => $_POST['OPMOwnership'] ?? '',
-        'year'     => $_POST['OPMYearOfManufacture'] ?? '',
-        'reg'      => $_POST['OPMRegistrationNo'] ?? ''
+        'ownership'    => $_POST['OPMOwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['OPMYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['OPMRegistrationNo'] ?? ''
     ],
     [
         'equipmentID' => 5,
         'quantity' => $_POST['OTDRQuality'] ?? '',
         'brand'    => $_POST['OTDRBrandModel'] ?? '',
         'rating'   => $_POST['OTDRRating'] ?? '',
-        'owner'    => $_POST['OTDROwnership'] ?? '',
-        'year'     => $_POST['OTDRYearOfManufacture'] ?? '',
-        'reg'      => $_POST['OTDRRegistrationNo'] ?? ''
+        'ownership'    => $_POST['OTDROwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['OTDRYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['OTDRRegistrationNo'] ?? ''
     ],
     [
         'equipmentID' => 6,
         'quantity' => $_POST['TestGearQuality'] ?? '',
         'brand'    => $_POST['TestGearBrandModel'] ?? '',
         'rating'   => $_POST['TestGearRating'] ?? '',
-        'owner'    => $_POST['TestGearOwnership'] ?? '',
-        'year'     => $_POST['TestGearYearOfManufacture'] ?? '',
-        'reg'      => $_POST['TestGearRegistrationNo'] ?? ''
+        'ownership'    => $_POST['TestGearOwnership'] ?? '',
+        'yearsOfManufacture'     => $_POST['TestGearYearOfManufacture'] ?? '',
+        'registrationNo'      => $_POST['TestGearRegistrationNo'] ?? ''
     ]
 ];
 
@@ -643,18 +638,16 @@ foreach ($equipmentData as $eq) {
     }
 
     $EquipmentStmt->bind_param(
-        "iisisdssi",
-        $eq['equipmentID'],         // i (equipmentID)
-        $newCRN,                 // i
-        $currentDate,            // s (DATE)
-        $eq['quantity'],         // i
-        $eq['brand'],            // s
-        $eq['rating'],           // d (double ok as string)
-        $eq['owner'],            // s
-        $eq['year'],             // s (DATE)
-        $eq['reg']               // i
+        "iiisssss",
+        $registrationFormID,        // i
+        $eq['equipmentID'],         // i
+        $eq['quantity'],            // i
+        $eq['brand'],               // s
+        $eq['rating'],              // s or d (decimal)
+        $eq['ownership'],           // s
+        $eq['yearsOfManufacture'],  // s (date)
+        $eq['registrationNo']       // s
     );
-
     
     if($EquipmentStmt->execute()) {
     ?>
@@ -689,13 +682,12 @@ $ManagementYearsInIndustry   = $_POST['ManagementYearsInIndustry'] ?? [];
 $ManagementStmt = $conn->prepare("
     INSERT INTO management (
         registrationFormID,
-        time,
         nationality,
         name,
         position,
         yearsInPosition,
         yearsInRelatedField
-    ) VALUES (?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?)
 ");
 
 for ($i = 0; $i < count($ManagementName); $i++) {
@@ -710,9 +702,8 @@ for ($i = 0; $i < count($ManagementName); $i++) {
     }
 
     $ManagementStmt->bind_param(
-        "issssii",
-        $newCRN,                          // i
-        $currentDate,                     // s (DATE)
+        "isssii",
+        $registrationFormID,               // i
         $ManagementNationality[$i],        // s
         $ManagementName[$i],               // s
         $ManagementPosition[$i],           // s
@@ -753,14 +744,13 @@ $WorkingCapital   = $_POST['WorkingCapital'] ?? [];
 
 $FinanceStmt = $conn->prepare("
     INSERT INTO nettworth (
-        NewCompanyRegistration,
-        time,
+        registrationFormID,
         YearOf,
         TotalLiabilities,
         TotalAssets,
         NetWorth,
         WorkingCapital
-    ) VALUES (?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?)
 ");
 
 foreach ($totalLiabilities as $year => $liability) {
@@ -780,9 +770,8 @@ foreach ($totalLiabilities as $year => $liability) {
     $WorkingCapital = $WorkingCapital[$year] ?? 0;
     
     $FinanceStmt->bind_param(
-        "isidddd",
-        $newCRN,                         // i
-        $currentDate,                    // s (DATE)
+        "isiddd",
+        $registrationFormID,                         // i
         $year,                           // i (YEAR)
         $liability,                      // d
         $totalAssets,        // d
@@ -815,7 +804,7 @@ foreach ($totalLiabilities as $year => $liability) {
 $FinanceStmt->close();
 
 
-//current project tracking
+//Past project tracking
 $ProjectRecordNo        = $_POST['ProjectRecordNo'] ?? [];
 $ProjectTitle           = $_POST['ProjectTitle'] ?? [];
 $ProjectNature          = $_POST['ProjectNature'] ?? [];
@@ -827,17 +816,16 @@ $ProjectCompletion      = $_POST['ProjectCompletionDate'] ?? [];
 
 $ProjectStmt = $conn->prepare("
     INSERT INTO projecttrackrecord (
-        projectRecordNo,
         registrationFormID,
-        time,
+        projectRecordNo,
         projectTitle,
         projectNature,
         location,
         clientName,
         projectValue,
-        commencement,
+        commencementDate,
         completionDate
-    ) VALUES (?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?,?,?,?,?,?,?)
 ");
 
 for ($i = 0; $i < count($ProjectRecordNo); $i++) {
@@ -852,10 +840,9 @@ for ($i = 0; $i < count($ProjectRecordNo); $i++) {
     }
 
     $ProjectStmt->bind_param(
-        "iisssssdss",
+        "iisssssdd",
+        $registrationFormID,        // i
         $ProjectRecordNo[$i],       // i
-        $newCRN,                    // i
-        $currentDate,               // s (DATE)
         $ProjectTitle[$i],          // s
         $ProjectNature[$i],         // s
         $ProjectLocation[$i],       // s
@@ -925,14 +912,13 @@ if (!$shareholderValidationFailed) {
 
 $ShareholderStmt = $conn->prepare("
     INSERT INTO shareholders (
-        CompanyShareholderID,
         registrationFormID,
-        time,
-        nationality,
+        companyShareholderID,
         name,
+        nationality,
         address,
-        share
-    ) VALUES (?,?,?,?,?,?,?)
+        sharePercentage
+    ) VALUES (?,?,?,?,?,?)
 ");
 
 for ($i = 0; $i < count($ShareholderName); $i++) {
@@ -947,14 +933,13 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
     }
 
     $ShareholderStmt->bind_param(
-        "iissssd",
-        $CompanyShareholderIDNo[$i],
-        $newCRN,                         // i
-        $currentDate,                    // s (DATE)
-        $ShareholderNationality[$i],     // s
-        $ShareholderName[$i],            // s
-        $ShareholderAddress[$i],         // s
-        $ShareholderPercent[$i]          // d
+        "issssd",
+        $registrationFormID,            // i
+        $CompanyShareholderIDNo[$i],    // s
+        $ShareholderName[$i],           // s
+        $ShareholderNationality[$i],    // s
+        $ShareholderAddress[$i],        // s
+        $ShareholderPercent[$i]         // d
     );
 
     if($ShareholderStmt->execute()) {
@@ -995,17 +980,16 @@ $StaffExperience      = $_POST['StaffExperience'] ?? [];
 
 $StaffStmt = $conn->prepare("
     INSERT INTO staff (
-        staffNO,
         registrationFormID,
-        time,
+        staffNo,
         name,
         designation,
         qualification,
         yearsOfExperience,
         employmentStatus,
         skills,
-        RelevantCertification
-    ) VALUES (?,?,?,?,?,?,?,?,?,?)
+        relevantCertification
+    ) VALUES (?,?,?,?,?,?,?,?,?)
 ");
 
 for ($i = 0; $i < count($StaffNo); $i++) {
@@ -1020,10 +1004,9 @@ for ($i = 0; $i < count($StaffNo); $i++) {
     }
 
     $StaffStmt->bind_param(
-        "iissssisss",
+        "iisssisss",
+        $registrationFormID,        // i
         $StaffNo[$i],               // i
-        $newCRN,                    // i
-        $currentDate,               // s (DATE)
         $StaffName[$i],             // s
         $StaffDesignation[$i],      // s
         $StaffQualification[$i],    // s
@@ -1058,5 +1041,12 @@ $StaffStmt->close();
 
 $conn->close();
 ?>
-<div class="pending-box">Pending Approval...</div>
+<div class="pending-box text-success" id="successBox">
+    Submission successful! Redirecting to vendor home page...
+</div>
+<script>
+    setTimeout(function() {
+        window.location.href = 'VendorHomepage.php'; // Change to your vendor home page if needed
+    }, 5000);
+</script>
 </body>

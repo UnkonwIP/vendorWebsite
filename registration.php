@@ -90,8 +90,8 @@
                 //check for old company registration number format
             </div>
             <div class="grid-column">
-                <label for="Email">Email</label>
-                <input type="Email" name="Email" id="Email" required>
+                <label for="EmailAddress">Email</label>
+                <input type="Email" name="EmailAddress" id="EmailAddress" required>
             </div>
         </div>
         <div class="grid-row">
@@ -715,11 +715,11 @@ The Contractor is required to complete the form by listing all plant and machine
                     <th>Progress of the Works (%)</th>
                 </tr>
                 <tr>
-                    <td><input min="1" type="number" name="CurrentProjectNo[]"></td>
+                    <td><input min="1" type="number" name="CurrentProjectRecordNo[]"></td>
                     <td><input type="text" name="CurrentProjTitle[]"></td>
                     <td><input type="text" name="CurrentProjNature[]"></td>
                     <td><input type="text" name="CurrentProjLocation[]"></td>
-                    <td><input type="text" name="CurrentProjName[]"></td>
+                    <td><input type="text" name="CurrentProjClientName[]"></td>
                     <td><input type="text" name="CurrentProjValue[]"></td>
                     <td><input type="date" name="CurrentProjStartDate[]"></td>
                     <td><input type="date" name="CurrentProjEndDate[]"></td>

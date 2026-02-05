@@ -27,12 +27,12 @@ if (empty($vendorAccountID)) {
 
 $forms = [];
 if (!empty($vendorNewCompanyRegistration)) {
-    $stmt = $conn->prepare("
-        SELECT newCompanyRegistrationNumber, companyName AS CompanyName, time, status
+    $stmt = $conn->prepare(
+        "SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status
         FROM registrationform
         WHERE newCompanyRegistrationNumber = ?
-        ORDER BY time DESC
-    ");
+        ORDER BY formFirstSubmissionDate DESC"
+    );
     $stmt->bind_param("s", $vendorNewCompanyRegistration);
     $stmt->execute();
     $formsResult = $stmt->get_result();
@@ -362,7 +362,7 @@ if (!empty($vendorNewCompanyRegistration)) {
                         <div class="form-card-title">
                             <?php echo htmlspecialchars($form['CompanyName'] ?? 'Unnamed Company'); ?>
                         </div>
-                        <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'pending'); ?>">
+                            <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
                             <?php echo htmlspecialchars($form['status'] ?? 'Pending'); ?>
                         </span>
                     </div>
@@ -376,16 +376,15 @@ if (!empty($vendorNewCompanyRegistration)) {
                         </div>
                         <div class="form-detail">
                             <span class="form-detail-label">Submitted On</span>
-                            <span class="form-detail-value">
-                                <?php echo date('d M Y', strtotime($form['time'])); ?>
+                                <span class="form-detail-value">
+                                    <?php echo date('d M Y', strtotime($form['formFirstSubmissionDate'])); ?>
                             </span>
                         </div>
                     </div>
 
                     <div class="form-card-actions">
                         <form method="post" action="VendorUpdatePage.php" style="flex: 1; display: flex;">
-                            <input type="hidden" name="NewRegistration" value="<?php echo htmlspecialchars($form['newCompanyRegistrationNumber']); ?>">
-                            <input type="hidden" name="AvailableTimes" value="<?php echo htmlspecialchars($form['time']); ?>">
+                                <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
                             <button type="submit" class="btn-view">View Details</button>
                         </form>
                     </div>

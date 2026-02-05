@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password  = $_POST['accountPassword'] ?? '';
 
-    $stmt = $conn->prepare("SELECT username, passwordHash, role, email FROM vendoraccount WHERE username = ?");
+    $stmt = $conn->prepare("SELECT accountID, username, passwordHash, role, email FROM vendoraccount WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_regenerate_id(true);
             $_SESSION['username'] = $user['username'];
             $_SESSION['role']      = $user['role'];
+            $_SESSION['accountID'] = $user['accountID'] ?? '';
             // store email for vendor pages
             $_SESSION['email']     = $user['email'] ?? '';
 

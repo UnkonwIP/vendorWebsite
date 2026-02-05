@@ -71,6 +71,26 @@ CREATE TABLE `creditfacilities` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `currentproject`
+--
+
+CREATE TABLE `currentproject` (
+  `currentProjectID` int(11) NOT NULL,
+  `registrationFormID` int(11) NOT NULL,
+  `currentProjectRecordNo` int(11) NOT NULL,
+  `projectTitle` varchar(50) DEFAULT NULL,
+  `projectNature` varchar(50) DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  `clientName` varchar(100) DEFAULT NULL,
+  `projectValue` decimal(12,2) DEFAULT NULL,
+  `commencementDate` date DEFAULT NULL,
+  `completionDate` date DEFAULT NULL,
+  `progressOfTheWork` decimal(5,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `directorandsecretary`
 --
 
@@ -87,6 +107,24 @@ CREATE TABLE `directorandsecretary` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `equipment`
+--
+
+CREATE TABLE `equipment` (
+  `equipmentRecordID` int(11) NOT NULL,
+  `registrationFormID` int(11) NOT NULL,
+  `equipmentID` int(11) NOT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `brand` varchar(30) DEFAULT NULL,
+  `rating` decimal(3,1) DEFAULT NULL,
+  `ownership` varchar(20) DEFAULT NULL,
+  `yearsOfManufacture` date DEFAULT NULL,
+  `registrationNo` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `equipmentused`
 --
 
@@ -94,6 +132,15 @@ CREATE TABLE `equipmentused` (
   `equipmentID` int(11) NOT NULL,
   `equipmentType` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `equipmentused` (`equipmentID`, `equipmentType`) VALUES
+(1, 'Bobcat/JCB'),
+(2, 'HDD Equipment'),
+(3, 'Splicing Equipment'),
+(4, 'Optical Power Meter (OPM)'),
+(5, 'OTDR'),
+(6, 'Equipment/Test Gear');
+
 
 -- --------------------------------------------------------
 
@@ -114,18 +161,34 @@ CREATE TABLE `management` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nettworth`
+--
+
+CREATE TABLE `nettworth` (
+  `networthID` int(11) NOT NULL,
+  `registrationFormID` int(11) NOT NULL,
+  `yearOf` year(4) NOT NULL,
+  `totalLiabilities` decimal(15,2) DEFAULT NULL,
+  `totalAssets` decimal(15,2) DEFAULT NULL,
+  `netWorth` decimal(15,2) DEFAULT NULL,
+  `workingCapital` decimal(15,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `projecttrackrecord`
 --
 
 CREATE TABLE `projecttrackrecord` (
   `projectRecordID` int(11) NOT NULL,
   `registrationFormID` int(11) NOT NULL,
+  `projectRecordNo` int(11) NOT NULL,
   `projectTitle` varchar(50) DEFAULT NULL,
   `projectNature` varchar(30) DEFAULT NULL,
   `location` varchar(56) DEFAULT NULL,
   `clientName` varchar(30) DEFAULT NULL,
   `projectValue` decimal(12,2) DEFAULT NULL,
-  `commencement` date DEFAULT NULL,
+  `commencementDate` date DEFAULT NULL,
   `completionDate` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -138,7 +201,7 @@ CREATE TABLE `projecttrackrecord` (
 CREATE TABLE `registrationform` (
   `registrationFormID` int(11) NOT NULL,
   `newCompanyRegistrationNumber` varchar(20) NOT NULL,
-  `time` date NOT NULL,
+  `formFirstSubmissionDate` date NOT NULL,
   `companyName` varchar(40) DEFAULT NULL,
   `taxRegistrationNumber` varchar(20) DEFAULT NULL,
   `faxNo` varchar(20) DEFAULT NULL,
@@ -211,6 +274,7 @@ CREATE TABLE `shareholders` (
 CREATE TABLE `staff` (
   `staffID` int(11) NOT NULL,
   `registrationFormID` int(11) NOT NULL,
+  `staffNo` int(11) NOT NULL,
   `name` varchar(30) DEFAULT NULL,
   `designation` varchar(30) DEFAULT NULL,
   `qualification` varchar(30) DEFAULT NULL,
@@ -264,11 +328,26 @@ ALTER TABLE `creditfacilities`
   ADD KEY `registrationFormID` (`registrationFormID`);
 
 --
+-- Indexes for table `currentproject`
+--
+ALTER TABLE `currentproject`
+  ADD PRIMARY KEY (`currentProjectID`),
+  ADD KEY `fk_currentproject_registration` (`registrationFormID`);
+
+--
 -- Indexes for table `directorandsecretary`
 --
 ALTER TABLE `directorandsecretary`
   ADD PRIMARY KEY (`directorID`),
   ADD KEY `registrationFormID` (`registrationFormID`);
+
+--
+-- Indexes for table `equipment`
+--
+ALTER TABLE `equipment`
+  ADD PRIMARY KEY (`equipmentRecordID`),
+  ADD KEY `fk_equipment_form` (`registrationFormID`),
+  ADD KEY `fk_equipment_type` (`equipmentID`);
 
 --
 -- Indexes for table `equipmentused`
@@ -282,6 +361,13 @@ ALTER TABLE `equipmentused`
 ALTER TABLE `management`
   ADD PRIMARY KEY (`managementID`),
   ADD KEY `registrationFormID` (`registrationFormID`);
+
+--
+-- Indexes for table `nettworth`
+--
+ALTER TABLE `nettworth`
+  ADD PRIMARY KEY (`networthID`),
+  ADD KEY `fk_nettworth_registration` (`registrationFormID`);
 
 --
 -- Indexes for table `projecttrackrecord`
@@ -341,10 +427,22 @@ ALTER TABLE `creditfacilities`
   MODIFY `facilityID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `currentproject`
+--
+ALTER TABLE `currentproject`
+  MODIFY `currentProjectID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `directorandsecretary`
 --
 ALTER TABLE `directorandsecretary`
   MODIFY `directorID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `equipment`
+--
+ALTER TABLE `equipment`
+  MODIFY `equipmentRecordID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `equipmentused`
@@ -357,6 +455,12 @@ ALTER TABLE `equipmentused`
 --
 ALTER TABLE `management`
   MODIFY `managementID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `nettworth`
+--
+ALTER TABLE `nettworth`
+  MODIFY `networthID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `projecttrackrecord`
@@ -405,16 +509,36 @@ ALTER TABLE `creditfacilities`
   ADD CONSTRAINT `creditfacilities_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `currentproject`
+--
+ALTER TABLE `currentproject`
+  ADD CONSTRAINT `fk_currentproject_registration` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `directorandsecretary`
 --
 ALTER TABLE `directorandsecretary`
   ADD CONSTRAINT `directorandsecretary_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `equipment`
+--
+ALTER TABLE `equipment`
+  ADD CONSTRAINT `fk_equipment_form` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_equipment_type` FOREIGN KEY (`equipmentID`) REFERENCES `equipmentused` (`equipmentID`);
+
+--
 -- Constraints for table `management`
 --
 ALTER TABLE `management`
   ADD CONSTRAINT `management_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `nettworth`
+--
+ALTER TABLE `nettworth`
+  ADD CONSTRAINT `fk_nettworth_registration` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
+COMMIT;
 
 --
 -- Constraints for table `projecttrackrecord`

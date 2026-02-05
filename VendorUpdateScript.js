@@ -1,331 +1,155 @@
-function SearchRegistration() {
-    const registration = document.getElementById("NewRegistration").value;
+/* VendorUpdateScript.js */
+const formID = document.getElementById("registrationFormID").value;
+function showLoading() { document.getElementById('loadingOverlay').style.display = 'block'; }
+function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
 
-    if (registration === "") {
-        alert("Please enter a value");
-        return;
-    }
-
-    fetch("VendorSearch.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "registration=" + encodeURIComponent(registration)
-    })
-    .then(response => response.json()) // ✅ JSON
-    .then(data => {
-        const select = document.getElementById("AvailableTimes");
-
-        select.innerHTML = '<option value="">-- when was the form submitted --</option>';
-
-        data.forEach(item => {
-            const option = document.createElement("option");
-            option.value = item.time;      // adjust to your column name
-            option.textContent = item.time;
-            select.appendChild(option);
-        });
-    })
-    .catch(err => console.error(err));
-}
-
-function editField(button, inputId, table_name, dataType) {
+/** Single Field Edit */
+function editField(button, inputId, tableName) {
     const input = document.getElementById(inputId);
-
-    // 🔒 Read DB field directly from HTML
     const dbField = input.dataset.field;
-
-    if (!dbField) {
-        console.error("Missing data-field attribute on input:", inputId);
-        alert("Configuration error: data-field not set");
-        return;
-    }
-
-    if (input.hasAttribute("readonly")) {
-        // EDIT mode
-        input.removeAttribute("readonly");
-        input.focus();
+    if (input.readOnly) {
+        input.readOnly = false;
+        input.classList.add("bg-white", "border-primary");
         button.textContent = "Save";
         button.classList.replace("btn-outline-primary", "btn-success");
     } else {
-        // SAVE mode
-        input.setAttribute("readonly", true);
+        input.readOnly = true;
+        input.classList.remove("bg-white", "border-primary");
         button.textContent = "Edit";
         button.classList.replace("btn-success", "btn-outline-primary");
-
-        // send updated value to PHP
-        updateField(dbField, input.value, table_name, dataType);
+        updateField(dbField, input.value, tableName);
     }
 }
 
-
-function updateField(dbField, value, table_name ,dataType) {
-    const newCRN = document.getElementById("NewCompanyRegistration").value;
-    const time   = document.getElementById("time").value;
-
+function updateField(dbField, value, tableName) {
+    showLoading();
     fetch("UpdateRegistration.php", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body:
-            "field=" + encodeURIComponent(dbField) +
-            "&value=" + encodeURIComponent(value) +
-            "&NewCompanyRegistration=" + encodeURIComponent(newCRN) +
-            "&time=" + encodeURIComponent(time) +
-            "&Table=" + encodeURIComponent(table_name) +
-            "&dataType=" + encodeURIComponent(dataType)
-    })
-    .then(res => res.text())
-    .then(data => alert(data))
-    .catch(err => console.error(err));
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ "field": dbField, "value": value, "registrationFormID": formID, "Table": tableName })
+    }).then(res => res.text()).then(data => hideLoading());
 }
 
-
+/** Radio Group Edit */
 function editRadioGroup(button, groupId, tableName) {
     const group = document.getElementById(groupId);
     const radios = group.querySelectorAll("input[type='radio']");
-    const field = group.dataset.field;
-
-    const isDisabled = radios[0].disabled;
-
-    if (isDisabled) {
-        // EDIT mode
+    const dbField = group.dataset.field;
+    if (radios[0].disabled) {
         radios.forEach(r => r.disabled = false);
         button.textContent = "Save";
         button.classList.replace("btn-outline-primary", "btn-success");
     } else {
-        // SAVE mode
+        const selected = [...radios].find(r => r.checked);
+        if (!selected) return alert("Select an option");
         radios.forEach(r => r.disabled = true);
         button.textContent = "Edit";
         button.classList.replace("btn-success", "btn-outline-primary");
-
-        const selected = [...radios].find(r => r.checked);
-        if (!selected) {
-            alert("Please select an option");
-            return;
-        }
-
-        updateField(field, selected.value, tableName, "text");
+        updateField(dbField, selected.value, tableName);
     }
 }
 
+/** Table Row Edit */
+function editTableRow(button, tableName, idName) {
+    const container = button.closest("tr") || button.closest(".row-container");
+    const inputs = container.querySelectorAll("input");
+    const rowId = container.dataset.id;
+    const extraYear = container.dataset.year || "";
+    const extraTypeId = container.dataset.typeId || "";
 
-function editTableRow(button, tableName,idName) {
-    const row = button.closest("tr");
-    const inputs = row.querySelectorAll("input");
-    const rowId = row.dataset.id;
-
-    if (button.textContent === "Edit") {
-        inputs.forEach(i => i.removeAttribute("readonly"));
+    if (button.textContent.trim() === "Edit") {
+        inputs.forEach(i => i.readOnly = false);
         button.textContent = "Save";
         button.classList.replace("btn-outline-primary", "btn-success");
+        if(button.classList.contains("btn-outline-secondary")) button.classList.replace("btn-outline-secondary", "btn-success");
     } else {
-        inputs.forEach(i => i.setAttribute("readonly", true));
+        inputs.forEach(i => i.readOnly = true);
         button.textContent = "Edit";
         button.classList.replace("btn-success", "btn-outline-primary");
-
-        inputs.forEach((input, index) => {
-            updateTableField(
-                tableName,
-                rowId,
-                input.dataset.field,
-                input.value,
-                input.type,
-                idName
-            );
+        inputs.forEach(input => {
+            updateTableField(tableName, rowId, input.dataset.field, input.value, idName, extraYear, extraTypeId, container);
         });
     }
 }
 
-function updateTableField(table, rowId, field, value, dataType,idName) {
-    // Grab NewCompanyRegistration and time from your page
-    const newCRN = document.getElementById("NewCompanyRegistration").value;
-    const time   = document.getElementById("time").value;
-    
+function updateTableField(tableName, rowId, dbField, value, idName, extraYear, extraTypeId, container) {
     fetch("UpdateTableRow.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body:
-            "field=" + encodeURIComponent(field) +
-            "&value=" + encodeURIComponent(value) +
-            "&NewCompanyRegistration=" + encodeURIComponent(newCRN) +
-            "&time=" + encodeURIComponent(time) +
-            "&Table=" + encodeURIComponent(table) +
-            "&dataType=" + encodeURIComponent(dataType) +
-            "&rowId=" + encodeURIComponent(rowId) +
-            "&idName=" + encodeURIComponent(idName)
-    })
-    .then(res => res.text())
-    .then(data => console.log(data))
-    .catch(err => console.error("Fetch error:", err));
+        body: new URLSearchParams({
+            "field": dbField, "value": value, "registrationFormID": formID,
+            "Table": tableName, "rowId": rowId, "idName": idName,
+            "extraYear": extraYear, "extraTypeId": extraTypeId
+        })
+    }).then(res => res.text()).then(data => {
+        if(data.startsWith("INSERTED:")) {
+            container.dataset.id = data.split(":")[1]; // Update DOM ID
+        }
+    });
 }
 
-function deleteEditRow(button,TableName,idName) {
+/** Delete Row */
+function deleteEditRow(button, tableName, idName) {
+    if(!confirm("Delete this record?")) return;
     const row = button.closest("tr");
-    
-    const newCRN = document.getElementById("NewCompanyRegistration").value;
-    const time   = document.getElementById("time").value;
-    const ID = row.dataset.id;
-    
     fetch("DeleteTableRow.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body:
-            "ID=" + encodeURIComponent(ID) +
-            "&NewCompanyRegistration=" + encodeURIComponent(newCRN) +
-            "&time=" + encodeURIComponent(time) +
-            "&Table=" + encodeURIComponent(TableName) +
-            "&idName=" + encodeURIComponent(idName)
-    })
-    .then(res => res.text())
-    .then(data => console.log(data))
-    .catch(err => console.error("Fetch error:", err));
-    row.remove();
+        body: new URLSearchParams({ "ID": row.dataset.id, "idName": idName, "registrationFormID": formID, "Table": tableName })
+    }).then(res => res.text()).then(data => { if(data.trim()==="Deleted") row.remove(); });
 }
 
-function addEditShareholders(tableName, formName) {
-    const table = document.getElementById(formName).querySelector("tbody");
-
-    const row = table.insertRow(-1);
-    row.dataset.new = "1"; // mark as new row
-
-    let fields;
+/** Add Row Logic */
+function addEditShareholders(tableName, tableId) {
+    if(!confirm("Create new blank row?")) return;
     
-    if (tableName === "DirectorAndSecretary"){
-        fields = [
-        { name: "name", type: "text"},
-        { name: "position", type: "text"},
-        { name: "nationality", type: "text"},
-            { name: "appointmentDate", type: "date"},
-        { name: "DOB", type: "date"}
-        ]
-    } else if (tableName === "Shareholders"){
-        fields = [
-        { name: "ShareHolderID", type: "number", step: "1" },
-        { name: "name", type: "text" },
-        { name: "nationality", type: "text" },
-        { name: "address", type: "text" },
-        { name: "share", type: "number", step: "0.01" }
-    ]
-    } else if (tableName === "Management") {
-    fields = [
-        { name: "name", type: "text" },
-        { name: "nationality", type: "text" },
-        { name: "position", type: "text" },
-        { name: "yearsInPosition", type: "number", min: 0, max: 99 },
-        { name: "yearsInRelatedField", type: "number", min: 0, max: 99 }
-    ];
-    } else if (tableName === "Bank") {
-        fields = [
-            { name: "BankName", type: "text" },
-            { name: "BankAddress", type: "text" },
-            { name: "SWIFTCode", type: "text" }
-        ];
-    } else if (tableName === "Staff") {
-        fields = [
-            { name: "staffNO", type: "number", min: 1 },
-            { name: "name", type: "text" },
-            { name: "designation", type: "text" },
-            { name: "qualification", type: "text" },
-            { name: "employmentStatus", type: "text" },
-            { name: "skills", type: "text" },
-                { name: "RelevantCertification", type: "text" },
-            { name: "yearsOfExperience", type: "number", min: 1 }
-        ];
-        
-    } else if (tableName === "ProjectTrackRecord") {
-        fields = [
-            { name: "projectRecordNo", type: "number", min: 1 },
-            { name: "projectTitle", type: "text" },
-            { name: "projectNature", type: "text" },
-            { name: "location", type: "text" },
-            { name: "clientName", type: "text" },
-            { name: "projectValue", type: "text" },
-            { name: "commencement", type: "date" },
-            { name: "completionDate", type: "date" }
-        ];
-    } else if (tableName === "CurrentProject") {
-        fields = [
-                { name: "CurrentProjectNo", type: "number", min: 1 },
-            { name: "CurrentProjTitle", type: "text" },
-            { name: "CurrentProjNature", type: "text" },
-            { name: "CurrentProjLocation", type: "text" },
-            { name: "CurrentProjName", type: "text" },
-            { name: "CurrentProjValue", type: "text" },
-            { name: "CurrentProjStartDate", type: "date" },
-            { name: "CurrentProjEndDate", type: "date" },
-            { name: "CurrentProjProgress", type: "number", min: 1, max: 100 }
-        ];
+    const params = new URLSearchParams();
+    params.append("Table", tableName);
+    params.append("registrationFormID", formID);
+    const today = new Date().toISOString().split('T')[0];
+
+    // Build Default Params based on Table
+    if (tableName === 'Shareholders') {
+        params.append("companyShareholderID", "000"); params.append("name", "New Shareholder");
+        params.append("nationality", "Malaysia"); params.append("address", "-"); params.append("sharePercentage", 0);
+    } 
+    else if (tableName === 'DirectorAndSecretary') {
+        params.append("name", "New Director"); params.append("nationality", "Malaysia");
+        params.append("position", "Director"); params.append("appointmentDate", today); params.append("dob", today);
     }
-    
-    fields.forEach(f => {
-        const cell = row.insertCell();
-        const input = document.createElement("input");
-        input.type = f.type;
-        input.step = f.step || "";
-        input.dataset.field = f.name;
-        input.className = "form-control";
-        cell.appendChild(input);
+    else if (tableName === 'Management') {
+        params.append("name", "New Manager"); params.append("nationality", "Malaysia");
+        params.append("position", "Manager"); params.append("yearsInPosition", 0); params.append("yearsInRelatedField", 0);
+    }
+    else if (tableName === 'Bank') {
+        params.append("bankName", "New Bank"); params.append("bankAddress", "-"); params.append("swiftCode", "-");
+    }
+    else if (tableName === 'Staff') {
+        params.append("staffNo", 1); params.append("name", "New Staff"); params.append("designation", "-");
+        params.append("qualification", "-"); params.append("yearsOfExperience", 0); params.append("employmentStatus", "Permanent");
+        params.append("skills", "-"); params.append("relevantCertification", "-");
+    }
+    else if (tableName === 'ProjectTrackRecord') {
+        params.append("projectRecordNo", 1); params.append("projectTitle", "New Project"); params.append("projectNature", "OSP");
+        params.append("location", "-"); params.append("clientName", "-"); params.append("projectValue", 0);
+        params.append("commencementDate", today); params.append("completionDate", today);
+    }
+    else if (tableName === 'CurrentProject') {
+        params.append("currentProjectRecordNo", 1); params.append("projectTitle", "New Current Project"); params.append("projectNature", "OSP");
+        params.append("location", "-"); params.append("clientName", "-"); params.append("projectValue", 0);
+        params.append("commencementDate", today); params.append("completionDate", today); params.append("progressOfTheWork", 0);
+    }
+    else if (tableName === 'CreditFacilities') {
+        params.append("typeOfCreditFacilities", "Loan"); params.append("financialInstitution", "-");
+        params.append("totalAmount", 0); params.append("expiryDate", today);
+        params.append("unutilisedAmountCurrentlyAvailable", 0); params.append("asAtDate", today);
+    }
+
+    fetch("insertShareholder.php", { method: "POST", body: params })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) window.location.reload(); 
+        else alert("Error adding row: " + data.error);
     });
-
-    const actionCell = row.insertCell();
-
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "btn btn-success btn-sm";
-    saveBtn.textContent = "Save";
-    saveBtn.onclick = function () {
-        InsertShareholders(this, tableName);
-    };
-
-    actionCell.appendChild(saveBtn);
 }
-
-
-function InsertShareholders(button, tableName) {
-    const row = button.closest("tr");
-    const inputs = row.querySelectorAll("input");
-
-    const newCRN = document.getElementById("NewCompanyRegistration").value;
-    const time   = document.getElementById("time").value;
-
-    const data = new URLSearchParams();
-    data.append("Table", tableName);
-    data.append("NewCompanyRegistration", newCRN);
-    data.append("time", time);
-
-    inputs.forEach(input => {
-        data.append(input.dataset.field, input.value);
-    });
-
-    fetch("insertShareholder.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data.toString()
-    })
-    .then(res => res.text())
-    .then(text => {
-        console.log(text);
-    })
-    .then(response => {
-        if (response.success) {
-            // ✅ set DB id
-            row.dataset.id = response.id;
-            delete row.dataset.new;
-
-            // make readonly
-            inputs.forEach(i => i.setAttribute("readonly", true));
-
-            // 🔄 convert Save → Edit
-            button.textContent = "Edit";
-            button.className = "btn btn-outline-primary btn-sm";
-            button.onclick = function () {
-                editTableRow(this, "Shareholders");
-            };
-        } else {
-            alert("Insert failed");
-        }
-    })
-    .catch(err => console.error(err));
-}
+function editSpecialRow(btn, table, idName) { editTableRow(btn, table, idName); }

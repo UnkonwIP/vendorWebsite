@@ -1,28 +1,34 @@
 <?php
 $conn = new mysqli('localhost', 'root', '', 'vendor_information');
+if ($conn->connect_error) exit("Connection failed");
 
-if ($conn->connect_error) {
-    http_response_code(500);
-    exit("DB connection failed");
-}
+$id = $_POST['ID'] ?? '';
+$idName = $_POST['idName'] ?? '';
+$formID = $_POST['registrationFormID'] ?? '';
+$tableAlias = $_POST['Table'] ?? '';
 
-$ID = $_POST['ID'];
-$NewCRN = $_POST['NewCompanyRegistration'];
-$time = $_POST['time'];
-$tableName = $_POST['Table'];
-$idName = $_POST['idName'];
+// Map Frontend Alias -> SQL Table
+$TableMap = [
+    'Shareholders' => 'shareholders',
+    'DirectorAndSecretary' => 'directorandsecretary',
+    'Management' => 'management',
+    'Bank' => 'bank',
+    'Staff' => 'staff',
+    'ProjectTrackRecord' => 'projecttrackrecord',
+    'CurrentProject' => 'currentproject',
+    'Contacts' => 'contacts',
+    'CreditFacilities' => 'creditfacilities'
+];
 
-$deleteStmt = $conn->prepare("Delete From `$tableName` WHERE `NewCompanyRegistration` = ? AND `time` = ? AND `$idName` = ?;");
-$deleteStmt->bind_param("isi", $NewCRN, $time, $ID);
+if (!isset($TableMap[$tableAlias])) exit("Invalid Table");
+$dbTable = $TableMap[$tableAlias];
 
-if ($deleteStmt->execute()) {
-    echo "success";
-    echo $ID;
-    echo $NewCRN;
-    echo $tableName;
-    echo $time;
-} else {
-    http_response_code(500);
-    echo "error";
-}
+// Security: ID name must be alphanumeric
+if (!preg_match('/^[a-zA-Z0-9_]+$/', $idName)) exit("Invalid ID Column");
+
+$stmt = $conn->prepare("DELETE FROM `$dbTable` WHERE `$idName` = ? AND `registrationFormID` = ?");
+$stmt->bind_param("ii", $id, $formID);
+
+if ($stmt->execute()) echo "Deleted";
+else echo "Error: " . $stmt->error;
 ?>

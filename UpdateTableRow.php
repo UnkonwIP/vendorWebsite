@@ -1,4 +1,6 @@
 <?php
+// UpdateTableRow.php
+
 $conn = new mysqli('localhost', 'root', '', 'vendor_information');
 
 if ($conn->connect_error) {
@@ -6,87 +8,102 @@ if ($conn->connect_error) {
     exit("DB connection failed");
 }
 
-$required = ['field', 'value', 'NewCompanyRegistration', 'time', 'Table', 'dataType'];
+$required = ['field', 'value', 'registrationFormID', 'Table', 'idName'];
 foreach ($required as $key) {
-    if (!isset($_POST[$key])) {
-        http_response_code(400);
-        exit("Missing $key");
-    }
+    if (!isset($_POST[$key])) exit("Missing parameter: $key");
 }
 
-$field   = $_POST['field'];
-$value   = trim($_POST['value']);
-$newCRN  = $_POST['NewCompanyRegistration'];
-$time    = $_POST['time'];
-$table   = $_POST['Table'];
-$dataType = $_POST['dataType'];
-$rowId = $_POST['rowId'];
-$idName = $_POST['idName'];
+$field  = $_POST['field'];
+$value  = trim($_POST['value']);
+$formID = $_POST['registrationFormID'];
+$table  = $_POST['Table'];
+$rowId  = $_POST['rowId']; 
+$idName = $_POST['idName']; 
 
-$AllowedTables = [
+// Configuration: Whitelist
+$AllowedConfig = [
     'Shareholders' => [
         'table' => 'shareholders',
-        'fields' => ['ShareHolderID','name', 'nationality', 'address', 'share']
+        'fields' => ['companyShareholderID', 'name', 'nationality', 'address', 'sharePercentage']
     ],
     'DirectorAndSecretary' => [
         'table' => 'directorandsecretary',
-        'fields' => ['DirectorID','time', 'nationality', 'position', 'name','appointmentDate','DOB']
+        'fields' => ['nationality', 'name', 'position', 'appointmentDate', 'dob']
     ],
     'Management' => [
         'table' => 'management',
-        'fields' => ['ManagementID','time', 'nationality', 'yearsInPosition', 'name','yearsInRelatedField']
+        'fields' => ['nationality', 'name', 'position', 'yearsInPosition', 'yearsInRelatedField']
     ],
     'Bank' => [
         'table' => 'bank',
-        'fields' => ['BankID','BankName', 'BankAddress', 'SWIFTCode']
+        'fields' => ['bankName', 'bankAddress', 'swiftCode']
+    ],
+    'CreditFacilities' => [
+        'table' => 'creditfacilities',
+        'fields' => ['typeOfCreditFacilities', 'financialInstitution', 'totalAmount', 'expiryDate', 'unutilisedAmountCurrentlyAvailable', 'asAtDate']
     ],
     'Staff' => [
         'table' => 'staff',
-        'fields' => ['staffNO','name', 'designation', 'qualification','yearsOfExperience', 'employmentStatus','skills','RelevantCertification']
+        'fields' => ['staffNo', 'name', 'designation', 'qualification', 'yearsOfExperience', 'employmentStatus', 'skills', 'relevantCertification']
     ],
     'ProjectTrackRecord' => [
         'table' => 'projecttrackrecord',
-        'fields' => ['projectRecordNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate']
+        'fields' => ['projectRecordNo', 'projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate']
     ],
     'CurrentProject' => [
         'table' => 'currentproject',
-        'fields' => ['CurrentProjectNo','projectTitle', 'projectNature', 'location','clientName', 'projectValue','commencement','completionDate','progressOfTheWork']
+        'fields' => ['currentProjectRecordNo', 'projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate', 'progressOfTheWork']
+    ],
+    'Contacts' => [
+        'table' => 'contacts',
+        'fields' => ['contactPersonName', 'department', 'telephoneNumber', 'emailAddress']
+    ],
+    'NetWorth' => [
+        'table' => 'nettworth',
+        'fields' => ['totalLiabilities', 'totalAssets', 'netWorth', 'workingCapital']
+    ],
+    'Equipment' => [
+        'table' => 'equipment',
+        'fields' => ['quantity', 'brand', 'rating', 'ownership', 'yearsOfManufacture', 'registrationNo']
     ]
 ];
 
-if (!isset($AllowedTables[$table])) {
-    http_response_code(403);
-    exit("Invalid table");
+if (!isset($AllowedConfig[$table])) exit("Invalid table");
+$dbTable = $AllowedConfig[$table]['table'];
+if (!in_array($field, $AllowedConfig[$table]['fields'])) exit("Invalid field");
+
+// === UPSERT LOGIC (INSERT IF EMPTY ROW ID) ===
+if (empty($rowId)) {
+    // Equipment Insert (needs type)
+    if ($table === 'Equipment' && !empty($_POST['extraTypeId'])) {
+        $typeID = $_POST['extraTypeId'];
+        $stmt = $conn->prepare("INSERT INTO equipment (registrationFormID, equipmentID, $field) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $formID, $typeID, $value);
+        if ($stmt->execute()) echo "INSERTED:" . $conn->insert_id;
+        else echo "Insert Error: " . $stmt->error;
+        exit;
+    }
+    // NetWorth Insert (needs year)
+    if ($table === 'NetWorth' && !empty($_POST['extraYear'])) {
+        $year = $_POST['extraYear'];
+        $stmt = $conn->prepare("INSERT INTO nettworth (registrationFormID, yearOf, $field) VALUES (?, ?, ?)");
+        $stmt->bind_param("iss", $formID, $year, $value);
+        if ($stmt->execute()) echo "INSERTED:" . $conn->insert_id;
+        else echo "Insert Error: " . $stmt->error;
+        exit;
+    }
+    exit("Error: No Row ID provided and not a valid Upsert context.");
 }
 
-if (!in_array($field, $AllowedTables[$table]['fields'], true)) {
-    http_response_code(403);
-    exit("Invalid field");
-}
-
-$tableName = $AllowedTables[$table]['table'];
-
-$sql = "UPDATE `$tableName`
-        SET `$field` = ?
-        WHERE `registrationFormID` = ? AND `time` = ? AND `$idName` = ?";
-
+// === STANDARD UPDATE ===
+// We perform a safe UPDATE using the PK ($idName) and FK ($formID)
+$sql = "UPDATE `$dbTable` SET `$field` = ? WHERE `$idName` = ? AND `registrationFormID` = ?";
 $stmt = $conn->prepare($sql);
+$stmt->bind_param("sii", $value, $rowId, $formID);
 
-if ($dataType === "number") {
-    $value = (int)$value;
-    $stmt->bind_param("issi", $value, $newCRN, $time, $rowId);
+if ($stmt->execute()) {
+    echo ($stmt->affected_rows > 0) ? "Saved" : "No changes";
 } else {
-    $stmt->bind_param("sssi", $value, $newCRN, $time, $rowId);
+    echo "SQL Error: " . $stmt->error;
 }
-
-$stmt->execute();
-echo "value= $value ,newCRN = $newCRN ,time= $time , rowID = $rowId";
-
-if ($stmt->affected_rows > 0) {
-    echo "Updated successfully";
-} else {
-    echo "No changes made";
-}
-
-$stmt->close();
-$conn->close();
+?>

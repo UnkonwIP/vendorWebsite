@@ -55,7 +55,7 @@
             <div class="grid-column">
                 <label for="tax">Tax Registration Number</label>
                 <input type="number" name="tax" id="tax" required>
-                // check for tax number format
+                <!--check for tax number format-->
             </div>
         </div>
         <div class="grid-row">
@@ -86,8 +86,8 @@
         <div class="grid-row">
             <div class="grid-column">
                 <label for="oldCRN">Company Registration No (old)</label>
+                <!--check for old company registration number format-->
                 <input type="number" name="oldCRN" id="oldCRN">
-                //check for old company registration number format
             </div>
             <div class="grid-column">
                 <label for="EmailAddress">Email</label>
@@ -162,10 +162,6 @@
         </div>
         <div class="grid-row">
         <div class="grid-column">
-            <label for="EmailAddress">Email Address</label>
-            <input type="email" name="EmailAddress" id="EmailAddress" required>
-        </div>
-        <div class="grid-column">
             <label for="Website">Website</label>
             <input type="text" name="Website" id="Website" required>
         </div>
@@ -228,7 +224,7 @@
             </tr>
             <tr>
                 <td><input type="number" name="CompanyShareholderID[]" step="1" min="0" max="9999999999"></td>
-                //check for shareholder ID format
+                <!-- check for shareholder ID format -->
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>
                 <td><input type="text" name="ShareholderAddress[]"></td>
@@ -652,20 +648,20 @@ The Contractor is required to complete the form by listing all plant and machine
                 <th>Name</th>
                 <th>Designation</th>
                 <th>Qualification</th>
+                <th>Year of Experience</th>
                 <th>Employment Status (Permanent / Contract / Seconded)</th>
                 <th>Skills / Expertise (Civil / HDD / Cable / TMP/ others contractor to indicate)</th>
                 <th>Relevant Certification (CIDB / EOSP/ others contractor to indicate)</th>
-                <th>Year of Experience</th>
             </tr>
             <tr>
                 <td><input type="number" name="StaffNo[]" min="1"></td>
                 <td><input type="text" name="StaffName[]"></td>
                 <td><input type="text" name="StaffDesignation[]"></td>
                 <td><input type="text" name="StaffQualification[]"></td>
+                <td><input type="number" name="StaffExperience[]" min="1"></td>
                 <td><input type="text" name="StaffEmploymentStatus[]"></td>
                 <td><input type="text" name="StaffSkills[]"></td>
                 <td><input type="text" name="StaffCertification[]"></td>
-                <td><input type="number" name="StaffExperience[]" min="1"></td>
                 <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
             </tr>
         </table>

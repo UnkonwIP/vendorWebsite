@@ -973,10 +973,10 @@ $StaffNo              = $_POST['StaffNo'] ?? [];
 $StaffName            = $_POST['StaffName'] ?? [];
 $StaffDesignation     = $_POST['StaffDesignation'] ?? [];
 $StaffQualification   = $_POST['StaffQualification'] ?? [];
+$StaffExperience      = $_POST['StaffExperience'] ?? [];
 $StaffEmployment      = $_POST['StaffEmploymentStatus'] ?? [];
 $StaffSkills          = $_POST['StaffSkills'] ?? [];
 $StaffCertification   = $_POST['StaffCertification'] ?? [];
-$StaffExperience      = $_POST['StaffExperience'] ?? [];
 
 $StaffStmt = $conn->prepare("
     INSERT INTO staff (

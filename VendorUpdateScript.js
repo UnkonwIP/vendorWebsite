@@ -102,7 +102,6 @@ function deleteEditRow(button, tableName, idName) {
 /** Add Row Logic */
 function addEditShareholders(tableName, tableId) {
     if(!confirm("Create new blank row?")) return;
-    
     const params = new URLSearchParams();
     params.append("Table", tableName);
     params.append("registrationFormID", formID);
@@ -145,11 +144,155 @@ function addEditShareholders(tableName, tableId) {
         params.append("unutilisedAmountCurrentlyAvailable", 0); params.append("asAtDate", today);
     }
 
-    fetch("insertShareholder.php", { method: "POST", body: params })
+    fetch("insertUpdatedTableRow.php", { method: "POST", body: params })
     .then(res => res.json())
     .then(data => {
-        if(data.success) window.location.reload(); 
-        else alert("Error adding row: " + data.error);
+        if(data.success) {
+            const table = tableId ? document.getElementById(tableId) : null;
+            let tr;
+            if(table && tableName === 'Shareholders') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="text" data-field="companyShareholderID" class="form-control" value="000" readonly></td>
+                    <td><input type="text" data-field="name" class="form-control" value="New Shareholder" readonly></td>
+                    <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+                    <td><input type="text" data-field="address" class="form-control" value="-" readonly></td>
+                    <td><input type="number" data-field="sharePercentage" class="form-control" value="0" step="0.01" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'Shareholders', 'shareholderID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'Shareholders', 'shareholderID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'DirectorAndSecretary') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="text" data-field="name" class="form-control" value="New Director" readonly></td>
+                    <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+                    <td><input type="text" data-field="position" class="form-control" value="Director" readonly></td>
+                    <td><input type="date" data-field="appointmentDate" class="form-control" value="${today}" readonly></td>
+                    <td><input type="date" data-field="dob" class="form-control" value="${today}" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'DirectorAndSecretary', 'directorID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'DirectorAndSecretary', 'directorID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'Management') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="text" data-field="name" class="form-control" value="New Manager" readonly></td>
+                    <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+                    <td><input type="text" data-field="position" class="form-control" value="Manager" readonly></td>
+                    <td><input type="number" data-field="yearsInPosition" class="form-control" value="0" readonly></td>
+                    <td><input type="number" data-field="yearsInRelatedField" class="form-control" value="0" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'Management', 'managementID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'Management', 'managementID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'Bank') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="text" data-field="bankName" class="form-control" value="New Bank" readonly></td>
+                    <td><input type="text" data-field="bankAddress" class="form-control" value="-" readonly></td>
+                    <td><input type="text" data-field="swiftCode" class="form-control" value="-" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'Bank', 'bankID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'Bank', 'bankID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'Staff') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="number" data-field="staffNo" class="form-control" value="1" readonly></td>
+                    <td><input type="text" data-field="name" class="form-control" value="New Staff" readonly></td>
+                    <td><input type="text" data-field="designation" class="form-control" value="-" readonly></td>
+                    <td><input type="text" data-field="qualification" class="form-control" value="-" readonly></td>
+                    <td><input type="number" data-field="yearsOfExperience" class="form-control" value="0" readonly></td>
+                    <td><input type="text" data-field="employmentStatus" class="form-control" value="Permanent" readonly></td>
+                    <td><input type="text" data-field="skills" class="form-control" value="-" readonly></td>
+                    <td><input type="text" data-field="relevantCertification" class="form-control" value="-" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'Staff', 'staffID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'Staff', 'staffID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'ProjectTrackRecord') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="number" data-field="projectRecordNo" class="form-control" value="1" readonly></td>
+                    <td><input type="text" data-field="projectTitle" class="form-control" value="New Project" readonly></td>
+                    <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
+                    <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
+                    <td><input type="text" data-field="clientName" class="form-control" value="-" readonly></td>
+                    <td><input type="number" data-field="projectValue" class="form-control" value="0" readonly></td>
+                    <td><input type="date" data-field="commencementDate" class="form-control" value="${today}" readonly></td>
+                    <td><input type="date" data-field="completionDate" class="form-control" value="${today}" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'ProjectTrackRecord', 'projectRecordID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'ProjectTrackRecord', 'projectRecordID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'CurrentProject') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="number" data-field="currentProjectRecordNo" class="form-control" value="1" readonly></td>
+                    <td><input type="text" data-field="projectTitle" class="form-control" value="New Current Project" readonly></td>
+                    <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
+                    <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
+                    <td><input type="text" data-field="clientName" class="form-control" value="-" readonly></td>
+                    <td><input type="number" data-field="projectValue" class="form-control" value="0" readonly></td>
+                    <td><input type="date" data-field="commencementDate" class="form-control" value="${today}" readonly></td>
+                    <td><input type="date" data-field="completionDate" class="form-control" value="${today}" readonly></td>
+                    <td><input type="number" data-field="progressOfTheWork" class="form-control" value="0" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'CurrentProject', 'currentProjectID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'CurrentProject', 'currentProjectID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else if(table && tableName === 'CreditFacilities') {
+                const tbody = table.querySelector('tbody') || table;
+                tr = document.createElement('tr');
+                tr.setAttribute('data-id', data.id);
+                tr.innerHTML = `
+                    <td><input type="text" data-field="typeOfCreditFacilities" class="form-control" value="Loan" readonly></td>
+                    <td><input type="text" data-field="financialInstitution" class="form-control" value="-" readonly></td>
+                    <td><input type="number" data-field="totalAmount" class="form-control" value="0" readonly></td>
+                    <td><input type="date" data-field="expiryDate" class="form-control" value="${today}" readonly></td>
+                    <td><input type="number" data-field="unutilisedAmountCurrentlyAvailable" class="form-control" value="0" readonly></td>
+                    <td><input type="date" data-field="asAtDate" class="form-control" value="${today}" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'CreditFacilities', 'facilityID')">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, 'CreditFacilities', 'facilityID')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else {
+                window.location.reload();
+            }
+        } else {
+            alert("Error adding row: " + data.error);
+        }
     });
 }
 function editSpecialRow(btn, table, idName) { editTableRow(btn, table, idName); }

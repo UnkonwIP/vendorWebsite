@@ -68,7 +68,7 @@ $tableName = $AllowedTables[$table]['table'];
 
 $sql = "UPDATE `$tableName`
         SET `$field` = ?
-        WHERE `NewCompanyRegistration` = ? AND `time` = ? AND `$idName` = ?";
+        WHERE `registrationFormID` = ? AND `time` = ? AND `$idName` = ?";
 
 $stmt = $conn->prepare($sql);
 

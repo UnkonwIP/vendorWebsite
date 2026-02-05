@@ -66,16 +66,16 @@
                 session_start();
                 include_once "database.php";
                 if (isset($_SESSION['accountID'])) {
-                    $stmt = $conn->prepare("SELECT NewCompanyRegistration FROM vendoraccount WHERE accountID = ?");
+                    $stmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ?");
                     $stmt->bind_param("s", $_SESSION['accountID']);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     if ($row = $result->fetch_assoc()) {
-                        $autoCRN = $row['NewCompanyRegistration'];
+                        $autoCRN = $row['newCompanyRegistrationNumber'];
                     }
                 }
                 ?>
-                <input type="number" name="newCRN" id="newCRN" min="0" max="999999999999" value="<?php echo htmlspecialchars($autoCRN); ?>" readonly>
+                <input type="text" name="newCRN" id="newCRN" maxlength="20" value="<?php echo htmlspecialchars($autoCRN); ?>" readonly>
             </div>
             <div class="grid-column">
                 <label for="FaxNo">Fax No</label>
@@ -227,7 +227,7 @@
                 <th>% of shares</th>
             </tr>
             <tr>
-                <td><input type="number" name="ShareholderID[]" step="1" min="0" max="9999999999"></td>
+                <td><input type="number" name="CompanyShareholderID[]" step="1" min="0" max="9999999999"></td>
                 //check for shareholder ID format
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>

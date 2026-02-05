@@ -5,6 +5,7 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
+require_once 'config.php';
 
 include "database.php";
 date_default_timezone_set('Asia/Kuala_Lumpur');
@@ -18,10 +19,10 @@ $setupToken = "";
 if (isset($_GET['token'])) {
     $setupToken = trim($_GET['token']);
     
-    // Validate token against database
+    // Validate token against database (new schema: resetToken, resetExpiry)
     $stmt = $conn->prepare(
         "SELECT accountID, email FROM vendoraccount 
-        WHERE reset_token = ? AND reset_expiry > NOW() AND accountID LIKE 'PENDING_%'"
+        WHERE resetToken = ? AND resetExpiry > NOW() AND username LIKE 'PENDING_%'"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
@@ -40,36 +41,37 @@ $userRole = '';
 $userVendorType = '';
 if ($tokenValid) {
     $stmt = $conn->prepare(
-        "SELECT role, vendor_type FROM vendoraccount 
-        WHERE reset_token = ? AND reset_expiry > NOW()"
+        "SELECT role, vendorType FROM vendoraccount 
+        WHERE resetToken = ? AND resetExpiry > NOW()"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $userRole = $row['role'];
-    $userVendorType = $row['vendor_type'];
+    $userVendorType = $row['vendorType'];
 }
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
     $accountID = trim($_POST['accountID']);
+    $username = trim($_POST['username']);
     $password  = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
-    
+
     // Get the email from the valid token
     $stmt = $conn->prepare(
         "SELECT email FROM vendoraccount 
-        WHERE reset_token = ? AND reset_expiry > NOW()"
+        WHERE resetToken = ? AND resetExpiry > NOW() AND username LIKE 'PENDING_%'"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $email = $row['email'];
-    
+
     // Validation
-    if (empty($accountID) || empty($password) || empty($confirmPassword)) {
+    if (empty($accountID) || empty($username) || empty($password) || empty($confirmPassword)) {
         $message = "All fields are required.";
         $messageType = "error";
     } elseif ($password !== $confirmPassword) {
@@ -79,26 +81,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
         $message = "Password must be at least 6 characters long.";
         $messageType = "error";
     } else {
-        // Check if account ID already exists
-        $checkStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE accountID = ? AND accountID NOT LIKE 'PENDING_%'");
+        // Check if account ID already exists (exclude PENDING_ usernames)
+        $checkStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE accountID = ? AND username NOT LIKE 'PENDING_%'");
         $checkStmt->bind_param("s", $accountID);
         $checkStmt->execute();
         $checkResult = $checkStmt->get_result();
-        
+
         if ($checkResult->num_rows > 0) {
             $message = "Account ID already exists. Please choose a different one.";
             $messageType = "error";
         } else {
             // Hash password and update account
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            
+
             $updateStmt = $conn->prepare(
                 "UPDATE vendoraccount 
-                SET accountID = ?, password = ?, reset_token = NULL, reset_expiry = NULL
-                WHERE email = ? AND reset_token = ?"
+                SET accountID = ?, username = ?, passwordHash = ?, resetToken = NULL, resetExpiry = NULL
+                WHERE email = ? AND resetToken = ? AND username LIKE 'PENDING_%'"
             );
-            $updateStmt->bind_param("ssss", $accountID, $hashedPassword, $email, $setupToken);
-            
+            $updateStmt->bind_param("sssss", $accountID, $username, $hashedPassword, $email, $setupToken);
+
             if ($updateStmt->execute()) {
                 $message = "Account setup completed successfully! You can now login with your account ID and password.";
                 $messageType = "success";
@@ -223,7 +225,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
         <p>Complete your account setup below.</p>
 
         <form method="post">
-            <input type="text" name="accountID" placeholder="Account ID (Username)" required>
+            <input type="text" name="accountID" placeholder="Account ID" required>
+
+            <input type="text" name="username" placeholder="Username" required>
             
             <input type="password" name="password" placeholder="Password (min 6 characters)" required>
             

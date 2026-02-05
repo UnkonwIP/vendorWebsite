@@ -4,25 +4,24 @@ include "database.php";
 
 // 1. Logic to handle the login attempt
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $companyID = $_POST['AccountID'] ?? '';
+    $username = $_POST['username'] ?? '';
     $password  = $_POST['accountPassword'] ?? '';
 
-    $stmt = $conn->prepare("SELECT accountID, password, role, email FROM vendoraccount WHERE accountID = ?");
-    $stmt->bind_param("s", $companyID);
+    $stmt = $conn->prepare("SELECT username, passwordHash, role, email FROM vendoraccount WHERE username = ?");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result && $result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
-        if (password_verify($password, $user['password'])) {
+        if (password_verify($password, $user['passwordHash'])) {
             // Success: Secure the session and redirect
             session_regenerate_id(true);
-            $_SESSION['accountID'] = $user['accountID'];
+            $_SESSION['username'] = $user['username'];
             $_SESSION['role']      = $user['role'];
-            // store email and a display name for vendor pages
+            // store email for vendor pages
             $_SESSION['email']     = $user['email'] ?? '';
-            $_SESSION['username']  = $user['accountID'];
 
             $location = ($user['role'] === 'admin') ? "admin.php" : "VendorHomepage.php";
             header("Location: $location");
@@ -31,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Failure: Set session error and redirect back to this page
-    $_SESSION['error_msg'] = "Invalid Account ID or Password.";
+    $_SESSION['error_msg'] = "Invalid Username or Password.";
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
@@ -177,7 +176,7 @@ unset($_SESSION['error_msg']);
     <form method="POST" action="">
         <div class="form-group">
             <label>Account ID</label>
-            <input type="text" name="AccountID" placeholder="Enter Account ID" required>
+            <input type="text" name="username" placeholder="Enter Username" required>
         </div>
         
         <div class="form-group">

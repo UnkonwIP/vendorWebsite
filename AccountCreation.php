@@ -5,8 +5,15 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
+require_once 'config.php';
 
 session_start();
+
+// Prevent browser caching (important for back/refresh)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 include "database.php";
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
@@ -19,11 +26,41 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $message = "";
 $messageType = ""; // success | error
 
+
+// Show message from GET if redirected
+if (isset($_GET['msg'])) {
+    $message = $_GET['msg'];
+    $messageType = $_GET['type'] ?? '';
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    $_SESSION['form_token'] = bin2hex(random_bytes(16));
+}
+
+
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    
+
     $email = trim($_POST['email']);
     $role = trim($_POST['role']);
-    $vendorType = trim($_POST['vendor_type']);
-    $newCompanyRegistration = isset($_POST['newcompanyregistration']) ? trim($_POST['newcompanyregistration']) : '';
+    $vendorType = isset($_POST['vendor_type']) ? trim($_POST['vendor_type']) : '';
+
+    // One-time token check
+    if (
+        !isset($_POST['form_token']) ||
+        !hash_equals($_SESSION['form_token'], $_POST['form_token'])
+    ) {
+        header("Location: " . $_SERVER['PHP_SELF'] .
+            "?msg=" . urlencode("Invalid or duplicate form submission.") .
+            "&type=error");
+        exit();
+    }
+
+    // Invalidate token immediately after use
+    unset($_SESSION['form_token']);
+
+    $newCompanyRegistrationNumber = isset($_POST['newcompanyregistration']) ? trim($_POST['newcompanyregistration']) : '';
 
     // Allowed roles and vendor types
     $allowedRoles = ['admin', 'vendor'];
@@ -46,19 +83,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Please select a valid vendor type.";
         $messageType = "error";
         $hasError = true;
-    } elseif ($role === 'vendor' && empty($newCompanyRegistration)) {
+    } elseif ($role === 'vendor' && empty($newCompanyRegistrationNumber)) {
         $message = "Company Registration Number is required for vendor accounts.";
-        $messageType = "error";
-        $hasError = true;
-    } elseif ($role === 'vendor' && !ctype_digit($newCompanyRegistration)) {
-        $message = "Company Registration Number must be a number.";
         $messageType = "error";
         $hasError = true;
     }
 
+
     // Check if email already exists
     if (!$hasError) {
-        $checkStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE email = ?");
+        $checkStmt = $conn->prepare("SELECT username FROM vendoraccount WHERE email = ?");
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         $checkResult = $checkStmt->get_result();
@@ -71,8 +105,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // For vendors, check company registration number
     if (!$hasError && $role === 'vendor') {
-        $checkCRStmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE NewCompanyRegistration = ?");
-        $checkCRStmt->bind_param("s", $newCompanyRegistration);
+        $checkCRStmt = $conn->prepare("SELECT username FROM vendoraccount WHERE newCompanyRegistrationNumber = ?");
+        $checkCRStmt->bind_param("s", $newCompanyRegistrationNumber);
         $checkCRStmt->execute();
         $checkCRResult = $checkCRStmt->get_result();
         if ($checkCRResult->num_rows > 0) {
@@ -88,17 +122,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $setupToken = bin2hex(random_bytes(32));
         $tokenExpiry = date("Y-m-d H:i:s", strtotime("+24 hours"));
 
-        // Create temporary account with setup token
-        $tempAccountID = "PENDING_" . bin2hex(random_bytes(4));
+        // Generate unique alphanumeric accountID (15 chars)
+        function generateAccountID($length = 15) {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $charactersLength = strlen($characters);
+            $randomString = '';
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            }
+            return $randomString;
+        }
+        $accountID = generateAccountID();
 
-        // For admin accounts, vendor_type is NULL; for vendors, store the type
+        // For admin accounts, vendorType is NULL; for vendors, store the type
         $storeVendorType = ($role === 'vendor') ? $vendorType : NULL;
-        $storeNewCompanyRegistration = ($role === 'vendor') ? $newCompanyRegistration : NULL;
+        $storeNewCompanyRegistrationNumber = ($role === 'vendor') ? $newCompanyRegistrationNumber : null;
+        $tempUsername = "PENDING_" . bin2hex(random_bytes(4));
 
         $stmt = $conn->prepare(
-            "INSERT INTO vendoraccount (NewCompanyRegistration, accountID, email, role, vendor_type, reset_token, reset_expiry) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO vendoraccount (newCompanyRegistrationNumber, accountID, username, email, role, vendorType, resetToken, resetExpiry) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("sssssss", $storeNewCompanyRegistration, $tempAccountID, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
+        $stmt->bind_param("ssssssss", $storeNewCompanyRegistrationNumber, $accountID, $tempUsername, $email, $role, $storeVendorType, $setupToken, $tokenExpiry);
 
         if ($stmt->execute()) {
             // Send setup email
@@ -108,18 +152,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = $_ENV['MAIL_USERNAME'];
-                $mail->Password   = $_ENV['MAIL_PASSWORD'];
+                $mail->Username = MAIL_USER;
+                $mail->Password = MAIL_PASS;
                 $mail->SMTPSecure = 'tls';
                 $mail->Port       = 587;
 
-                $mail->setFrom($_ENV['MAIL_USERNAME'], 'Vendor System');
+                $mail->setFrom(MAIL_USER, 'Vendor System');
                 $mail->addAddress($email);
 
                 $mail->isHTML(true);
                 $mail->Subject = 'Complete Your Account Setup';
 
-                $setupLink = "http://localhost/vendorWebsite/VendorSetup.php?token=" . urlencode($setupToken);
+                $setupLink = "http://localhost/vendorWebsite/AccountSetup.php?token=" . urlencode($setupToken);
 
                 $mail->Body = "
                     <h2>Welcome to the Vendor System</h2><br><br>
@@ -146,7 +190,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $messageType = "error";
         }
     }
+    // Redirect to avoid resubmission on reload
+    header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message) . "&type=" . urlencode($messageType));
+    exit();
 }
+
+// Always generate a fresh token for form rendering
+$_SESSION['form_token'] = bin2hex(random_bytes(16));
+
 ?>
 
 <!DOCTYPE html>
@@ -320,36 +371,40 @@ window.addEventListener('load', function() {
     <p>Set up a new vendor or admin account</p>
 
     <?php if ($message): ?>
-        <div class="message <?php echo $messageType; ?>">
-            <?php echo $message; ?>
+        <div class="message <?php echo htmlspecialchars($messageType); ?>">
+            <?php echo htmlspecialchars($message); ?>
         </div>
     <?php endif; ?>
 
+
     <form method="post" id="createAccountForm">
+
+        <input type="hidden" name="form_token" value="<?php echo htmlspecialchars($_SESSION['form_token']); ?>">
+
         <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter email address" required>
+            <label for="email">Email Address</label>
+            <input type="email" name="email" id="email" placeholder="Enter email address" required>
         </div>
 
         <div class="form-group">
-            <label>Role</label>
+            <label for="role">Role</label>
             <select name="role" id="roleSelect" required onchange="toggleVendorType()">
                 <option value="">-- Select Role --</option>
                 <option value="admin">Admin</option>
                 <option value="vendor">Vendor</option>
             </select>
         </div>
+
         <div id="companyRegDiv" style="display:none;">
             <div class="form-group">
-                <label>Company Registration Number</label>
-                <input type="text" name="newcompanyregistration" id="newcompanyregistration" placeholder="Enter Company Registration Number" required>
+                <label for="newcompanyregistration">Company Registration Number</label>
+                <input type="text" name="newcompanyregistration" id="newcompanyregistration" placeholder="Enter Company Registration Number">
             </div>
         </div>
 
-
         <div id="vendorTypeDiv" style="display:none;">
             <div class="form-group">
-                <label>Vendor Type</label>
+                <label for="vendorTypeSelect">Vendor Type</label>
                 <select name="vendor_type" id="vendorTypeSelect">
                     <option value="">-- Select Vendor Type --</option>
                     <option value="Civil Contractor">Civil Contractor</option>

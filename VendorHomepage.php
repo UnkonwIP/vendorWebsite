@@ -16,21 +16,21 @@ $vendorNewCompanyRegistration = '';
 if (empty($vendorAccountID)) {
     echo "Error: Vendor account ID not found in session.";
 } else {
-    $stmtAcc = $conn->prepare("SELECT NewCompanyRegistration FROM vendoraccount WHERE accountID = ?");
+    $stmtAcc = $conn->prepare("SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ?");
     $stmtAcc->bind_param("s", $vendorAccountID);
     $stmtAcc->execute();
     $accResult = $stmtAcc->get_result();
     if ($accRow = $accResult->fetch_assoc()) {
-        $vendorNewCompanyRegistration = $accRow['NewCompanyRegistration'];
+    $vendorNewCompanyRegistration = $accRow['newCompanyRegistrationNumber'];
     }
 }
 
 $forms = [];
 if (!empty($vendorNewCompanyRegistration)) {
     $stmt = $conn->prepare("
-        SELECT NewCompanyRegistration, companyName AS CompanyName, time, Status AS status
+        SELECT newCompanyRegistrationNumber, companyName AS CompanyName, time, status
         FROM registrationform
-        WHERE NewCompanyRegistration = ?
+        WHERE newCompanyRegistrationNumber = ?
         ORDER BY time DESC
     ");
     $stmt->bind_param("s", $vendorNewCompanyRegistration);
@@ -371,7 +371,7 @@ if (!empty($vendorNewCompanyRegistration)) {
                         <div class="form-detail">
                             <span class="form-detail-label">Registration No</span>
                             <span class="form-detail-value">
-                                <?php echo htmlspecialchars($form['NewCompanyRegistration']); ?>
+                                <?php echo htmlspecialchars($form['newCompanyRegistrationNumber']); ?>
                             </span>
                         </div>
                         <div class="form-detail">
@@ -384,7 +384,7 @@ if (!empty($vendorNewCompanyRegistration)) {
 
                     <div class="form-card-actions">
                         <form method="post" action="VendorUpdatePage.php" style="flex: 1; display: flex;">
-                            <input type="hidden" name="NewRegistration" value="<?php echo htmlspecialchars($form['NewCompanyRegistration']); ?>">
+                            <input type="hidden" name="NewRegistration" value="<?php echo htmlspecialchars($form['newCompanyRegistrationNumber']); ?>">
                             <input type="hidden" name="AvailableTimes" value="<?php echo htmlspecialchars($form['time']); ?>">
                             <button type="submit" class="btn-view">View Details</button>
                         </form>

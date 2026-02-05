@@ -81,7 +81,7 @@ $Status = "pending";
 
 $stmt = $conn->prepare("
     INSERT INTO registrationform (
-        NewCompanyRegistration,
+        newCompanyRegistrationNumber,
         time,
         companyName,
         taxRegistrationNumber,
@@ -213,7 +213,7 @@ $bankNames = $_POST['NameOfBank'] ?? [];
 $AddressOfBank = $_POST['AddressOfBank'] ?? [];
 $SwiftCodeOfBank = $_POST['SwiftCodeOfBank'] ?? [];
 
-$BankStmt = $conn->prepare("INSERT INTO bank (NewCompanyRegistration,
+$BankStmt = $conn->prepare("INSERT INTO bank (newCompanyRegistrationNumber,
 time,
 BankName,
 BankAddress,
@@ -276,7 +276,7 @@ $SecondaryTelephone = $_POST['SecondaryTelephone'] ?? '';
 $SecondaryEmail = $_POST['SecondaryEmail'] ?? '';
 $SecondaryStatus = 'Secondary';
 
-$ContactStmt = $conn->prepare("INSERT INTO contacts (NewCompanyRegistration,
+$ContactStmt = $conn->prepare("INSERT INTO contacts (newCompanyRegistrationNumber,
 time,
 ContactPersonName,
 department,
@@ -357,7 +357,7 @@ $CreditExpiryDate = $_POST['CreditExpiryDate'] ?? [];
 $CreditAsAtDate = $_POST['CreditAsAtDate'] ?? [];
 
 $CreditStmt = $conn->prepare("INSERT INTO Creditfacilities (
-NewCompanyRegistration,
+registrationFormID,
 time,
 typeOfCreditFacilities,
 financialInstitution,
@@ -500,7 +500,7 @@ $DirectorDOB              = $_POST['DirectorDOB'] ?? [];
 
 $DirectorStmt = $conn->prepare("
     INSERT INTO directorandsecretary (
-        NewCompanyRegistration,
+        registrationFormID,
         time,
         nationality,
         name,
@@ -688,7 +688,7 @@ $ManagementYearsInIndustry   = $_POST['ManagementYearsInIndustry'] ?? [];
 
 $ManagementStmt = $conn->prepare("
     INSERT INTO management (
-        NewCompanyRegistration,
+        registrationFormID,
         time,
         nationality,
         name,
@@ -828,7 +828,7 @@ $ProjectCompletion      = $_POST['ProjectCompletionDate'] ?? [];
 $ProjectStmt = $conn->prepare("
     INSERT INTO projecttrackrecord (
         projectRecordNo,
-        NewCompanyRegistration,
+        registrationFormID,
         time,
         projectTitle,
         projectNature,
@@ -893,7 +893,7 @@ $ProjectStmt->close();
 //share holders
 $ShareholderName        = $_POST['ShareholderName'] ?? [];
 $ShareholderNationality = $_POST['ShareholderNationality'] ?? [];
-$ShareholderIDNo        = $_POST['ShareholderID'] ?? [];
+$CompanyShareholderIDNo        = $_POST['CompanyShareholderID'] ?? [];
 $ShareholderAddress     = $_POST['ShareholderAddress'] ?? [];
 $ShareholderPercent     = $_POST['ShareholderPercent'] ?? [];
 
@@ -925,8 +925,8 @@ if (!$shareholderValidationFailed) {
 
 $ShareholderStmt = $conn->prepare("
     INSERT INTO shareholders (
-        ShareHolderID,
-        NewCompanyRegistration,
+        CompanyShareholderID,
+        registrationFormID,
         time,
         nationality,
         name,
@@ -948,7 +948,7 @@ for ($i = 0; $i < count($ShareholderName); $i++) {
 
     $ShareholderStmt->bind_param(
         "iissssd",
-        $ShareholderIDNo[$i],
+        $CompanyShareholderIDNo[$i],
         $newCRN,                         // i
         $currentDate,                    // s (DATE)
         $ShareholderNationality[$i],     // s
@@ -996,7 +996,7 @@ $StaffExperience      = $_POST['StaffExperience'] ?? [];
 $StaffStmt = $conn->prepare("
     INSERT INTO staff (
         staffNO,
-        NewCompanyRegistration,
+        registrationFormID,
         time,
         name,
         designation,

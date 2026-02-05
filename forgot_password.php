@@ -131,7 +131,7 @@ $messageType = ""; // success | error
 
 <?php
 if (isset($_POST['reset'])) {
-
+        require_once 'config.php';
     $newCompanyRegistration = trim($_POST['newCompanyRegistration']);
     $email = trim($_POST['email']);
     
@@ -146,8 +146,8 @@ if (isset($_POST['reset'])) {
     } else {
         // Validate that company registration and email match in registrationform
         $stmt = $conn->prepare(
-            "SELECT rf.NewCompanyRegistration, va.accountID FROM registrationform rf 
-             INNER JOIN vendoraccount va ON rf.NewCompanyRegistration = va.accountID 
+            "SELECT rf.NewCompanyRegistration, va.username FROM registrationform rf 
+             INNER JOIN vendoraccount va ON rf.NewCompanyRegistration = va.NewCompanyRegistration 
              WHERE rf.NewCompanyRegistration = ? AND rf.email = ?"
         );
         $stmt->bind_param("is", $newCompanyRegistration, $email);
@@ -156,7 +156,7 @@ if (isset($_POST['reset'])) {
 
         if ($result->num_rows === 1) {
             $row = $result->fetch_assoc();
-            $accountID = $row['accountID'];
+            $username = $row['username'];
             
             // Generate reset token
             $token  = bin2hex(random_bytes(32));
@@ -166,9 +166,9 @@ if (isset($_POST['reset'])) {
             $update = $conn->prepare(
                 "UPDATE vendoraccount
                  SET reset_token = ?, reset_expiry = ?
-                 WHERE accountID = ?"
+                 WHERE username = ?"
             );
-            $update->bind_param("sss", $token, $expiry, $accountID);
+            $update->bind_param("sss", $token, $expiry, $username);
             $update->execute();
 
             // Create reset link with token
@@ -181,18 +181,18 @@ if (isset($_POST['reset'])) {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = $_ENV['MAIL_USERNAME'];
-                $mail->Password   = $_ENV['MAIL_PASSWORD'];
+                $mail->Username   = MAIL_USER;
+                $mail->Password   = MAIL_PASS;
                 $mail->SMTPSecure = 'tls';
                 $mail->Port       = 587;
 
-                $mail->setFrom($_ENV['MAIL_USERNAME'], 'Vendor System');
+                $mail->setFrom(MAIL_USER, 'Vendor System');
                 $mail->addAddress($email);
 
                 $mail->isHTML(true);
                 $mail->Subject = 'Password Reset Request';
                 $mail->Body = "
-                    Hello <b>" . htmlspecialchars($accountID) . "</b>,<br><br>
+                    Hello <b>" . htmlspecialchars($username) . "</b>,<br><br>
                     We received a request to reset your password.<br><br>
                     <a href='" . htmlspecialchars($resetLink) . "'>Click here to reset your password</a><br><br>
                     This link will expire in 1 hour.<br><br>

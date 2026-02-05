@@ -12,7 +12,7 @@ $table = $_POST['Table'];
 if ($table === 'Shareholders'){
     $sql = "
     INSERT INTO Shareholders
-    (ShareHolderID, NewCompanyRegistration, time, nationality, name, address, share)
+    (ShareHolderID, registrationFormID, time, nationality, name, address, share)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";
 
@@ -43,7 +43,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'DirectorAndSecretary'){
     $sql = "
     INSERT INTO DirectorAndSecretary
-    (NewCompanyRegistration, time, nationality, name, position, appointmentDate, DOB)
+    (registrationFormID, time, nationality, name, position, appointmentDate, DOB)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";
 
@@ -72,7 +72,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'Management'){
     $sql = "
     INSERT INTO management
-    (NewCompanyRegistration, time, nationality, name, position, yearsInPosition, yearsInRelatedField)
+    (registrationFormID, time, nationality, name, position, yearsInPosition, yearsInRelatedField)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ";
 
@@ -101,7 +101,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'Bank'){
     $sql = "
     INSERT INTO bank
-    (NewCompanyRegistration, time, BankID, BankName, BankAddress, SWIFTCode)
+    (registrationFormID, time, BankID, BankName, BankAddress, SWIFTCode)
     VALUES (?, ?, ?, ?, ?, ?)
     ";
 
@@ -129,7 +129,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'Staff'){
     $sql = "
     INSERT INTO staff
-    (staffNO, NewCompanyRegistration, time, name, designation, qualification, yearsOfExperience, employmentStatus, skills, RelevantCertification)
+    (staffNO, registrationFormID, time, name, designation, qualification, yearsOfExperience, employmentStatus, skills, RelevantCertification)
     VALUES (?,?,?,?,?,?,?,?,?,?)
     ";
 
@@ -162,7 +162,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'ProjectTrackRecord'){
     $sql = "
     INSERT INTO ProjectTrackRecord
-    (projectRecordNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate)
+    (projectRecordNo, registrationFormID, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate)
     VALUES (?,?,?,?,?,?,?,?,?,?)
     ";
 
@@ -195,7 +195,7 @@ if ($table === 'Shareholders'){
 } else if($table === 'CurrentProject'){
     $sql = "
     INSERT INTO currentproject
-    (CurrentProjectNo, NewCompanyRegistration, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate,progressOfTheWork)
+    (CurrentProjectNo, registrationFormID, time, projectTitle, projectNature, location, clientName, projectValue, commencement, completionDate,progressOfTheWork)
     VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ";
 

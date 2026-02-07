@@ -458,17 +458,17 @@
                 <th>Type of Credit Facilities</th>
                 <th>Bank / Financial Institution / Supplier</th>
                 <th>Total Amount(RM)</th>
-                <th>Unutilised Amount(RM)</th>
                 <th>Expiry Date</th>
+                <th>Unutilised Amount(RM)</th>
                 <th>As at Date</th>
                 <th>Action</th>
             </tr>
             <tr>
                 <td><input type="text" name="TypeOfCredit[]"></td>
                 <td><input type="text" name="FinancialInstitution[]"></td>
-                <td><input type="text" name="CreditTotalAmount[]"></td>
-                <td><input type="text" name="CreditUnutilisedAmount[]"></td>
+                <td><input type="number" name="CreditTotalAmount[]"></td>
                 <td><input type="date" name="CreditExpiryDate[]"></td>
+                <td><input type="number" name="CreditUnutilisedAmount[]"></td>
                 <td><input type="date" name="CreditAsAtDate[]"></td>
                 <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
             </tr>

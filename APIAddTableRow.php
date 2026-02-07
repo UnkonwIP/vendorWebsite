@@ -1,8 +1,17 @@
 <?php
+// APIAddTableRow.php
+
+// 1. Disable error displaying to screen (prevents warnings from breaking JSON)
+error_reporting(E_ALL);
+ini_set('display_errors', 0); 
+
+// 2. Set Header to JSON
+header('Content-Type: application/json');
+
 $conn = new mysqli('localhost', 'root', '', 'vendor_information');
 
 if ($conn->connect_error) {
-    echo json_encode(["success" => false, "error" => "DB Connection Failed"]);
+    echo json_encode(["success" => false, "error" => "DB Connection Failed: " . $conn->connect_error]);
     exit;
 }
 
@@ -14,47 +23,134 @@ if (!$table || !$formID) {
     exit;
 }
 
-// Logic per table
-if ($table === 'Shareholders') {
-    $stmt = $conn->prepare("INSERT INTO shareholders (registrationFormID, companyShareholderID, name, nationality, address, sharePercentage) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issssd", $formID, $_POST['companyShareholderID'], $_POST['name'], $_POST['nationality'], $_POST['address'], $_POST['sharePercentage']);
+$stmt = false;
 
-} elseif ($table === 'DirectorAndSecretary') {
-    $stmt = $conn->prepare("INSERT INTO directorandsecretary (registrationFormID, nationality, name, position, appointmentDate, dob) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssss", $formID, $_POST['nationality'], $_POST['name'], $_POST['position'], $_POST['appointmentDate'], $_POST['dob']);
+// --- Logic per table ---
+try {
+    if ($table === 'Shareholders') {
+        $sql = "INSERT INTO shareholders (registrationFormID, companyShareholderID, name, nationality, address, sharePercentage) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            // Check if POST keys exist, default to empty string/0 if not
+            $shareID = $_POST['companyShareholderID'] ?? '000';
+            $name = $_POST['name'] ?? '';
+            $nat = $_POST['nationality'] ?? '';
+            $addr = $_POST['address'] ?? '';
+            $perc = $_POST['sharePercentage'] ?? 0;
+            $stmt->bind_param("issssd", $formID, $shareID, $name, $nat, $addr, $perc);
+        }
 
-} elseif ($table === 'Management') {
-    $stmt = $conn->prepare("INSERT INTO management (registrationFormID, nationality, name, position, yearsInPosition, yearsInRelatedField) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssii", $formID, $_POST['nationality'], $_POST['name'], $_POST['position'], $_POST['yearsInPosition'], $_POST['yearsInRelatedField']);
+    } elseif ($table === 'DirectorAndSecretary') {
+        $sql = "INSERT INTO directorandsecretary (registrationFormID, nationality, name, position, appointmentDate, dob) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $nat = $_POST['nationality'] ?? '';
+            $name = $_POST['name'] ?? '';
+            $pos = $_POST['position'] ?? '';
+            $appt = $_POST['appointmentDate'] ?? date('Y-m-d');
+            $dob = $_POST['dob'] ?? date('Y-m-d');
+            $stmt->bind_param("isssss", $formID, $nat, $name, $pos, $appt, $dob);
+        }
 
-} elseif ($table === 'Bank') {
-    $stmt = $conn->prepare("INSERT INTO bank (registrationFormID, bankName, bankAddress, swiftCode) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $formID, $_POST['bankName'], $_POST['bankAddress'], $_POST['swiftCode']);
+    } elseif ($table === 'Management') {
+        $sql = "INSERT INTO management (registrationFormID, nationality, name, position, yearsInPosition, yearsInRelatedField) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $nat = $_POST['nationality'] ?? '';
+            $name = $_POST['name'] ?? '';
+            $pos = $_POST['position'] ?? '';
+            $yPos = $_POST['yearsInPosition'] ?? 0;
+            $yField = $_POST['yearsInRelatedField'] ?? 0;
+            $stmt->bind_param("isssii", $formID, $nat, $name, $pos, $yPos, $yField);
+        }
 
-} elseif ($table === 'Staff') {
-    $stmt = $conn->prepare("INSERT INTO staff (registrationFormID, staffNo, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisssisss", $formID, $_POST['staffNo'], $_POST['name'], $_POST['designation'], $_POST['qualification'], $_POST['yearsOfExperience'], $_POST['employmentStatus'], $_POST['skills'], $_POST['relevantCertification']);
+    } elseif ($table === 'Bank') {
+        $sql = "INSERT INTO bank (registrationFormID, bankName, bankAddress, swiftCode) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $name = $_POST['bankName'] ?? '';
+            $addr = $_POST['bankAddress'] ?? '';
+            $swift = $_POST['swiftCode'] ?? '';
+            $stmt->bind_param("isss", $formID, $name, $addr, $swift);
+        }
 
-} elseif ($table === 'ProjectTrackRecord') {
-    $stmt = $conn->prepare("INSERT INTO projecttrackrecord (registrationFormID, projectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisssssss", $formID, $_POST['projectRecordNo'], $_POST['projectTitle'], $_POST['projectNature'], $_POST['location'], $_POST['clientName'], $_POST['projectValue'], $_POST['commencementDate'], $_POST['completionDate']);
+    } elseif ($table === 'Staff') {
+        $sql = "INSERT INTO staff (registrationFormID, staffNo, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $no = $_POST['staffNo'] ?? 0;
+            $name = $_POST['name'] ?? '';
+            $desig = $_POST['designation'] ?? '';
+            $qual = $_POST['qualification'] ?? '';
+            $exp = $_POST['yearsOfExperience'] ?? 0;
+            $emp = $_POST['employmentStatus'] ?? '';
+            $skill = $_POST['skills'] ?? '';
+            $cert = $_POST['relevantCertification'] ?? '';
+            $stmt->bind_param("iisssisss", $formID, $no, $name, $desig, $qual, $exp, $emp, $skill, $cert);
+        }
 
-} elseif ($table === 'CurrentProject') {
-    $stmt = $conn->prepare("INSERT INTO currentproject (registrationFormID, currentProjectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisssssssd", $formID, $_POST['currentProjectRecordNo'], $_POST['projectTitle'], $_POST['projectNature'], $_POST['location'], $_POST['clientName'], $_POST['projectValue'], $_POST['commencementDate'], $_POST['completionDate'], $_POST['progressOfTheWork']);
+    } elseif ($table === 'ProjectTrackRecord') {
+        $sql = "INSERT INTO projecttrackrecord (registrationFormID, projectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $no = $_POST['projectRecordNo'] ?? 0;
+            $title = $_POST['projectTitle'] ?? '';
+            $nat = $_POST['projectNature'] ?? '';
+            $loc = $_POST['location'] ?? '';
+            $client = $_POST['clientName'] ?? '';
+            $val = $_POST['projectValue'] ?? 0;
+            $start = $_POST['commencementDate'] ?? date('Y-m-d');
+            $end = $_POST['completionDate'] ?? date('Y-m-d');
+            $stmt->bind_param("iisssssss", $formID, $no, $title, $nat, $loc, $client, $val, $start, $end);
+        }
 
-} elseif ($table === 'CreditFacilities') {
-    $stmt = $conn->prepare("INSERT INTO creditfacilities (registrationFormID, typeOfCreditFacilities, financialInstitution, totalAmount, expiryDate, unutilisedAmountCurrentlyAvailable, asAtDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issdsds", $formID, $_POST['typeOfCreditFacilities'], $_POST['financialInstitution'], $_POST['totalAmount'], $_POST['expiryDate'], $_POST['unutilisedAmountCurrentlyAvailable'], $_POST['asAtDate']);
+    } elseif ($table === 'CurrentProject') {
+        $sql = "INSERT INTO currentproject (registrationFormID, currentProjectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $no = $_POST['currentProjectRecordNo'] ?? 0;
+            $title = $_POST['projectTitle'] ?? '';
+            $nat = $_POST['projectNature'] ?? '';
+            $loc = $_POST['location'] ?? '';
+            $client = $_POST['clientName'] ?? '';
+            $val = $_POST['projectValue'] ?? 0;
+            $start = $_POST['commencementDate'] ?? date('Y-m-d');
+            $end = $_POST['completionDate'] ?? date('Y-m-d');
+            $prog = $_POST['progressOfTheWork'] ?? 0;
+            $stmt->bind_param("iisssssssd", $formID, $no, $title, $nat, $loc, $client, $val, $start, $end, $prog);
+        }
 
-} else {
-    echo json_encode(["success" => false, "error" => "Unknown Table"]);
-    exit;
+    } elseif ($table === 'CreditFacilities') {
+        $sql = "INSERT INTO creditfacilities (registrationFormID, typeOfCreditFacilities, financialInstitution, totalAmount, expiryDate, unutilisedAmountCurrentlyAvailable, asAtDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $type = $_POST['typeOfCreditFacilities'] ?? '';
+            $inst = $_POST['financialInstitution'] ?? '';
+            $amt = $_POST['totalAmount'] ?? 0;
+            $exp = $_POST['expiryDate'] ?? date('Y-m-d');
+            $unused = $_POST['unutilisedAmountCurrentlyAvailable'] ?? 0;
+            $asAt = $_POST['asAtDate'] ?? date('Y-m-d');
+            $stmt->bind_param("issdsds", $formID, $type, $inst, $amt, $exp, $unused, $asAt);
+        }
+
+    } else {
+        echo json_encode(["success" => false, "error" => "Unknown Table: " . $table]);
+        exit;
+    }
+
+    // --- Execution ---
+    if (!$stmt) {
+        // If prepare failed (usually SQL syntax error or column mismatch)
+        echo json_encode(["success" => false, "error" => "SQL Prepare Error: " . $conn->error]);
+    } elseif ($stmt->execute()) {
+        echo json_encode(["success" => true, "id" => $conn->insert_id]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Execute Error: " . $stmt->error]);
+    }
+
+} catch (Exception $e) {
+    echo json_encode(["success" => false, "error" => "Exception: " . $e->getMessage()]);
 }
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "id" => $conn->insert_id]);
-} else {
-    echo json_encode(["success" => false, "error" => $stmt->error]);
-}
+$conn->close();
 ?>

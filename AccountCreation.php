@@ -17,7 +17,7 @@ header("Expires: 0");
 include "database.php";
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Protect page (admin only)
+// Protect page (admin only) - Uncomment when ready
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 //     header("Location: index.php");
 //     exit();
@@ -26,38 +26,42 @@ date_default_timezone_set('Asia/Kuala_Lumpur');
 $message = "";
 $messageType = ""; // success | error
 
-
 // Show message from GET if redirected
 if (isset($_GET['msg'])) {
     $message = $_GET['msg'];
     $messageType = $_GET['type'] ?? '';
 }
 
+// Generate token ONLY on GET requests (displaying the form)
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    $_SESSION['form_token'] = bin2hex(random_bytes(16));
+    if (empty($_SESSION['form_token'])) {
+        $_SESSION['form_token'] = bin2hex(random_bytes(16));
+    }
 }
-
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
-
     $email = trim($_POST['email']);
     $role = trim($_POST['role']);
     $vendorType = isset($_POST['vendor_type']) ? trim($_POST['vendor_type']) : '';
 
-    // One-time token check
+    // --- FIX STARTS HERE ---
+    // One-time token check: strictly check if session token exists before comparing
     if (
-        !isset($_POST['form_token']) ||
+        !isset($_POST['form_token']) || 
+        !isset($_SESSION['form_token']) || 
         !hash_equals($_SESSION['form_token'], $_POST['form_token'])
     ) {
+        // If token invalid or missing, redirect with error
         header("Location: " . $_SERVER['PHP_SELF'] .
-            "?msg=" . urlencode("Invalid or duplicate form submission.") .
+            "?msg=" . urlencode("Invalid or duplicate form submission (Session expired). Please try again.") .
             "&type=error");
         exit();
     }
+    // --- FIX ENDS HERE ---
 
-    // Invalidate token immediately after use
+    // Invalidate token immediately after use to prevent double submission
     unset($_SESSION['form_token']);
 
     $newCompanyRegistrationNumber = isset($_POST['newcompanyregistration']) ? trim($_POST['newcompanyregistration']) : '';
@@ -88,7 +92,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $messageType = "error";
         $hasError = true;
     }
-
 
     // Check if email already exists
     if (!$hasError) {
@@ -163,6 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $mail->isHTML(true);
                 $mail->Subject = 'Complete Your Account Setup';
 
+                // Ensure localhost setup link is correct for your environment
                 $setupLink = "http://localhost/vendorWebsite/AccountSetup.php?token=" . urlencode($setupToken);
 
                 $mail->Body = "
@@ -178,7 +182,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 $mail->send();
 
-                $message = "Setup link has been sent to " . htmlspecialchars($email) . ". Please check your email to complete account setup.";
+                $message = "Setup link has been sent to " . htmlspecialchars($email) . ".";
                 $messageType = "success";
             } catch (Exception $e) {
                 // Account was created but email failed
@@ -190,14 +194,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $messageType = "error";
         }
     }
-    // Redirect to avoid resubmission on reload
+    
+    // Redirect after POST to prevent form resubmission
     header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message) . "&type=" . urlencode($messageType));
     exit();
 }
 
-// Always generate a fresh token for form rendering
-$_SESSION['form_token'] = bin2hex(random_bytes(16));
-
+// Generate a fresh token for the next form render if one doesn't exist
+if (empty($_SESSION['form_token'])) {
+    $_SESSION['form_token'] = bin2hex(random_bytes(16));
+}
 ?>
 
 <!DOCTYPE html>
@@ -375,7 +381,6 @@ window.addEventListener('load', function() {
             <?php echo htmlspecialchars($message); ?>
         </div>
     <?php endif; ?>
-
 
     <form method="post" id="createAccountForm">
 

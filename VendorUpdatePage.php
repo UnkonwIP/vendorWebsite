@@ -381,8 +381,8 @@
                                         <td><input type="text" data-field="name" class="form-control" value="<?= htmlspecialchars($row['name']) ?>" readonly></td>
                                         <td><input type="text" data-field="nationality" class="form-control" value="<?= htmlspecialchars($row['nationality']) ?>" readonly></td>
                                         <td><input type="text" data-field="position" class="form-control" value="<?= htmlspecialchars($row['position']) ?>" readonly></td>
-                                        <td><input type="date" data-field="appointmentDate" class="form-control" value="<?= htmlspecialchars($row['appointmentDate']) ?>" readonly></td>
-                                        <td><input type="date" data-field="dob" class="form-control" value="<?= htmlspecialchars($row['dob']) ?>" readonly></td>
+                                        <td><input type="date" data-field="appointmentDate" class="form-control" value="<?= ($row['appointmentDate'] == '0000-00-00' ? '' : htmlspecialchars($row['appointmentDate'])) ?>" readonly></td>
+                                        <td><input type="date" data-field="dob" class="form-control" value="<?= ($row['dob'] == '0000-00-00' ? '' : htmlspecialchars($row['dob'])) ?>" readonly></td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'DirectorAndSecretary', 'directorID')">Edit</button>
                                             <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'DirectorAndSecretary', 'directorID')">Delete</button>
@@ -534,7 +534,7 @@
                                         <td><input type="text" data-field="bankName" class="form-control" value="<?= htmlspecialchars($row['bankName']) ?>" readonly></td>
                                         <td><input type="text" data-field="bankAddress" class="form-control" value="<?= htmlspecialchars($row['bankAddress']) ?>" readonly></td>
                                         <td><input type="text" data-field="swiftCode" class="form-control" value="<?= htmlspecialchars($row['swiftCode']) ?>" readonly></td>
-                                        <td><button class="btn btn-sm btn-outline-primary" onclick="editTableRow(this, 'Bank', 'bankID')">Edit</button><button class="btn btn-sm btn-danger ms-1" onclick="deleteEditRow(this, 'Bank', 'bankID')">Del</button></td>
+                                        <td><button class="btn btn-sm btn-outline-primary" onclick="editTableRow(this, 'Bank', 'bankID')">Edit</button><button class="btn btn-sm btn-danger ms-1" onclick="deleteEditRow(this, 'Bank', 'bankID')">Delete</button></td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
@@ -608,11 +608,11 @@
                                             <td><input type="text" data-field="financialInstitution" class="form-control" value="<?= htmlspecialchars($row['financialInstitution']) ?>" readonly></td>
                                             <td><input type="number" data-field="totalAmount" class="form-control" value="<?= htmlspecialchars($row['totalAmount']) ?>" readonly></td>
                                             <td><input type="number" data-field="unutilisedAmountCurrentlyAvailable" class="form-control" value="<?= htmlspecialchars($row['unutilisedAmountCurrentlyAvailable']) ?>" readonly></td>
-                                            <td><input type="date" data-field="expiryDate" class="form-control" value="<?= htmlspecialchars($row['expiryDate']) ?>" readonly></td>
-                                            <td><input type="date" data-field="asAtDate" class="form-control" value="<?= htmlspecialchars($row['asAtDate']) ?>" readonly></td>
+                                            <td><input type="date" data-field="expiryDate" class="form-control" value="<?= ($row['expiryDate'] == '0000-00-00' ? '' : htmlspecialchars($row['expiryDate'])) ?>" readonly></td>
+                                            <td><input type="date" data-field="asAtDate" class="form-control" value="<?= ($row['asAtDate'] == '0000-00-00' ? '' : htmlspecialchars($row['asAtDate'])) ?>" readonly></td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary" onclick="editTableRow(this, 'CreditFacilities', 'facilityID')">Edit</button>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CreditFacilities', 'facilityID')">Del</button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CreditFacilities', 'facilityID')">Delete</button>
                                             </td>
                                         </tr>
                                         <?php endwhile; ?>
@@ -770,7 +770,7 @@
                                         <td><input type="text" data-field="relevantCertification" class="form-control" value="<?= htmlspecialchars($row['relevantCertification']) ?>" readonly></td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'Staff', 'staffID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'Staff', 'staffID')">Del</button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'Staff', 'staffID')">Delete</button>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
@@ -804,11 +804,11 @@
                                         <td><input type="text" data-field="location" class="form-control" value="<?= htmlspecialchars($row['location']) ?>" readonly></td>
                                         <td><input type="text" data-field="clientName" class="form-control" value="<?= htmlspecialchars($row['clientName']) ?>" readonly></td>
                                         <td><input type="number" data-field="projectValue" class="form-control" value="<?= htmlspecialchars($row['projectValue']) ?>" readonly></td>
-                                        <td><input type="date" data-field="commencementDate" class="form-control" value="<?= htmlspecialchars($row['commencementDate']) ?>" readonly></td>
-                                        <td><input type="date" data-field="completionDate" class="form-control" value="<?= htmlspecialchars($row['completionDate']) ?>" readonly></td>
+                                        <td><input type="date" data-field="commencementDate" class="form-control" value="<?= ($row['commencementDate'] == '0000-00-00' ? '' : htmlspecialchars($row['commencementDate'])) ?>" readonly></td>
+                                        <td><input type="date" data-field="completionDate" class="form-control" value="<?= ($row['completionDate'] == '0000-00-00' ? '' : htmlspecialchars($row['completionDate'])) ?>" readonly></td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'ProjectTrackRecord', 'projectRecordID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'ProjectTrackRecord', 'projectRecordID')">Del</button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'ProjectTrackRecord', 'projectRecordID')">Delete</button>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
@@ -842,12 +842,12 @@
                                         <td><input type="text" data-field="location" class="form-control" value="<?= htmlspecialchars($row['location']) ?>" readonly></td>
                                         <td><input type="text" data-field="clientName" class="form-control" value="<?= htmlspecialchars($row['clientName']) ?>" readonly></td>
                                         <td><input type="number" data-field="projectValue" class="form-control" value="<?= htmlspecialchars($row['projectValue']) ?>" readonly></td>
-                                        <td><input type="date" data-field="commencementDate" class="form-control" value="<?= htmlspecialchars($row['commencementDate']) ?>" readonly></td>
-                                        <td><input type="date" data-field="completionDate" class="form-control" value="<?= htmlspecialchars($row['completionDate']) ?>" readonly></td>
+                                        <td><input type="date" data-field="commencementDate" class="form-control" value="<?= ($row['commencementDate'] == '0000-00-00' ? '' : htmlspecialchars($row['commencementDate'])) ?>" readonly></td>
+                                        <td><input type="date" data-field="completionDate" class="form-control" value="<?= ($row['completionDate'] == '0000-00-00' ? '' : htmlspecialchars($row['completionDate'])) ?>" readonly></td>
                                         <td><input type="number" data-field="progressOfTheWork" class="form-control" value="<?= htmlspecialchars($row['progressOfTheWork']) ?>" readonly></td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'CurrentProject', 'currentProjectID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CurrentProject', 'currentProjectID')">Del</button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CurrentProject', 'currentProjectID')">Delete</button>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>

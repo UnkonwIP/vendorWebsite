@@ -1,634 +1,387 @@
+/* VendorRegistration.js */
+
+// Helper to prevent deleting the last row
+function deleteRow(button) {
+    const row = button.closest("tr");
+    const table = row.closest("table");
+    // Check if it's the last data row (assuming row 0 is header)
+    if (table.rows.length <= 2) {
+        alert("You cannot delete the only remaining row.");
+        return;
+    }
+    row.remove();
+}
+
 function addShareholders(){
     const table = document.getElementById("shareholderTable");
+    const newRow = table.insertRow(-1);
     
-    const newShareholderRow = table.insertRow(-1);
-    
+    // FIX: Capitalized names to match the HTML form and PHP $_POST expectations
     const fields = [
-        "shareholderName[]",
+        "ShareholderName[]",
         "ShareholderNationality[]",
-        "shareholderAddress[]",
+        "ShareholderAddress[]",
     ];
     
-    const Numbercell = newShareholderRow.insertCell();
-    const Numberinput = document.createElement("input");
-    Numberinput.type = "number";
-    Numberinput.name = "shareholderID[]";
-    Numberinput.step = "1";
-    Numbercell.appendChild(Numberinput);
+    // ID Column
+    let cell = newRow.insertCell();
+    let input = document.createElement("input");
+    input.type = "number"; input.name = "CompanyShareholderID[]"; input.step = "1";
+    cell.appendChild(input);
     
+    // Text Columns
     fields.forEach(name => {
-        const cell = newShareholderRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        cell = newRow.insertCell();
+        input = document.createElement("input");
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
     
-    const Percentcell = newShareholderRow.insertCell();
-    const Percentinput = document.createElement("input");
-    Percentinput.type = "number";
-    Percentinput.name = "ShareholderPercent[]";
-    Percentinput.step = "0.01";
-    Percentinput.min = "0";
-    Percentinput.max = "100";
-    Percentcell.appendChild(Percentinput);
+    // Percent Column
+    cell = newRow.insertCell();
+    input = document.createElement("input");
+    input.type = "number"; input.name = "ShareholderPercent[]"; input.step = "0.01";
+    cell.appendChild(input);
     
-    const deleteCell = newShareholderRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent= "Delete";
-    deleteButton.onclick = function() {
-        deleteRow(this);
-    };
-    deleteCell.appendChild(deleteButton);
-        
-}
-
-function deleteRow(button){
-    const row = button.closest("tr");
-    row.remove();
+    // Delete Button
+    cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addDirector(){
     const table = document.getElementById("DirectorTable");
+    const newRow = table.insertRow(-1);
     
-    const newDirectorRow = table.insertRow(-1);
-    
-    const fields = [
-        "DirectorName[]",
-        "DirectorNationality[]",
-        "DirectorPosition[]",
-    ];
-    
-    const Datefields = [
-        "DirectorAppointmentDate[]",
-        "DirectorDOB[]",
-    ];
+    // FIX: Capitalized names
+    const fields = ["DirectorName[]", "DirectorNationality[]", "DirectorPosition[]"];
+    const dateFields = ["DirectorAppointmentDate[]", "DirectorDOB[]"];
     
     fields.forEach(name => {
-        const cell = newDirectorRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
     
-    Datefields.forEach(name => {
-        const cell = newDirectorRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "date";
-        input.name = name;
+    dateFields.forEach(name => {
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = "date"; input.name = name;
         cell.appendChild(input);
     });
     
-    const deleteCell = newDirectorRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent= "Delete";
-    deleteButton.onclick = function() {
-        deleteRow(this);
-    };
-    deleteCell.appendChild(deleteButton);
+    let cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addManagement(){
     const table = document.getElementById("ManagementTable");
+    const newRow = table.insertRow(-1);
     
-    const newManagementRow = table.insertRow(-1);
-    
-    const fields = [
-        "ManagementName[]",
-        "ManagementNationality[]",
-        "ManagementPosition[]",
-    ];
-    
-    const Datefields = [
-        "ManagementYearInPosition[]",
-        "ManagementYearsInIndustry[]",
-    ];
+    const fields = ["ManagementName[]", "ManagementNationality[]", "ManagementPosition[]"];
+    const numFields = ["ManagementYearInPosition[]", "ManagementYearsInIndustry[]"];
     
     fields.forEach(name => {
-        const cell = newManagementRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
     
-    Datefields.forEach(name => {
-        const cell = newManagementRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "date";
-        input.name = name;
+    numFields.forEach(name => {
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = "number"; input.name = name;
         cell.appendChild(input);
     });
     
-    const deleteCell = newManagementRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent= "Delete";
-    deleteButton.onclick = function() {
-        deleteRow(this);
-    };
-    deleteCell.appendChild(deleteButton);
-}
-
-function bankruptYes(){
-    const detailsDiv = document.getElementById("bankruptcy-details");
-    detailsDiv.style.display = "block";  
-}
-
-function bankruptNO(){
-    const detailsDiv = document.getElementById("bankruptcy-details");
-    detailsDiv.style.display = "none";  
+    let cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addBanks(){
     const table = document.getElementById("bankTable");
-    
-    const newBankRow = table.insertRow(-1);
-    
-    const fields = [
-        "NameOfBank[]",
-        "AddressOfBank[]",
-        "SwiftCodeOfBank[]",
-    ];
+    const newRow = table.insertRow(-1);
+    const fields = ["NameOfBank[]", "AddressOfBank[]", "SwiftCodeOfBank[]"];
     
     fields.forEach(name => {
-        const cell = newBankRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
     
-    const deleteCell = newBankRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent= "Delete";
-    deleteButton.onclick = function() {
-        deleteRow(this);
-    };
-    deleteCell.appendChild(deleteButton);
-        
+    let cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addCreditFacilities() {
     const table = document.getElementById("CreditTable");
-    const newCreditRow = table.insertRow(-1);
-
-    const fields = [
-        "TypeOfCredit[]",
-        "FinancialInstitution[]",
-        "CreditTotalAmount[]",
-        "CreditUnutilisedAmount[]",
+    const newRow = table.insertRow(-1);
+    const columns = [
+        { type: "text", name: "TypeOfCredit[]" },
+        { type: "text", name: "FinancialInstitution[]" },
+        { type: "number", name: "CreditTotalAmount[]" },
+        { type: "date", name: "CreditExpiryDate[]" },
+        { type: "number", name: "CreditUnutilisedAmount[]" },
+        { type: "date", name: "CreditAsAtDate[]" }
     ];
 
-    const dateFields = [
-        "CreditExpiryDate[]",
-        "CreditAsAtDate[]",
-    ];
-
-    // Text fields
-    fields.forEach(name => {
-        const cell = newCreditRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+    columns.forEach(col => {
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = col.type;
+        input.name = col.name;
         cell.appendChild(input);
     });
 
-    // Date fields
-    dateFields.forEach(name => {
-        const cell = newCreditRow.insertCell();
-        const input = document.createElement("input");
-        input.type = "date";
-        input.name = name;
-        cell.appendChild(input);
-    });
-
-    // Delete button
-    const deleteCell = newCreditRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "btn btn-danger btn-sm"; // optional
-    deleteButton.textContent = "Delete";
-    deleteButton.onclick = function () {
-        deleteRow(this);
-    };
-    deleteCell.appendChild(deleteButton);
-}
-
-
-function turnOnCreditDetails(){
-    const detailsDiv = document.getElementById("CreditFacilities-Details");
-    detailsDiv.style.display = "block"; 
-}
-
-function turnOffCreditDetails(){
-    const detailsDiv = document.getElementById("CreditFacilities-Details");
-    detailsDiv.style.display = "none"; 
-}
-
-function OnOthersDetails(){
-    const detailsDiv = document.getElementById("CIDBOthersDetails");
-    detailsDiv.style.display = "block"; 
-}
-function OffOthersDetails(){
-    const detailsDiv = document.getElementById("CIDBOthersDetails");
-    detailsDiv.style.display = "none"; 
+    let cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addStaffList() {
     const table = document.getElementById("StaffTeamTable");
-    const newStaffRow = table.insertRow(-1);
-
-    // Staff No
-    let cell = newStaffRow.insertCell();
+    const newRow = table.insertRow(-1);
+    
+    // No
+    let cell = newRow.insertCell();
     let input = document.createElement("input");
-    input.type = "number";
-    input.name = "StaffNo[]";
-    input.min = "1";
+    input.type = "number"; input.name = "StaffNo[]";
     cell.appendChild(input);
 
-    const fields = [
-        "StaffName[]",
-        "StaffDesignation[]",
-        "StaffQualification[]",
-        "StaffEmploymentStatus[]",
-        "StaffSkills[]",
-        "StaffCertification[]",
-    ];
-
-    // Text fields
+    const fields = ["StaffName[]", "StaffDesignation[]", "StaffQualification[]"];
+    
     fields.forEach(name => {
-        cell = newStaffRow.insertCell();
+        cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        input.type = "text"; input.name = name;
+        cell.appendChild(input);
+    });
+    
+    // Exp
+    cell = newRow.insertCell();
+    input = document.createElement("input");
+    input.type = "number"; input.name = "StaffExperience[]";
+    cell.appendChild(input);
+    
+    const fields2 = ["StaffEmploymentStatus[]", "StaffSkills[]", "StaffCertification[]"];
+    fields2.forEach(name => {
+        cell = newRow.insertCell();
+        input = document.createElement("input");
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
 
-    // Experience
-    cell = newStaffRow.insertCell();
-    input = document.createElement("input");
-    input.type = "number";
-    input.name = "StaffExperience[]";
-    input.min = "1";
-    cell.appendChild(input);
-
-    // Delete button
-    cell = newStaffRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent = "Delete";
-    deleteButton.onclick = function () {
-        deleteRow(this);
-    };
-    cell.appendChild(deleteButton);
-}
-
-function addStaffList() {
-    const table = document.getElementById("StaffTeamTable");
-    const newStaffRow = table.insertRow(-1);
-
-    // Staff No
-    let cell = newStaffRow.insertCell();
-    let input = document.createElement("input");
-    input.type = "number";
-    input.name = "StaffNo[]";
-    input.min = "1";
-    cell.appendChild(input);
-
-    const fields = [
-        "StaffName[]",
-        "StaffDesignation[]",
-        "StaffQualification[]",
-        "StaffEmploymentStatus[]",
-        "StaffSkills[]",
-        "StaffCertification[]",
-    ];
-
-    // Text fields
-    fields.forEach(name => {
-        cell = newStaffRow.insertCell();
-        input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
-        cell.appendChild(input);
-    });
-
-    // Experience
-    cell = newStaffRow.insertCell();
-    input = document.createElement("input");
-    input.type = "number";
-    input.name = "StaffExperience[]";
-    input.min = "1";
-    cell.appendChild(input);
-
-    // Delete button
-    cell = newStaffRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent = "Delete";
-    deleteButton.onclick = function () {
-        deleteRow(this);
-    };
-    cell.appendChild(deleteButton);
+    cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addProjectRecord() {
     const table = document.getElementById("ProjectRecordTable");
-    const newStaffRow = table.insertRow(-1);
-
-    // Staff No
-    let cell = newStaffRow.insertCell();
+    const newRow = table.insertRow(-1);
+    
+    let cell = newRow.insertCell();
     let input = document.createElement("input");
-    input.type = "number";
-    input.name = "StaffNo[]";
-    input.min = "1";
+    input.type = "number"; input.name = "ProjectRecordNo[]";
     cell.appendChild(input);
 
-    const fields = [
-        "ProjectTitle[]",
-        "ProjectNature[]",
-        "ProjectLocation[]",
-        "ProjectClientName[]",
-        "ProjectValue[]",
-    ];
-    
-    const dateFields = [
-        "ProjectCommencementDate[]",
-        "ProjectCompletionDate[]",
-    ]
+    const fields = ["ProjectTitle[]", "ProjectNature[]", "ProjectLocation[]", "ProjectClientName[]", "ProjectValue[]"];
+    const dateFields = ["ProjectCommencementDate[]", "ProjectCompletionDate[]"];
 
-    // Text fields
     fields.forEach(name => {
-        cell = newStaffRow.insertCell();
+        cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
 
-    // date
     dateFields.forEach(name => {
-        cell = newStaffRow.insertCell();
+        cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "date";
-        input.name = name;
+        input.type = "date"; input.name = name;
         cell.appendChild(input);
     });
 
-    // Delete button
-    cell = newStaffRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent = "Delete";
-    deleteButton.onclick = function () {
-        deleteRow(this);
-    };
-    cell.appendChild(deleteButton);
+    cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
 function addCurrentProjectRecord() {
     const table = document.getElementById("CurrentProjTable");
-    const newStaffRow = table.insertRow(-1);
-
-    // Staff No
-    let cell = newStaffRow.insertCell();
+    const newRow = table.insertRow(-1);
+    
+    let cell = newRow.insertCell();
     let input = document.createElement("input");
-    input.type = "number";
-    input.name = "CurrentProjectNo[]";
-    input.min = "1";
+    input.type = "number"; input.name = "CurrentProjectRecordNo[]";
     cell.appendChild(input);
 
-    const fields = [
-        "CurrentProjTitle[]",
-        "CurrentProjNature[]",
-        "CurrentProjLocation[]",
-        "CurrentProjName[]",
-        "CurrentProjValue[]",
-    ];
+    const fields = ["CurrentProjTitle[]", "CurrentProjNature[]", "CurrentProjLocation[]", "CurrentProjClientName[]", "CurrentProjValue[]"];
+    const dateFields = ["CurrentProjStartDate[]", "CurrentProjEndDate[]"];
 
-    const dateFields = [
-        "CurrentProjStartDate[]",
-        "CurrentProjEndDate[]",
-    ];
-
-    // Text fields
     fields.forEach(name => {
-        cell = newStaffRow.insertCell();
+        cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text";
-        input.name = name;
+        input.type = "text"; input.name = name;
         cell.appendChild(input);
     });
 
-    // date
     dateFields.forEach(name => {
-        cell = newStaffRow.insertCell();
+        cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "date";
-        input.name = name;
+        input.type = "date"; input.name = name;
         cell.appendChild(input);
     });
 
-    let progressCell = newStaffRow.insertCell();
-    let Processinput = document.createElement("input");
-    Processinput.type = "number";
-    Processinput.name = "CurrentProjProgress[]";
-    Processinput.min = "1";
-    Processinput.max = "100";
-    progressCell.appendChild(Processinput);
+    cell = newRow.insertCell();
+    input = document.createElement("input");
+    input.type = "number"; input.name = "CurrentProjProgress[]";
+    cell.appendChild(input);
 
-    // Delete button
-    cell = newStaffRow.insertCell();
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent = "Delete";
-    deleteButton.onclick = function () {
-        deleteRow(this);
-    };
-    cell.appendChild(deleteButton);
+    cell = newRow.insertCell();
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Delete";
+    btn.onclick = function() { deleteRow(this); };
+    cell.appendChild(btn);
 }
 
-function deleteRow(button) {
-    const row = button.closest("tr");
-    row.remove();
-}
+console.log("VendorRegistration.js loaded. and updated vs");
 
-function validateShareholderTotal() {
-    const rows = document.querySelectorAll("#shareholderTable tr");
-    let totalShare = 0;
-    let hasData = false;
-
-    // Skip header row (row 0), start from row 1
-    for (let i = 1; i < rows.length; i++) {
-        const inputs = rows[i].querySelectorAll("input");
-        // The shareholder percent input is the 5th input (index 4)
-        if (inputs.length > 4) {
-            const shareInput = inputs[4]; // ShareholderPercent
-            if (shareInput && shareInput.value && shareInput.value.trim() !== "") {
-                totalShare += parseFloat(shareInput.value) || 0;
-                hasData = true;
-            }
-        }
-    }
-
-    // Only validate if shareholders have percentages entered
-    if (hasData) {
-        // Allow small floating point tolerance (0.01%)
-        if (Math.abs(totalShare - 100) > 0.01) {
-            alert(`Shareholder percentages must sum to exactly 100%. Current total: ${totalShare.toFixed(2)}%`);
-            return false;
-        }
-    }
-    // If no shareholder data, allow submission (shareholders are optional)
-    return true;
-}
-
-function validateBobcatRating() {
-    const bobcat = document.querySelector('input[name="BobcatRating"]');
-    if (!bobcat) return true; // nothing to validate
-
-    const val = bobcat.value;
-    if (val === null || val === undefined || val === '') return true; // allow empty
-
-    const num = parseFloat(val);
-    const min = parseFloat(bobcat.getAttribute('min'));
-    const max = parseFloat(bobcat.getAttribute('max'));
-
-    if (isNaN(num)) {
-        alert('Bobcat rating must be a number.');
-        bobcat.focus();
-        bobcat.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return false;
-    }
-
-    if (num < min || num > max) {
-        alert(`Bobcat rating must be between ${min} and ${max}. You entered ${num}.`);
-        bobcat.focus();
-        bobcat.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return false;
-    }
-
-    return true;
-}
-
+// Form Validation and Submission
 function validateAndSubmit() {
-    console.log("validateAndSubmit called");
-    
-    // First validate shareholders
-    if (!validateShareholderTotal()) {
-        console.log("Shareholder validation failed");
-        return; // Stop if validation fails
-    }
-
-    // Validate Bobcat rating range
-    if (!validateBobcatRating()) {
-        console.log("Bobcat rating validation failed");
-        return; // Stop if invalid
-    }
-    
-    // Get the form element
-    const form = document.getElementById('vendorForm') || document.querySelector("form");
-    console.log("Form element:", form);
-
+    const form = document.getElementById('vendorForm');
     const formErrorsDiv = document.getElementById('formErrors');
+    
+    // Clear previous errors
     if (formErrorsDiv) formErrorsDiv.innerHTML = '';
+    
+    // Find all required fields
+    const requiredFields = form.querySelectorAll('[required]');
+    const sections = {}; // Group errors by accordion section
+    let isValid = true;
+    let firstInvalidEl = null;
 
-    // Ensure all accordion sections are expanded so hidden required fields are focusable
-    document.querySelectorAll('.accordion-collapse').forEach(collapse => {
-        if (!collapse.classList.contains('show')) {
-            collapse.classList.add('show');
-            const headerBtn = collapse.parentElement.querySelector('.accordion-button');
-            if (headerBtn) {
-                headerBtn.classList.remove('collapsed');
-                headerBtn.setAttribute('aria-expanded', 'true');
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            if (!firstInvalidEl) firstInvalidEl = field;
+
+            // Find the name of the accordion section this field belongs to
+            const accordionItem = field.closest('.accordion-item');
+            const sectionName = accordionItem 
+                ? accordionItem.querySelector('.accordion-header').innerText.trim() 
+                : "General Information";
+
+            // Find the label text for the field
+            const label = field.closest('.mb-3')?.querySelector('label')?.innerText.replace(':', '') || field.name;
+
+            if (!sections[sectionName]) {
+                sections[sectionName] = new Set();
             }
+            sections[sectionName].add(label);
+            
+            // Highlight the field
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
         }
     });
 
-    // Check if form is valid using HTML5 validation
-    if (!form.checkValidity()) {
-        console.log("Form validation failed");
-
-        // Collect invalid elements and group by accordion section
-        const invalidEls = Array.from(form.querySelectorAll(':invalid'));
-        const sections = {};
-
-        invalidEls.forEach(el => {
-            let sectionName = 'Other';
-            const accordionItem = el.closest('.accordion-item');
-            if (accordionItem) {
-                const headerBtn = accordionItem.querySelector('.accordion-button');
-                sectionName = headerBtn ? headerBtn.textContent.trim() : 'Section';
-
-                // Expand the accordion section so user can see the invalid fields
-                const collapse = accordionItem.querySelector('.accordion-collapse');
-                if (collapse && !collapse.classList.contains('show')) {
-                    collapse.classList.add('show');
-                }
-                if (headerBtn) {
-                    headerBtn.classList.remove('collapsed');
-                    headerBtn.setAttribute('aria-expanded', 'true');
-                }
-            }
-
-            // Determine a friendly label for the field
-            let labelText = '';
-            if (el.id) {
-                const lab = form.querySelector('label[for="' + el.id + '"]');
-                if (lab) labelText = lab.textContent.trim();
-            }
-            if (!labelText) labelText = el.name || el.placeholder || el.type || 'field';
-
-            if (!sections[sectionName]) sections[sectionName] = new Set();
-            sections[sectionName].add(labelText);
-        });
-
-        // Build and show a summary message
+    if (!isValid) {
+        // Build the error box HTML
         let html = '<div class="error-box"><strong>Please complete required fields:</strong><ul style="margin-top:8px;">';
         for (const [sec, fields] of Object.entries(sections)) {
-            html += '<li><strong>' + sec + ':</strong> ' + Array.from(fields).join(', ') + '</li>';
+            html += `<li><strong>${sec}:</strong> ${Array.from(fields).join(', ')}</li>`;
         }
         html += '</ul></div>';
 
         if (formErrorsDiv) {
             formErrorsDiv.innerHTML = html;
         } else {
-            alert('Please complete required fields.');
+            alert('Please complete all required fields.');
         }
 
-        // Focus the first invalid field and scroll into view
-        if (invalidEls.length) {
-            invalidEls[0].focus();
-            invalidEls[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Scroll to the first error and focus it
+        if (firstInvalidEl) {
+            firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidEl.focus();
         }
-
+        
         form.reportValidity();
-        return;
+        return false;
     }
 
-    console.log("All validations passed, submitting form");
-    // If all validations pass, submit the form
+    // If everything is valid, submit the form
+    console.log("Validation passed. Submitting...");
     form.submit();
 }
 
-function submitTable() {
-    const rows = document.querySelectorAll("#shareholderTable tr");
-    let outputHTML = "<h3>Submitted Data:</h3><ul>";
+// UI Toggles
+function bankruptYes() { document.getElementById("bankruptcy-details").style.display = "block"; }
+function bankruptNO() { document.getElementById("bankruptcy-details").style.display = "none"; }
+function turnOnCreditDetails() { document.getElementById("CreditFacilities-Details").style.display = "block"; }
+function turnOffCreditDetails() { document.getElementById("CreditFacilities-Details").style.display = "none"; }
+function OnOthersDetails() { document.getElementById("CIDBOthersDetails").style.display = "block"; }
+function OffOthersDetails() { document.getElementById("CIDBOthersDetails").style.display = "none"; }
 
-    // Skip header row (start at 1)
-    for (let i = 1; i < rows.length; i++) {
-        const inputs = rows[i].querySelectorAll("input");
-        let rowData = [];
-        inputs.forEach(input => rowData.push(input.value.trim()));
+// checkbox toggles
+document.addEventListener("DOMContentLoaded", function() {
+    restoreSectionVisibility();
+});
 
-        outputHTML += `<li><strong>Row ${i}:</strong> ${rowData.join(" | ")}</li>`;
+// Also run this when the user navigates back to the page
+window.addEventListener("pageshow", function(event) {
+    if (event.persisted) {
+        restoreSectionVisibility();
+    }
+});
+
+function restoreSectionVisibility() {
+    // 1. Check Bankruptcy History
+    const bankruptYes = document.getElementById("bankrupt-yes"); // Ensure ID matches your HTML    
+    // You might need to use querySelector if you don't have IDs on the radios
+    // Example: document.querySelector('input[name="bankruptHistory"][value="Yes"]')
+        if (bankruptYes.checked) {
+        document.getElementById("bankruptcy-details").style.display = "block";
     }
 
-    outputHTML += "</ul>";
-    document.getElementById("output").innerHTML = outputHTML;
+    // 2. Check Credit Facilities
+    const creditRadioYes = document.getElementById("CreditFacilities-Yes");
+    // Note: Verify the name attribute from your HTML. I see 'creditFacilities' implies logic.
+    // Based on your script.js, you have turnOnCreditDetails()
+    
+    // Let's look for the radio that triggers turnOnCreditDetails()
+    // It is likely name="CreditFacilities" or similar based on context.
+    // Assuming name="CreditFacilities" and value="Yes"
+    const creditYes = document.getElementById("CreditFacilities-Yes");
+    if ( creditYes.checked) {
+        document.getElementById("CreditFacilities-Details").style.display = "block";
+    }
+
+    // 3. Check CIDB Others
+    // This is for the "Others" checkbox or radio in CIDB section
+    const cidbOthers = document.getElementById("CIDBOthersRadio");
+    if (cidbOthers && cidbOthers.checked) {
+        document.getElementById("CIDBOthersDetails").style.display = "block";
+    }
 }

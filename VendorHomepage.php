@@ -31,7 +31,7 @@ if (!empty($vendorNewCompanyRegistration)) {
         "SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status
         FROM registrationform
         WHERE newCompanyRegistrationNumber = ?
-        ORDER BY formFirstSubmissionDate DESC"
+        ORDER BY registrationFormID DESC"
     );
     $stmt->bind_param("s", $vendorNewCompanyRegistration);
     $stmt->execute();

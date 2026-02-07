@@ -211,12 +211,14 @@ function addCreditFacilities() {
     const deleteCell = newCreditRow.insertCell();
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
+    deleteButton.className = "btn btn-danger btn-sm"; // optional
     deleteButton.textContent = "Delete";
     deleteButton.onclick = function () {
         deleteRow(this);
     };
     deleteCell.appendChild(deleteButton);
 }
+
 
 function turnOnCreditDetails(){
     const detailsDiv = document.getElementById("CreditFacilities-Details");

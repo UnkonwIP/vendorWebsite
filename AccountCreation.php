@@ -18,10 +18,10 @@ include "database.php";
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 // Protect page (admin only)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: index.php");
-    exit();
-}
+// if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+//     header("Location: index.php");
+//     exit();
+// }
 
 $message = "";
 $messageType = ""; // success | error

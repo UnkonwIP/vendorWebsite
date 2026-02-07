@@ -17,6 +17,10 @@
                 border: 1px solid #fecaca;
                 font-size: 14px;
             }
+            #CreditTable input {
+                width: 100%;
+                box-sizing: border-box;
+            }
         </style>
 
         <img src="Image/company%20logo.png" class="rounded mx-auto d-block" alt="Company Logo" style="width: 150px;">
@@ -330,7 +334,7 @@
                 <td><label for="AuditorPersonName">Name</label>
                 </td>
                 <td><input type="text" name="AuditorPersonName" id="AuditorPersonName" required></td>
-                <td><input type="number" min="1" max="100" step="1" required></td>
+                <td rowspan="3"><input type="number" min="1" max="100" step="1" name="AuditorYearOfService" required></td>
             </tr>
             <tr>
                 <td rowspan="2"><label for="AuditorCompanyAddress">Address</label>
@@ -339,13 +343,13 @@
                 <td><label for="AuditorPersonEmail">Email</label>
                 </td>
                 <td><input type="email" name="AuditorPersonEmail" id="AuditorPersonEmail" required></td>
-                <td><input type="number" min="1" max="100" step="1"></td>
+                <!-- Year of Service cell removed -->
             </tr>
             <tr>
                 <td><label for="AuditorPersonPhone">Phone</label>
                 </td>
                 <td><input type="text" name="AuditorPersonPhone" id="AuditorPersonPhone" required></td>
-                <td><input type="number" min="1" max="100" step="1"></td>
+                <!-- Year of Service cell removed -->
             </tr>
             <tr>
                 <td rowspan="3">Advocates & Solicitors</td>
@@ -355,7 +359,7 @@
                 <td><label for="AdvocatesPersonName">Name</label>
                 </td>
                 <td><input type="text" name="AdvocatesPersonName" id="AdvocatesPersonName" required></td>
-                <td><input type="number" min="1" max="100" step="1" name="AuditorYearOfService" required></td>
+                <td rowspan="3"><input type="number" min="1" max="100" step="1" name="AdvocatesYearOfService" required></td>
             </tr>
             <tr>
                 <td rowspan="2"><label for="AdvocatesCompanyAddress">Address</label>
@@ -364,13 +368,13 @@
                 <td><label for="AdvocatesPersonEmail">Email</label>
                 </td>
                 <td><input type="email" name="AdvocatesPersonEmail" id="AdvocatesPersonEmail" required></td>
-                <td><input type="number" min="1" max="100" step="1"></td>
+                <!-- Year of Service cell removed -->
             </tr>
             <tr>
                 <td><label for="AdvocatesPersonPhone">Phone</label>
                 </td>
                 <td><input type="text" name="AdvocatesPersonPhone" id="AdvocatesPersonPhone" required></td>
-                <td><input type="number" min="1" max="100" step="1" name="AdvocatesYearOfService"></td>
+                <!-- Year of Service cell removed -->
             </tr>
         </table>
         </div>
@@ -440,10 +444,10 @@
         
         <p>Current Credit Resources form Banks and Financial Institution / Supplier </p>
         <div><label for="CreditFacilities">Does the Company have any credit facilities </label>
-        <input type="radio" name="CreditFacilities" id="CreditFacilities-Yes" value="Yes" onclick="turnOnCreditDetails()" required>
+        <input type="radio" name="CreditFacilitiesStatus" id="CreditFacilities-Yes" value="Yes" onclick="turnOnCreditDetails()" required>
         <label for="CreditFacilities-Yes">Yes</label>
         
-        <input type="radio" name="CreditFacilities" id="CreditFacilities-No" value="No" onclick="turnOffCreditDetails()">
+        <input type="radio" name="CreditFacilitiesStatus" id="CreditFacilities-No" value="No" onclick="turnOffCreditDetails()">
         <label for="CreditFacilities-No">No</label>
         </div>
         
@@ -454,9 +458,10 @@
                 <th>Type of Credit Facilities</th>
                 <th>Bank / Financial Institution / Supplier</th>
                 <th>Total Amount(RM)</th>
-                <th>Unutilised Amount Currently Available (RM)</th>
+                <th>Unutilised Amount(RM)</th>
                 <th>Expiry Date</th>
                 <th>As at Date</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="text" name="TypeOfCredit[]"></td>
@@ -562,7 +567,7 @@
         </div>
         
         <div><label>Experience in the Industry (Years)</label>
-        <input type="number" min="0">
+        <input type="number" name="ExperienceInIndustry" min="0">
         </div>
         
         <div>
@@ -589,52 +594,52 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td><input type="number" name="BobcatRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="BobcatOwnership"></td>
                     <td><input type="date" name="BobcatYearOfManufacture"></td>
-                    <td><input type="date" name="BobcatRegistrationNo"></td>
+                    <td><input type="text" name="BobcatRegistrationNo"></td>
                 </tr>
                 <tr>
                     <td>HDD Equipment</td>
-                    <td><input type="text" name="HDDQuantity"></td>
+                    <td><input type="number" name="HDDQuantity"></td>
                     <td><input type="text" name="HDDBrandModel"></td>
-                    <td><input type="text" name="HDDRating"></td>
+                    <td><input type="number" name="HDDRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="HDDOwnership"></td>
                     <td><input type="date" name="HDDYearOfManufacture"></td>
-                    <td><input type="date" name="HDDRegistrationNo"></td>
+                    <td><input type="text" name="HDDRegistrationNo"></td>
                 </tr>
                 <tr>
                     <td>Splicing Equipment</td>
-                    <td><input type="text" name="SplicingQuantity"></td>
+                    <td><input type="number" name="SplicingQuantity"></td>
                     <td><input type="text" name="SplicingBrandModel"></td>
-                    <td><input type="text" name="SplicingRating"></td>
+                    <td><input type="number" name="SplicingRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="SplicingOwnership"></td>
                     <td><input type="date" name="SplicingYearOfManufacture"></td>
-                    <td><input type="date" name="SplicingRegistrationNo"></td>
+                    <td><input type="text" name="SplicingRegistrationNo"></td>
                 </tr>
                 <tr>
                     <td>Optical Power Meter (OPM)</td>
-                    <td><input type="text" name="OPMQuantity"></td>
+                    <td><input type="number" name="OPMQuantity"></td>
                     <td><input type="text" name="OPMBrandModel"></td>
-                    <td><input type="text" name="OPMRating"></td>
+                    <td><input type="number" name="OPMRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="OPMOwnership"></td>
                     <td><input type="date" name="OPMYearOfManufacture"></td>
-                    <td><input type="date" name="OPMRegistrationNo"></td>
+                    <td><input type="text" name="OPMRegistrationNo"></td>
                 </tr>
                 <tr>
                     <td>Optical Time Domain Reflectometer (OTDR)</td>
-                    <td><input type="text" name="OTDRQuantity"></td>
+                    <td><input type="number" name="OTDRQuantity"></td>
                     <td><input type="text" name="OTDRBrandModel"></td>
-                    <td><input type="text" name="OTDRRating"></td>
+                    <td><input type="number" name="OTDRRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="OTDROwnership"></td>
                     <td><input type="date" name="OTDRYearOfManufacture"></td>
-                    <td><input type="date" name="OTDRRegistrationNo"></td>
+                    <td><input type="text" name="OTDRRegistrationNo"></td>
                 </tr>
                 <tr>
                     <td>Equipment/Test Gear</td>
-                    <td><input type="text" name="TestGearQuantity"></td>
+                    <td><input type="number" name="TestGearQuantity"></td>
                     <td><input type="text" name="TestGearBrandModel"></td>
-                    <td><input type="text" name="TestGearRating"></td>
+                    <td><input type="number" name="TestGearRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="TestGearOwnership"></td>
                     <td><input type="date" name="TestGearYearOfManufacture"></td>
-                    <td><input type="date" name="TestGearRegistrationNo"></td>
+                    <td><input type="text" name="TestGearRegistrationNo"></td>
                 </tr>
             </table>
         </div>
@@ -825,7 +830,11 @@ The Contractor is required to complete the form by listing all plant and machine
         <div>
         <div><label>The above information had been verified by: - </label></div>
         <div><label>For and on behalf of the Company.</label></div>
-        <div><input type="text"></div>
+        <div class=row>
+            <div class="col-md-6 mt-4">
+                <div class="signature-box"></div>
+            </div>
+        </div>
         <label>(Authorised Signature and Company Stamp) </label>
         <label>Chairman/Director/Company Secretary</label>
         </div>

@@ -14,7 +14,7 @@ if (isset($_POST['clear_database'])){
     $conn ->query("SET FOREIGN_KEY_CHECKS = 0;");
 
     // Use TRUNCATE to wipe data and reset Auto-Increment counters
-    $tablesToWipe = ['bank', 'contacts', 'creditfacilities', 'currentproject', 'directorandsecretary','equipmentused','management','nettworth','projecttrackrecord','registrationform','shareholders','staff'];
+    $tablesToWipe = ['bank', 'contacts', 'creditfacilities', 'currentproject', 'directorandsecretary','equipment','management','nettworth','projecttrackrecord','registrationform','shareholders','staff'];
     
     foreach ($tablesToWipe as $table) {
         $sql = "TRUNCATE TABLE $table";

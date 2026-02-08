@@ -760,7 +760,8 @@
                                 </thead>
                                 <tbody>
                                     <?php while($row = $StaffTeamTable->fetch_assoc()): ?>
-                                    <tr data-id="<?= $row['staffID'] ?>"> <td><input type="number" data-field="staffNo" class="form-control" value="<?= htmlspecialchars($row['staffNo']) ?>" readonly></td>
+                                    <tr data-id="<?= $row['staffID'] ?>"> 
+                                        <td><input type="number" data-field="staffNo" class="form-control" value="<?= htmlspecialchars($row['staffNo']) ?>" readonly></td>
                                         <td><input type="text" data-field="name" class="form-control" value="<?= htmlspecialchars($row['name']) ?>" readonly></td>
                                         <td><input type="text" data-field="designation" class="form-control" value="<?= htmlspecialchars($row['designation']) ?>" readonly></td>
                                         <td><input type="text" data-field="qualification" class="form-control" value="<?= htmlspecialchars($row['qualification']) ?>" readonly></td>

@@ -1,4 +1,32 @@
-/* AdminVendorEdit.js */
+/* VendorUpdateScript.js */
+
+// --- PASTE THIS AT THE VERY TOP OF THE FILE ---
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Re-open the accordion that was active
+    const openAccordionId = sessionStorage.getItem('openAccordion');
+    if (openAccordionId) {
+        const el = document.getElementById(openAccordionId);
+        if (el && window.bootstrap) {
+            // Use Bootstrap API to open it properly without animation delay
+            new bootstrap.Collapse(el, { show: true, toggle: false });
+        } else if (el) {
+            // Fallback if Bootstrap API isn't ready
+            el.classList.add('show'); 
+        }
+        sessionStorage.removeItem('openAccordion');
+    }
+
+    // 2. Scroll to the saved position (with a tiny delay to let the layout settle)
+    const scrollPos = sessionStorage.getItem('scrollPosition');
+    if (scrollPos) {
+        setTimeout(function() {
+            window.scrollTo(0, parseInt(scrollPos));
+            sessionStorage.removeItem('scrollPosition');
+        }, 100); // 100ms delay ensures the accordion is fully open first
+    }
+});
+// ----------------------------------------------
+
 const formID = document.getElementById("registrationFormID").value;
 
 function showLoading() { 
@@ -137,17 +165,19 @@ function deleteEditRow(button, tableName, idName) {
     });
 }
 
-/** Add Row Logic */
+/** Add Row Logic General use */ 
 function addEditShareholders(tableName, tableId) {
-    // CHANGED: File name
-    // Logic remains same as previous provided version, just updated API endpoint name
-    if(!confirm("Create new blank row?")) return;
+    // 1. Ask for confirmation
+    if(!confirm("Create a new blank row?")) return;
+    
+    // 2. Prepare Data
     const params = new URLSearchParams();
     params.append("Table", tableName);
     params.append("registrationFormID", formID);
+    
+    // (Your existing params setup matches APIAddTableRow.php defaults)
     const today = new Date().toISOString().split('T')[0];
 
-    // Build Default Params based on Table (Same as before)
     if (tableName === 'Shareholders') {
         params.append("companyShareholderID", "000"); params.append("name", "New Shareholder");
         params.append("nationality", "Malaysia"); params.append("address", "-"); params.append("sharePercentage", 0);
@@ -177,20 +207,141 @@ function addEditShareholders(tableName, tableId) {
         params.append("unutilisedAmountCurrentlyAvailable", 0); params.append("asAtDate", today);
     }
 
-    // CHANGED: File Name
+    // 3. Send AJAX Request
+    showLoading(); // Optional: Show a spinner
     fetch("APIAddTableRow.php", { method: "POST", body: params })
     .then(res => res.json())
     .then(data => {
+        hideLoading(); // Hide spinner
         if(data.success) {
-            // Reload page to reflect changes simply
-             window.location.reload();
+            // STOP! Do not reload. Instead, draw the row manually.
+            renderNewRow(tableName, tableId, data.id, today);
         } else {
             alert("Error adding row: " + (data.error || "Unknown error"));
         }
     })
     .catch(err => {
+        hideLoading();
         console.error(err);
-        alert("Error: Check console. Often caused by PHP warnings breaking JSON.");
+        alert("Error: Check console.");
     });
+}
+
+/**
+ * Helper function to generate HTML for the new row without reloading
+ */
+function renderNewRow(tableName, tableId, newId, todayDate) {
+    const tableBody = document.querySelector(`#${tableId} tbody`);
+    if (!tableBody) return alert("Table body not found!");
+
+    const newRow = document.createElement("tr");
+    newRow.dataset.id = newId; // IMPORTANT: This links the new row to the DB ID
+    
+    // Define the HTML structure based on the table type
+    // These defaults MUST match what APIAddTableRow.php inserted
+    let html = "";
+    
+    if (tableName === 'Shareholders') {
+        html = `
+            <td><input type="text" data-field="companyShareholderID" class="form-control" value="000" readonly></td>
+            <td><input type="text" data-field="name" class="form-control" value="New Shareholder" readonly></td>
+            <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+            <td><input type="text" data-field="address" class="form-control" value="-" readonly></td>
+            <td><input type="number" data-field="sharePercentage" class="form-control" value="0" step="0.01" readonly></td>
+            <td>${getActionButtons(tableName, 'shareholderID')}</td>
+        `;
+    } 
+    else if (tableName === 'DirectorAndSecretary') {
+        html = `
+            <td><input type="text" data-field="name" class="form-control" value="New Director" readonly></td>
+            <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+            <td><input type="text" data-field="position" class="form-control" value="Director" readonly></td>
+            <td><input type="date" data-field="appointmentDate" class="form-control" value="${todayDate}" readonly></td>
+            <td><input type="date" data-field="dob" class="form-control" value="${todayDate}" readonly></td>
+            <td>${getActionButtons(tableName, 'directorID')}</td>
+        `;
+    }
+    else if (tableName === 'Management') {
+        html = `
+            <td><input type="text" data-field="name" class="form-control" value="New Manager" readonly></td>
+            <td><input type="text" data-field="nationality" class="form-control" value="Malaysia" readonly></td>
+            <td><input type="text" data-field="position" class="form-control" value="Manager" readonly></td>
+            <td><input type="number" data-field="yearsInPosition" class="form-control" value="0" readonly></td>
+            <td><input type="number" data-field="yearsInRelatedField" class="form-control" value="0" readonly></td>
+            <td>${getActionButtons(tableName, 'managementID')}</td>
+        `;
+    }
+    else if (tableName === 'Bank') {
+        html = `
+            <td><input type="text" data-field="bankName" class="form-control" value="New Bank" readonly></td>
+            <td><input type="text" data-field="bankAddress" class="form-control" value="-" readonly></td>
+            <td><input type="text" data-field="swiftCode" class="form-control" value="-" readonly></td>
+            <td>${getActionButtons(tableName, 'bankID')}</td>
+        `;
+    }
+    else if (tableName === 'Staff') {
+        html = `
+            <td><input type="number" data-field="staffNo" class="form-control" value="1" readonly></td>
+            <td><input type="text" data-field="name" class="form-control" value="New Staff" readonly></td>
+            <td><input type="text" data-field="designation" class="form-control" value="-" readonly></td>
+            <td><input type="text" data-field="qualification" class="form-control" value="-" readonly></td>
+            <td><input type="number" data-field="yearsOfExperience" class="form-control" value="0" readonly></td>
+            <td><input type="text" data-field="employmentStatus" class="form-control" value="Permanent" readonly></td>
+            <td><input type="text" data-field="skills" class="form-control" value="-" readonly></td>
+            <td><input type="text" data-field="relevantCertification" class="form-control" value="-" readonly></td>
+            <td>${getActionButtons(tableName, 'staffID')}</td>
+        `;
+    }
+    else if (tableName === 'ProjectTrackRecord') {
+        html = `
+            <td><input type="number" data-field="projectRecordNo" class="form-control" value="1" readonly></td>
+            <td><input type="text" data-field="projectTitle" class="form-control" value="New Project" readonly></td>
+            <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
+            <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
+            <td><input type="text" data-field="clientName" class="form-control" value="-" readonly></td>
+            <td><input type="number" data-field="projectValue" class="form-control" value="0" readonly></td>
+            <td><input type="date" data-field="commencementDate" class="form-control" value="${todayDate}" readonly></td>
+            <td><input type="date" data-field="completionDate" class="form-control" value="${todayDate}" readonly></td>
+            <td>${getActionButtons(tableName, 'projectRecordID')}</td>
+        `;
+    }
+    else if (tableName === 'CurrentProject') {
+        html = `
+            <td><input type="number" data-field="currentProjectRecordNo" class="form-control" value="1" readonly></td>
+            <td><input type="text" data-field="projectTitle" class="form-control" value="New Current Project" readonly></td>
+            <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
+            <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
+            <td><input type="text" data-field="clientName" class="form-control" value="-" readonly></td>
+            <td><input type="number" data-field="projectValue" class="form-control" value="0" readonly></td>
+            <td><input type="date" data-field="commencementDate" class="form-control" value="${todayDate}" readonly></td>
+            <td><input type="date" data-field="completionDate" class="form-control" value="${todayDate}" readonly></td>
+            <td><input type="number" data-field="progressOfTheWork" class="form-control" value="0" readonly></td>
+            <td>${getActionButtons(tableName, 'currentProjectID')}</td>
+        `;
+    }
+    else if (tableName === 'CreditFacilities') {
+        html = `
+            <td><input type="text" data-field="typeOfCreditFacilities" class="form-control" value="Loan" readonly></td>
+            <td><input type="text" data-field="financialInstitution" class="form-control" value="-" readonly></td>
+            <td><input type="number" data-field="totalAmount" class="form-control" value="0" readonly></td>
+            <td><input type="number" data-field="unutilisedAmountCurrentlyAvailable" class="form-control" value="0" readonly></td>
+            <td><input type="date" data-field="expiryDate" class="form-control" value="${todayDate}" readonly></td>
+            <td><input type="date" data-field="asAtDate" class="form-control" value="${todayDate}" readonly></td>
+            <td>${getActionButtons(tableName, 'facilityID')}</td>
+        `;
+    }
+
+    newRow.innerHTML = html;
+    tableBody.appendChild(newRow);
+}
+
+// Helper to generate the Edit/Delete buttons dynamically
+function getActionButtons(tableName, idName) {
+    return `
+        <div>
+            <button class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, '${tableName}', '${idName}')">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteEditRow(this, '${tableName}', '${idName}')">Delete</button>
+        </div>
+    `;
 }
 function editSpecialRow(btn, table, idName) { editTableRow(btn, table, idName); }

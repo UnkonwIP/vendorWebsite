@@ -167,7 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $mail->Subject = 'Complete Your Account Setup';
 
                 // Ensure localhost setup link is correct for your environment
-                $setupLink = "http://localhost/vendorWebsite/AccountSetup.php?token=" . urlencode($setupToken);
+                $baseUrl = APP_URL; // define in config.php
+                $setupLink = $baseUrl . "AccountSetup.php?token=" . urlencode($setupToken);
 
                 $mail->Body = "
                     <h2>Welcome to the Vendor System</h2><br><br>

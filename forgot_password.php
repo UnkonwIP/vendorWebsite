@@ -172,8 +172,8 @@ if (isset($_POST['reset'])) {
             $update->execute();
 
             // Create reset link with token
-            $resetLink = "http://localhost/vendorWebsite/reset_password.php?token=" . urlencode($token);
-
+            $baseUrl = APP_URL; // define in config.php
+            $setupLink = $baseUrl . "reset_password.php?token=" . urlencode($token);
             // Send email via PHPMailer
             $mail = new PHPMailer(true);
 

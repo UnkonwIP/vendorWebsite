@@ -115,10 +115,15 @@ $messageType = ""; // success | error
         </div>
     <?php endif; ?>
 
-    <form method="post">
-        <input type="number" name="newCompanyRegistration" placeholder="Company Registration Number" required>
-        <input type="email" name="email" placeholder="Email Address" required>
-        <button type="submit" name="reset">Send Reset Link</button>
+    <form id="forgotPasswordForm" autocomplete="off" aria-label="Forgot Password Form">
+        <label for="email" class="visually-hidden">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Email Address" required aria-required="true" aria-label="Email Address">
+        <div id="companyRegContainer" style="display:none;">
+            <label for="newCompanyRegistration" class="visually-hidden">Company Registration Number</label>
+            <input type="number" id="newCompanyRegistration" name="newCompanyRegistration" placeholder="Company Registration Number" aria-label="Company Registration Number" autocomplete="off">
+        </div>
+        <button type="submit" id="submitBtn">Send Reset Link</button>
+        <div id="formLoading" style="display:none; margin:10px 0; color:#2a5298;">Processing...</div>
     </form>
 
     <div class="links">
@@ -127,91 +132,118 @@ $messageType = ""; // success | error
 </div>
 
 </body>
-</html>
+<script>
+// Accessibility: visually hidden class
+const style = document.createElement('style');
+style.innerHTML = `.visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }`;
+document.head.appendChild(style);
 
-<?php
-if (isset($_POST['reset'])) {
-        require_once 'config.php';
-    $newCompanyRegistration = trim($_POST['newCompanyRegistration']);
-    $email = trim($_POST['email']);
-    
-    // Validate all fields are not empty
-    if (empty($newCompanyRegistration) || empty($email)) {
-        $message = "Please fill in all fields.";
-        $messageType = "error";
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // Validate email format
-        $message = "Please enter a valid email address.";
-        $messageType = "error";
-    } else {
-        // Validate that company registration and email match in registrationform
-        $stmt = $conn->prepare(
-            "SELECT rf.NewCompanyRegistration, va.username FROM registrationform rf 
-             INNER JOIN vendoraccount va ON rf.NewCompanyRegistration = va.NewCompanyRegistration 
-             WHERE rf.NewCompanyRegistration = ? AND rf.email = ?"
-        );
-        $stmt->bind_param("is", $newCompanyRegistration, $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+const emailInput = document.getElementById('email');
+const companyRegContainer = document.getElementById('companyRegContainer');
+const companyRegInput = document.getElementById('newCompanyRegistration');
+const form = document.getElementById('forgotPasswordForm');
+const submitBtn = document.getElementById('submitBtn');
+const formLoading = document.getElementById('formLoading');
 
-        if ($result->num_rows === 1) {
-            $row = $result->fetch_assoc();
-            $username = $row['username'];
-            
-            // Generate reset token
-            $token  = bin2hex(random_bytes(32));
-            $expiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
-
-            // Update vendoraccount with reset token and expiry
-            $update = $conn->prepare(
-                "UPDATE vendoraccount
-                 SET reset_token = ?, reset_expiry = ?
-                 WHERE username = ?"
-            );
-            $update->bind_param("sss", $token, $expiry, $username);
-            $update->execute();
-
-            // Create reset link with token
-            $baseUrl = APP_URL; // define in config.php
-            $setupLink = $baseUrl . "reset_password.php?token=" . urlencode($token);
-            // Send email via PHPMailer
-            $mail = new PHPMailer(true);
-
-            try {
-                $mail->isSMTP();
-                $mail->Host       = 'smtp.gmail.com';
-                $mail->SMTPAuth   = true;
-                $mail->Username   = MAIL_USER;
-                $mail->Password   = MAIL_PASS;
-                $mail->SMTPSecure = 'tls';
-                $mail->Port       = 587;
-
-                $mail->setFrom(MAIL_USER, 'Vendor System');
-                $mail->addAddress($email);
-
-                $mail->isHTML(true);
-                $mail->Subject = 'Password Reset Request';
-                $mail->Body = "
-                    Hello <b>" . htmlspecialchars($username) . "</b>,<br><br>
-                    We received a request to reset your password.<br><br>
-                    <a href='" . htmlspecialchars($resetLink) . "'>Click here to reset your password</a><br><br>
-                    This link will expire in 1 hour.<br><br>
-                    If you did not request this, please ignore this email.
-                ";
-
-                $mail->send();
-
-                $message = "Reset link has been sent to your email.";
-                $messageType = "success";
-
-            } catch (Exception $e) {
-                $message = "Failed to send email. Please try again.";
-                $messageType = "error";
-            }
-        } else {
-            $message = "Invalid company registration number or email. Please check your details and try again.";
-            $messageType = "error";
-        }
+function showMessage(msg, type) {
+    let msgDiv = document.querySelector('.message');
+    if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.className = 'message';
+        form.insertBefore(msgDiv, form.firstChild);
     }
+    msgDiv.textContent = msg;
+    msgDiv.className = 'message ' + (type || '');
+    msgDiv.setAttribute('role', 'alert');
 }
-?>
+
+function clearMessage() {
+    let msgDiv = document.querySelector('.message');
+    if (msgDiv) msgDiv.remove();
+}
+
+function validateEmail(email) {
+    // Simple email regex
+    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+}
+
+emailInput.addEventListener('blur', function() {
+    clearMessage();
+    const email = emailInput.value.trim();
+    if (!validateEmail(email)) {
+        companyRegContainer.style.display = 'none';
+        return;
+    }
+    formLoading.style.display = 'block';
+    submitBtn.disabled = true;
+    // AJAX: check role
+    fetch('role_check.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'email=' + encodeURIComponent(email)
+    })
+    .then(res => res.json())
+    .then(data => {
+        formLoading.style.display = 'none';
+        submitBtn.disabled = false;
+        if (data && data.role === 'vendor') {
+            companyRegContainer.style.display = 'block';
+            companyRegInput.setAttribute('required', 'required');
+        } else {
+            companyRegContainer.style.display = 'none';
+            companyRegInput.removeAttribute('required');
+        }
+    })
+    .catch(() => {
+        formLoading.style.display = 'none';
+        submitBtn.disabled = false;
+        companyRegContainer.style.display = 'none';
+        companyRegInput.removeAttribute('required');
+    });
+});
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    clearMessage();
+    const email = emailInput.value.trim();
+    const regNo = companyRegInput.value.trim();
+    if (!validateEmail(email)) {
+        showMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+    if (companyRegContainer.style.display !== 'none' && !regNo) {
+        showMessage('Please enter your company registration number.', 'error');
+        return;
+    }
+    formLoading.style.display = 'block';
+    submitBtn.disabled = true;
+    // AJAX: submit forgot password
+    const params = new URLSearchParams();
+    params.append('email', email);
+    if (companyRegContainer.style.display !== 'none') {
+        params.append('newCompanyRegistration', regNo);
+    }
+    params.append('reset', '1');
+    fetch('APIForgotPasswordHandler.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+        formLoading.style.display = 'none';
+        submitBtn.disabled = false;
+        showMessage(data.message, data.status);
+        if (data.status === 'success') {
+            form.reset();
+            companyRegContainer.style.display = 'none';
+        }
+    })
+    .catch(() => {
+        formLoading.style.display = 'none';
+        submitBtn.disabled = false;
+        showMessage('If the information is correct, you will receive a reset link.', 'success');
+    });
+});
+</script>
+</html>

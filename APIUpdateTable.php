@@ -1,6 +1,6 @@
 <?php
 // UpdateTableRow.php
-$conn = new mysqli('localhost', 'root', '', 'vendor_information');
+include "config.php";
 if ($conn->connect_error) { http_response_code(500); exit("DB connection failed"); }
 
 $required = ['field', 'value', 'registrationFormID', 'Table', 'idName'];

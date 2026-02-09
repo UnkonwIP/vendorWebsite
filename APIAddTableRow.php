@@ -8,7 +8,7 @@ ini_set('display_errors', 0);
 // 2. Set Header to JSON
 header('Content-Type: application/json');
 
-$conn = new mysqli('localhost', 'root', '', 'vendor_information');
+include "config.php";
 
 if ($conn->connect_error) {
     echo json_encode(["success" => false, "error" => "DB Connection Failed: " . $conn->connect_error]);

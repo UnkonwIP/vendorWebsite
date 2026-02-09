@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli('localhost', 'root', '', 'vendor_information');
+include "config.php";
 
 if (!isset($_POST['field'], $_POST['value'], $_POST['registrationFormID'])) {
     http_response_code(400);

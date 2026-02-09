@@ -6,7 +6,7 @@
 <body>
 <div class="container mt-5">
 <?php
-    $conn = new mysqli('localhost', 'root', '', 'vendor_information');
+    include "config.php";
     if ($conn->connect_error) { die('Connection Failed : ' . $conn->connect_error); }
 
     // --- Variables ---

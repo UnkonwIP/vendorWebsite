@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli('localhost', 'root', '', 'vendor_information');
+include "config.php";
 if ($conn->connect_error) exit("Connection failed");
 
 $id = $_POST['ID'] ?? '';

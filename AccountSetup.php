@@ -7,7 +7,7 @@ require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 require_once 'config.php';
 
-include "database.php";
+include "config.php";
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 $message = "";

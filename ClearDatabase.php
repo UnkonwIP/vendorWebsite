@@ -1,6 +1,7 @@
 <?php
 session_start();
-$conn = new mysqli("localhost", "root", "", "vendor_information");
+
+include 'config.php';
 
 // Protect admin page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

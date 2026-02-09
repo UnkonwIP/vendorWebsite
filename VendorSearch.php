@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json'); // important: tell browser it's JSON
 
-$conn = new mysqli('localhost', 'root', '', 'vendor_information');
+include "config.php";
 
 if ($conn->connect_error) {
     http_response_code(500);

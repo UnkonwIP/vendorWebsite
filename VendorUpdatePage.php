@@ -41,7 +41,7 @@
 <body>
     <?php
     // --- DATABASE CONNECTION & DATA FETCHING ---
-    $conn = new mysqli('localhost', 'root', '', 'vendor_information');
+    include "config.php";
     if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
     $registrationFormID = $_POST['registrationFormID'] ?? '';

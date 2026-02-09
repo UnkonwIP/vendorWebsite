@@ -68,7 +68,7 @@
                 <?php
                 $autoCRN = '';
                 session_start();
-                include_once "database.php";
+                include_once "config.php";
                 if (isset($_SESSION['accountID'])) {
                     $stmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ?");
                     $stmt->bind_param("s", $_SESSION['accountID']);

@@ -221,10 +221,23 @@ if (!empty($vendorNewCompanyRegistration)) {
 
         .form-card-actions {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: stretch;
             margin-top: 15px;
             border-top: 1px solid #e2e8f0;
             padding-top: 15px;
+            gap: 0;
+        }
+        .form-card-actions form {
+            margin: 0;
+        }
+        .btn-action.btn-view {
+            flex: 1 1 auto;
+            margin-right: 10px;
+        }
+        .btn-action.btn-delete {
+            flex: 0 0 auto;
+            margin-left: auto;
         }
 
         .btn-view {
@@ -288,6 +301,36 @@ if (!empty($vendorNewCompanyRegistration)) {
             background: var(--primary-hover);
             text-decoration: none;
             color: white;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s, color 0.2s;
+            margin: 0;
+        }
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+        }
+        .btn-view:hover {
+            background: var(--primary-hover);
+            color: white;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-delete:hover {
+            background: #fecaca;
+            color: #991b1b;
         }
 
         @media (max-width: 768px) {
@@ -382,12 +425,16 @@ if (!empty($vendorNewCompanyRegistration)) {
                         </div>
                     </div>
 
-                    <div class="form-card-actions">
-                        <form method="post" action="VendorUpdatePage.php" style="flex: 1; display: flex;">
-                                <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
-                            <button type="submit" class="btn-view">View Details</button>
-                        </form>
-                    </div>
+                <div class="form-card-actions">
+                    <form method="post" action="APIDeleteRegistrationForm.php" onsubmit="return confirm('Are you sure you want to delete this form?');">
+                        <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
+                        <button type="submit" class="btn-action btn-delete">Delete</button>
+                    </form>
+                    <form method="post" action="VendorUpdatePage.php">
+                        <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
+                        <button type="submit" class="btn-action btn-view">View Details</button>
+                    </form>
+                </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>

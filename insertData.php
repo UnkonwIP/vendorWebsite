@@ -88,7 +88,7 @@
             ?,?,?,?)");
 
     // Correct Bind String: 12 strings, 2 doubles, then strings...
-    $bindString = "ssssssssssssddssssssssssssssssisssssssssissssssis"; 
+    $bindString = "ssssssssssssddsssssssssssssssssssssssssssisssssis"; 
     
     $stmt->bind_param($bindString, 
     $newCRN, $currentDate, $CompanyName, $tax, $FaxNo, 

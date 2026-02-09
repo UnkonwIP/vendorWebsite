@@ -17,34 +17,25 @@ function addShareholders(){
     const newRow = table.insertRow(-1);
     
     // FIX: Capitalized names to match the HTML form and PHP $_POST expectations
-    const fields = [
-        "ShareholderName[]",
-        "ShareholderNationality[]",
-        "ShareholderAddress[]",
+    const colums = [
+        { type: "number", name: "CompanyShareholderID[]" },
+        { type: "text", name: "ShareholderName[]" },
+        { type: "text", name: "ShareholderNationality[]" },
+        { type: "text", name: "ShareholderAddress[]" },
+        { type: "number", name: "ShareholderPercent[]" }
     ];
-    
-    // ID Column
-    let cell = newRow.insertCell();
-    let input = document.createElement("input");
-    input.type = "number"; input.name = "CompanyShareholderID[]"; input.step = "1";
-    cell.appendChild(input);
-    
+
     // Text Columns
-    fields.forEach(name => {
-        cell = newRow.insertCell();
-        input = document.createElement("input");
-        input.type = "text"; input.name = name;
+    colums.forEach(col => {
+        let cell = newRow.insertCell();
+        let input = document.createElement("input");
+        input.type = col.type; 
+        input.name = col.name;
         cell.appendChild(input);
     });
     
-    // Percent Column
-    cell = newRow.insertCell();
-    input = document.createElement("input");
-    input.type = "number"; input.name = "ShareholderPercent[]"; input.step = "0.01";
-    cell.appendChild(input);
-    
     // Delete Button
-    cell = newRow.insertCell();
+    let cell = newRow.insertCell();
     const btn = document.createElement("button");
     btn.type = "button"; btn.textContent = "Delete";
     btn.onclick = function() { deleteRow(this); };
@@ -56,23 +47,22 @@ function addDirector(){
     const newRow = table.insertRow(-1);
     
     // FIX: Capitalized names
-    const fields = ["DirectorName[]", "DirectorNationality[]", "DirectorPosition[]"];
-    const dateFields = ["DirectorAppointmentDate[]", "DirectorDOB[]"];
-    
-    fields.forEach(name => {
+    const colums = [
+        { type: "text", name: "DirectorName[]" },
+        { type: "text", name: "DirectorNationality[]" },
+        { type: "text", name: "DirectorPosition[]" },
+        { type: "date", name: "DirectorAppointmentDate[]" },
+        { type: "date", name: "DirectorDOB[]" }
+    ];
+
+    colums.forEach(col => {
         let cell = newRow.insertCell();
         let input = document.createElement("input");
-        input.type = "text"; input.name = name;
+        input.type = col.type; input.name = col.name;
         cell.appendChild(input);
     });
-    
-    dateFields.forEach(name => {
-        let cell = newRow.insertCell();
-        let input = document.createElement("input");
-        input.type = "date"; input.name = name;
-        cell.appendChild(input);
-    });
-    
+
+    // Delete Button
     let cell = newRow.insertCell();
     const btn = document.createElement("button");
     btn.type = "button"; btn.textContent = "Delete";
@@ -84,20 +74,17 @@ function addManagement(){
     const table = document.getElementById("ManagementTable");
     const newRow = table.insertRow(-1);
     
-    const fields = ["ManagementName[]", "ManagementNationality[]", "ManagementPosition[]"];
-    const numFields = ["ManagementYearInPosition[]", "ManagementYearsInIndustry[]"];
-    
-    fields.forEach(name => {
+    const columns = [
+        { type: "text", name: "ManagementName[]" },
+        { type: "text", name: "ManagementNationality[]" },
+        { type: "text", name: "ManagementPosition[]" },
+        { type: "number", name: "ManagementYearInPosition[]" },
+        { type: "number", name: "ManagementYearsInIndustry[]" }
+    ];
+    columns.forEach(col => {
         let cell = newRow.insertCell();
         let input = document.createElement("input");
-        input.type = "text"; input.name = name;
-        cell.appendChild(input);
-    });
-    
-    numFields.forEach(name => {
-        let cell = newRow.insertCell();
-        let input = document.createElement("input");
-        input.type = "number"; input.name = name;
+        input.type = col.type; input.name = col.name;
         cell.appendChild(input);
     });
     
@@ -111,12 +98,16 @@ function addManagement(){
 function addBanks(){
     const table = document.getElementById("bankTable");
     const newRow = table.insertRow(-1);
-    const fields = ["NameOfBank[]", "AddressOfBank[]", "SwiftCodeOfBank[]"];
+    const columns = [
+        { type: "text", name: "NameOfBank[]" },
+        { type: "text", name: "AddressOfBank[]" },
+        { type: "text", name: "SwiftCodeOfBank[]" }
+    ];
     
-    fields.forEach(name => {
+    columns.forEach(col => {
         let cell = newRow.insertCell();
         let input = document.createElement("input");
-        input.type = "text"; input.name = name;
+        input.type = col.type; input.name = col.name;
         cell.appendChild(input);
     });
     
@@ -130,6 +121,7 @@ function addBanks(){
 function addCreditFacilities() {
     const table = document.getElementById("CreditTable");
     const newRow = table.insertRow(-1);
+
     const columns = [
         { type: "text", name: "TypeOfCredit[]" },
         { type: "text", name: "FinancialInstitution[]" },
@@ -158,32 +150,26 @@ function addStaffList() {
     const table = document.getElementById("StaffTeamTable");
     const newRow = table.insertRow(-1);
     
-    // No
-    let cell = newRow.insertCell();
-    let input = document.createElement("input");
-    input.type = "number"; input.name = "StaffNo[]";
-    cell.appendChild(input);
-
-    const fields = ["StaffName[]", "StaffDesignation[]", "StaffQualification[]"];
+    const columns = [
+        { type: "number", name: "StaffNo[]" , min : 1 },
+        { type: "text", name: "StaffName[]" },
+        { type: "text", name: "StaffDesignation[]" },
+        { type: "text", name: "StaffQualification[]" },
+        { type: "number", name: "StaffExperience[]" , min : 1 },
+        { type: "text", name: "StaffEmploymentStatus[]" },
+        { type: "text", name: "StaffSkills[]" },
+        { type: "text", name: "StaffCertification[]" }
+    ];
     
-    fields.forEach(name => {
+    columns.forEach(col => {
         cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text"; input.name = name;
-        cell.appendChild(input);
-    });
-    
-    // Exp
-    cell = newRow.insertCell();
-    input = document.createElement("input");
-    input.type = "number"; input.name = "StaffExperience[]";
-    cell.appendChild(input);
-    
-    const fields2 = ["StaffEmploymentStatus[]", "StaffSkills[]", "StaffCertification[]"];
-    fields2.forEach(name => {
-        cell = newRow.insertCell();
-        input = document.createElement("input");
-        input.type = "text"; input.name = name;
+        input.type = col.type; input.name = col.name;
+        if (col.type === "number") {
+            if (col.min !== undefined) input.min = col.min;
+            // You can add max or step if needed
+            //
+        }
         cell.appendChild(input);
     });
 
@@ -198,25 +184,24 @@ function addProjectRecord() {
     const table = document.getElementById("ProjectRecordTable");
     const newRow = table.insertRow(-1);
     
-    let cell = newRow.insertCell();
-    let input = document.createElement("input");
-    input.type = "number"; input.name = "ProjectRecordNo[]";
-    cell.appendChild(input);
-
-    const fields = ["ProjectTitle[]", "ProjectNature[]", "ProjectLocation[]", "ProjectClientName[]", "ProjectValue[]"];
-    const dateFields = ["ProjectCommencementDate[]", "ProjectCompletionDate[]"];
-
-    fields.forEach(name => {
+    const colums = [
+        { type : "number" ,  name : "ProjectRecordNo[]" , min : 1 },
+        { type : "text" , name : "ProjectTitle[]"},
+        {type : "text" , name : "ProjectNature[]"},
+        {type : "text" , name : "ProjectLocation[]"},
+        {type : "text" , name : "ProjectClientName[]"},
+        {type : "number" , name : "ProjectValue[]"},
+        {type : "date" , name : "ProjectCommencementDate[]"},
+        {type : "date" , name : "ProjectCompletionDate[]"}
+    ];
+    colums.forEach(col => {
         cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text"; input.name = name;
-        cell.appendChild(input);
-    });
-
-    dateFields.forEach(name => {
-        cell = newRow.insertCell();
-        input = document.createElement("input");
-        input.type = "date"; input.name = name;
+        input.type = col.type; input.name = col.name;
+        if (col.type === "number" && col.min !== undefined) {
+            input.min = col.min;
+            // You can add max or step if needed temporarily use this format
+        }
         cell.appendChild(input);
     });
 
@@ -231,32 +216,29 @@ function addCurrentProjectRecord() {
     const table = document.getElementById("CurrentProjTable");
     const newRow = table.insertRow(-1);
     
-    let cell = newRow.insertCell();
-    let input = document.createElement("input");
-    input.type = "number"; input.name = "CurrentProjectRecordNo[]";
-    cell.appendChild(input);
+    const columns = [
+        { type: "number", name: "CurrentProjectRecordNo[]" , min : 1 },
+        { type: "text", name: "CurrentProjTitle[]" },
+        { type: "text", name: "CurrentProjNature[]" },
+        { type: "text", name: "CurrentProjLocation[]" },
+        { type: "text", name: "CurrentProjClientName[]" },
+        { type: "number", name: "CurrentProjValue[]" },
+        { type: "date", name: "CurrentProjStartDate[]" },
+        { type: "date", name: "CurrentProjEndDate[]" },
+        { type: "number", name: "CurrentProjProgress[]" , min : 1 , max : 100 }
+    ];
 
-    const fields = ["CurrentProjTitle[]", "CurrentProjNature[]", "CurrentProjLocation[]", "CurrentProjClientName[]", "CurrentProjValue[]"];
-    const dateFields = ["CurrentProjStartDate[]", "CurrentProjEndDate[]"];
-
-    fields.forEach(name => {
+    columns.forEach(col => {
         cell = newRow.insertCell();
         input = document.createElement("input");
-        input.type = "text"; input.name = name;
+        input.type = col.type; input.name = col.name;
+        if (col.type === "number" && col.min !== undefined) {
+            input.min = col.min;
+            if (col.max !== undefined) input.max = col.max;
+            // You can add max or step if needed temporarily use this format
+        }
         cell.appendChild(input);
     });
-
-    dateFields.forEach(name => {
-        cell = newRow.insertCell();
-        input = document.createElement("input");
-        input.type = "date"; input.name = name;
-        cell.appendChild(input);
-    });
-
-    cell = newRow.insertCell();
-    input = document.createElement("input");
-    input.type = "number"; input.name = "CurrentProjProgress[]";
-    cell.appendChild(input);
 
     cell = newRow.insertCell();
     const btn = document.createElement("button");
@@ -265,7 +247,7 @@ function addCurrentProjectRecord() {
     cell.appendChild(btn);
 }
 
-console.log("VendorRegistration.js loaded. and updated vs");
+console.log("VendorRegistration.js loaded. and updated 2.0");
 
 // Form Validation and Submission
 function validateAndSubmit() {
@@ -307,6 +289,7 @@ function validateAndSubmit() {
         }
     });
 
+
     if (!isValid) {
         // Build the error box HTML
         let html = '<div class="error-box"><strong>Please complete required fields:</strong><ul style="margin-top:8px;">';
@@ -330,11 +313,43 @@ function validateAndSubmit() {
         form.reportValidity();
         return false;
     }
-
+    // Additional custom validation for Shareholder Percentages
+    const shareholderPercentResult = validateShareholderPercent();
+    if (shareholderPercentResult !== true) {
+        const percentMsg = `Shareholder percentages must total 100%.\nCurrent total: ${shareholderPercentResult.toFixed(2)}%`;
+        if (formErrorsDiv) {
+            formErrorsDiv.innerHTML += `<div class="error-box"><strong>${percentMsg.replace(/\n/g, '<br>')}</strong></div>`;
+        } else {
+            alert(percentMsg);
+        }
+        return false;
+    }
     // If everything is valid, submit the form
     console.log("Validation passed. Submitting...");
-    form.submit();
+    return true; // Allow normal form submission
 }
+
+function validateShareholderPercent() {
+    const percentInputs = document.querySelectorAll('input[name="ShareholderPercent[]"]');
+    let totalPercent = 0;
+
+    percentInputs.forEach(input => {
+        let val = parseFloat(input.value);
+        input.classList.remove('is-invalid');
+        if (isNaN(val) || val < 0 || val > 100) {
+            input.classList.add('is-invalid');
+            val = 0;
+        }
+        totalPercent += val;
+    });
+
+    if (percentInputs.length === 0 || Math.abs(totalPercent - 100) <= 0.01) {
+        return true;
+    } else {
+        return totalPercent;
+    }
+}
+
 
 // UI Toggles
 function bankruptYes() { document.getElementById("bankruptcy-details").style.display = "block"; }
@@ -348,6 +363,19 @@ function OffOthersDetails() { document.getElementById("CIDBOthersDetails").style
 document.addEventListener("DOMContentLoaded", function() {
     restoreSectionVisibility();
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    var form = document.getElementById("vendorForm");
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            if (!validateAndSubmit()) {
+                e.preventDefault(); // stop submit
+            }
+        });
+    }
+});
+
 
 // Also run this when the user navigates back to the page
 window.addEventListener("pageshow", function(event) {

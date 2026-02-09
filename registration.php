@@ -225,6 +225,7 @@
                 <th>Nationality / Jurisdiction</th>
                 <th>Address</th>
                 <th>% of shares</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="number" name="CompanyShareholderID[]" step="1" min="0" max="9999999999"></td>
@@ -254,6 +255,7 @@
                 <th>Position (Company Secretary/ Independent Director/ Non-Independent Director)</th>
                 <th>Appointment Date</th>
                 <th>Date of Birth</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="text" name="DirectorName[]"></td>
@@ -282,6 +284,7 @@
                 <th>Position</th>
                 <th>Years in Position</th>
                 <th>Years in Industry/ Related Field</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="text" name="ManagementName[]"></td>
@@ -385,6 +388,7 @@
                 <th>Name of the Bank</th>
                 <th>Address of the Bank</th>
                 <th>SWIFT Code</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="text" name="NameOfBank[]"></td>
@@ -414,30 +418,30 @@
             <tr>
                 <td>(a)</td>
                 <td>Total Liabilities</td>
-                <td><input type="text" name="totalLiabilities[<?= $currentYear - 1 ?>]" required></td>
-                <td><input type="text" name="totalLiabilities[<?= $currentYear - 2 ?>]" required></td>
-                <td><input type="text" name="totalLiabilities[<?= $currentYear - 3 ?>]" required></td>
+                <td><input type="number" name="totalLiabilities[<?= $currentYear - 1 ?>]" required></td>
+                <td><input type="number" name="totalLiabilities[<?= $currentYear - 2 ?>]" required></td>
+                <td><input type="number" name="totalLiabilities[<?= $currentYear - 3 ?>]" required></td>
             </tr>
             <tr>
                 <td>(b)</td>
                 <td>Total Assets</td>
-                <td><input type="text" name="totalAssets[<?= $currentYear - 1 ?>]" required></td>
-                <td><input type="text" name="totalAssets[<?= $currentYear - 2 ?>]" required></td>
-                <td><input type="text" name="totalAssets[<?= $currentYear - 3 ?>]" required></td>
+                <td><input type="number" name="totalAssets[<?= $currentYear - 1 ?>]" required></td>
+                <td><input type="number" name="totalAssets[<?= $currentYear - 2 ?>]" required></td>
+                <td><input type="number" name="totalAssets[<?= $currentYear - 3 ?>]" required></td>
             </tr>
             <tr>
                 <td>(c)</td>
                 <td>Net Worth(b-a)</td>
-                <td><input type="text" name="NetWorth[<?= $currentYear - 1 ?>]" required></td>
-                <td><input type="text" name="NetWorth[<?= $currentYear - 2 ?>]" required></td>
-                <td><input type="text" name="NetWorth[<?= $currentYear - 3 ?>]" required></td>
+                <td><input type="number" name="NetWorth[<?= $currentYear - 1 ?>]" required></td>
+                <td><input type="number" name="NetWorth[<?= $currentYear - 2 ?>]" required></td>
+                <td><input type="number" name="NetWorth[<?= $currentYear - 3 ?>]" required></td>
             </tr>
             <tr>
                 <td>(d)</td>
                 <td>Working Capital (current assets minus current liabilities)</td>
-                <td><input type="text" name="WorkingCapital[<?= $currentYear - 1 ?>]" required></td>
-                <td><input type="text" name="WorkingCapital[<?= $currentYear - 2 ?>]" required></td>
-                <td><input type="text" name="WorkingCapital[<?= $currentYear - 3 ?>]" required></td>
+                <td><input type="number" name="WorkingCapital[<?= $currentYear - 1 ?>]" required></td>
+                <td><input type="number" name="WorkingCapital[<?= $currentYear - 2 ?>]" required></td>
+                <td><input type="number" name="WorkingCapital[<?= $currentYear - 3 ?>]" required></td>
             </tr>
         </table>
         </div>
@@ -589,7 +593,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 </tr>
                 <tr>
                     <td>Bobcat/JCB</td>
-                    <td><input type="text" name="BobcatQuantity"></td>
+                    <td><input type="number" name="BobcatQuantity"></td>
                     <td><input type="text" name="BobcatBrandModel"></td>
                     <td><input type="number" name="BobcatRating" min="0" max="9.9" step="0.1"></td>
                     <td><input type="text" name="BobcatOwnership"></td>
@@ -657,6 +661,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <th>Employment Status (Permanent / Contract / Seconded)</th>
                 <th>Skills / Expertise (Civil / HDD / Cable / TMP/ others contractor to indicate)</th>
                 <th>Relevant Certification (CIDB / EOSP/ others contractor to indicate)</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input type="number" name="StaffNo[]" min="1"></td>
@@ -685,6 +690,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <th>Project Value</th>
                 <th>Commencement Date</th>
                 <th>Completion Date</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <td><input min="1" type="number" name="ProjectRecordNo[]"></td>
@@ -692,7 +698,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <td><input type="text" name="ProjectNature[]"></td>
                 <td><input type="text" name="ProjectLocation[]"></td>
                 <td><input type="text" name="ProjectClientName[]"></td>
-                <td><input type="text" name="ProjectValue[]"></td>
+                <td><input type="number" name="ProjectValue[]"></td>
                 <td><input type="date" name="ProjectCommencementDate[]"></td>
                 <td><input type="date" name="ProjectCompletionDate[]"></td>
                 <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
@@ -714,6 +720,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <th>Commencement Date</th>
                     <th>Completion Date</th>
                     <th>Progress of the Works (%)</th>
+                    <th>Action</th>
                 </tr>
                 <tr>
                     <td><input min="1" type="number" name="CurrentProjectRecordNo[]"></td>
@@ -721,7 +728,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td><input type="text" name="CurrentProjNature[]"></td>
                     <td><input type="text" name="CurrentProjLocation[]"></td>
                     <td><input type="text" name="CurrentProjClientName[]"></td>
-                    <td><input type="text" name="CurrentProjValue[]"></td>
+                    <td><input type="number" name="CurrentProjValue[]"></td>
                     <td><input type="date" name="CurrentProjStartDate[]"></td>
                     <td><input type="date" name="CurrentProjEndDate[]"></td>
                     <td><input min="1" max="100" type="number" name="CurrentProjProgress[]"></td>
@@ -913,18 +920,6 @@ The Contractor is required to complete the form by listing all plant and machine
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="script.js"></script>
-        <script>
-        // Ensure form only submits when validation passes
-        document.addEventListener('DOMContentLoaded', function() {
-            var form = document.getElementById('vendorForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    // Call validateAndSubmit, which will submit if valid
-                    e.preventDefault();
-                    validateAndSubmit();
-                });
-            }
-        });
-        </script>
+            <!-- Removed duplicate DOMContentLoaded script to avoid submit handler conflicts. Validation is now handled only by script.js. -->
     </body>
 </html>

@@ -248,7 +248,8 @@ CREATE TABLE `registrationform` (
   `advocatesEmail` varchar(100) DEFAULT NULL,
   `advocatesPhone` varchar(20) DEFAULT NULL,
   `advocatesYearOfService` int(11) DEFAULT NULL,
-  `status` varchar(10) NOT NULL DEFAULT 'DRAFT'
+  `status` varchar(10) NOT NULL DEFAULT 'DRAFT',
+  `rejectionReason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

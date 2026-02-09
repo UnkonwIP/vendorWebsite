@@ -28,7 +28,7 @@ if (empty($vendorAccountID)) {
 $forms = [];
 if (!empty($vendorNewCompanyRegistration)) {
     $stmt = $conn->prepare(
-        "SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status
+        "SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status, rejectionReason
         FROM registrationform
         WHERE newCompanyRegistrationNumber = ?
         ORDER BY registrationFormID DESC"
@@ -405,7 +405,7 @@ if (!empty($vendorNewCompanyRegistration)) {
                         <div class="form-card-title">
                             <?php echo htmlspecialchars($form['CompanyName'] ?? 'Unnamed Company'); ?>
                         </div>
-                            <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
+                        <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
                             <?php echo htmlspecialchars($form['status'] ?? 'Pending'); ?>
                         </span>
                     </div>
@@ -419,22 +419,28 @@ if (!empty($vendorNewCompanyRegistration)) {
                         </div>
                         <div class="form-detail">
                             <span class="form-detail-label">Submitted On</span>
-                                <span class="form-detail-value">
-                                    <?php echo date('d M Y', strtotime($form['formFirstSubmissionDate'])); ?>
+                            <span class="form-detail-value">
+                                <?php echo date('d M Y', strtotime($form['formFirstSubmissionDate'])); ?>
                             </span>
                         </div>
                     </div>
 
-                <div class="form-card-actions">
-                    <form method="post" action="APIDeleteRegistrationForm.php" onsubmit="return confirm('Are you sure you want to delete this form?');">
-                        <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
-                        <button type="submit" class="btn-action btn-delete">Delete</button>
-                    </form>
-                    <form method="post" action="VendorUpdatePage.php">
-                        <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
-                        <button type="submit" class="btn-action btn-view">View Details</button>
-                    </form>
-                </div>
+                    <?php if (strtolower($form['status']) === 'rejected' && !empty($form['rejectionReason'])): ?>
+                        <div class="alert alert-danger mt-2" role="alert">
+                            <strong>Rejection Reason:</strong> <?php echo nl2br(htmlspecialchars($form['rejectionReason'])); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="form-card-actions">
+                        <form method="post" action="APIDeleteRegistrationForm.php" onsubmit="return confirm('Are you sure you want to delete this form?');">
+                            <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
+                            <button type="submit" class="btn-action btn-delete">Delete</button>
+                        </form>
+                        <form method="post" action="VendorUpdatePage.php">
+                            <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
+                            <button type="submit" class="btn-action btn-view">View Details</button>
+                        </form>
+                    </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Vendor Registration</title>
+    <title>View Vendor Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="vendorStyle.css" rel="stylesheet">
     <style>
@@ -58,6 +58,22 @@
     $RegistrationRow = $stmt->get_result()->fetch_assoc();
     if (!$RegistrationRow) die("Error: Record not found.");
 
+    // --- Determine if current user can edit ---
+    session_start();
+    $role = $_SESSION['role'] ?? '';
+    $currentUserAccountID = $_SESSION['accountID'] ?? '';
+    $ownerAccountID = '';
+    if (!empty($RegistrationRow['newCompanyRegistrationNumber'])) {
+        $stmtOwner = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+        $stmtOwner->bind_param("s", $RegistrationRow['newCompanyRegistrationNumber']);
+        $stmtOwner->execute();
+        $ownerResult = $stmtOwner->get_result();
+        if ($ownerRow = $ownerResult->fetch_assoc()) {
+            $ownerAccountID = $ownerRow['accountID'];
+        }
+    }
+    $canEdit = ($role === 'vendor' && $currentUserAccountID === $ownerAccountID);
+
     // Helper functions to fetch tables
     function fetchTable($conn, $sql, $id) {
         $stmt = $conn->prepare($sql);
@@ -89,7 +105,44 @@
 
     <input type="hidden" id="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
 
+    <?php
+    // Show Back to Vendor List button for admin and approved/rejected forms
+    $showBackBtn = false;
+    $vendorAccountID = '';
+    if (!empty($RegistrationRow['newCompanyRegistrationNumber'])) {
+        $stmtAccBtn = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+        $stmtAccBtn->bind_param("s", $RegistrationRow['newCompanyRegistrationNumber']);
+        $stmtAccBtn->execute();
+        $accResultBtn = $stmtAccBtn->get_result();
+        $vendorAccountID = ($accRowBtn = $accResultBtn->fetch_assoc()) ? $accRowBtn['accountID'] : '';
+    }
+    if ($role === 'admin' && in_array(strtolower($RegistrationRow['status']), ['approved','rejected']) && !empty($vendorAccountID)) {
+        $showBackBtn = true;
+    }
+    ?>
     <div class="container my-5">
+        <?php if ($showBackBtn): ?>
+        <div class="mb-3">
+            <a href="AdminVendorFormList.php?accountID=<?= urlencode($vendorAccountID) ?>" class="btn btn-secondary back-vendor-list-btn">&larr; Back to Registration Form List</a>
+        </div>
+        <style>
+            .back-vendor-list-btn {
+                position: fixed;
+                left: 30px;
+                top: 30px;
+                z-index: 1000;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            @media (max-width: 768px) {
+                .back-vendor-list-btn {
+                    left: 10px;
+                    top: 10px;
+                    font-size: 14px;
+                    padding: 8px 12px;
+                }
+            }
+        </style>
+        <?php endif; ?>
         <div class="text-center mb-4">
             <img src="Image/company%20logo.png" alt="Company Logo" style="width: 150px;" class="mb-3">
             <h4><b>CIVIL CONTRACTOR REGISTRATION FORM</b></h4>
@@ -111,14 +164,14 @@
                                 <label class="form-label">Company Name</label>
                                 <div class="input-group">
                                     <input type="text" id="companyName" class="form-control" data-field="companyName" value="<?= htmlspecialchars($RegistrationRow['companyName']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'companyName', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Telephone No</label>
                                 <div class="input-group">
                                     <input type="number" id="telephoneNumber" class="form-control" data-field="telephoneNumber" value="<?= htmlspecialchars($RegistrationRow['telephoneNumber']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'telephoneNumber', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -126,14 +179,14 @@
                                 <label class="form-label">Other Name (Any previous Legal Name/Trading Names)</label>
                                 <div class="input-group">
                                     <input type="text" id="otherNames" class="form-control" data-field="otherNames" value="<?= htmlspecialchars($RegistrationRow['otherNames']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'otherNames', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tax Registration Number</label>
                                 <div class="input-group">
                                     <input type="number" id="taxRegistrationNumber" class="form-control" data-field="taxRegistrationNumber" value="<?= htmlspecialchars($RegistrationRow['taxRegistrationNumber']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'taxRegistrationNumber', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -145,7 +198,7 @@
                                 <label class="form-label">Company Registration No (Old)</label>
                                 <div class="input-group">
                                     <input type="number" id="oldCompanyRegistrationNumber" class="form-control" data-field="oldCompanyRegistrationNumber" value="<?= htmlspecialchars($RegistrationRow['oldCompanyRegistrationNumber']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'oldCompanyRegistrationNumber', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -153,14 +206,14 @@
                                 <label class="form-label">Fax No</label>
                                 <div class="input-group">
                                     <input type="number" id="faxNo" class="form-control" data-field="faxNo" value="<?= htmlspecialchars($RegistrationRow['faxNo']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'faxNo', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email Address</label>
                                 <div class="input-group">
                                     <input type="email" id="emailAddress" class="form-control" data-field="emailAddress" value="<?= htmlspecialchars($RegistrationRow['emailAddress']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'emailAddress', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -168,14 +221,14 @@
                                 <label class="form-label">Country of Incorporation</label>
                                 <div class="input-group">
                                     <input type="text" id="countryOfIncorporation" class="form-control" data-field="countryOfIncorporation" value="<?= htmlspecialchars($RegistrationRow['countryOfIncorporation']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'countryOfIncorporation', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Date of Incorporation</label>
                                 <div class="input-group">
                                     <input type="date" id="dateOfIncorporation" class="form-control" data-field="dateOfIncorporation" value="<?= htmlspecialchars($RegistrationRow['dateOfIncorporation']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'dateOfIncorporation', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -201,7 +254,7 @@
                                             <label class="form-check-label">Less than 5</label>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-secondary mt-2 w-25" onclick="editRadioGroup(this, 'CompanyOrgGroup', 'RegistrationForm')">Enable Editing</button>
+                                    <!-- Edit radio group button removed -->
                                 </div>
                             </div>
 
@@ -209,21 +262,21 @@
                                 <label class="form-label">Nature and Line of Business</label>
                                 <div class="input-group">
                                     <input type="text" id="natureAndLineOfBusiness" class="form-control" data-field="natureAndLineOfBusiness" value="<?= htmlspecialchars($RegistrationRow['natureAndLineOfBusiness']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'natureAndLineOfBusiness', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Registered Address</label>
                                 <div class="input-group">
                                     <textarea id="registeredAddress" class="form-control" data-field="registeredAddress" rows="2" readonly><?= htmlspecialchars($RegistrationRow['registeredAddress']) ?></textarea>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'registeredAddress', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Correspondence/Business Address</label>
                                 <div class="input-group">
                                     <textarea id="correspondenceAddress" class="form-control" data-field="correspondenceAddress" rows="2" readonly><?= htmlspecialchars($RegistrationRow['correspondenceAddress']) ?></textarea>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'correspondenceAddress', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -245,7 +298,7 @@
                                             <label class="form-check-label">Sole Proprietor/Enterprise</label>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-secondary mt-2 w-25" onclick="editRadioGroup(this, 'TypeOrgGroup', 'RegistrationForm')">Enable Editing</button>
+                                    <!-- Edit radio group button removed -->
                                 </div>
                             </div>
                             
@@ -253,14 +306,14 @@
                                 <label class="form-label">Website</label>
                                 <div class="input-group">
                                     <input type="text" id="website" class="form-control" data-field="website" value="<?= htmlspecialchars($RegistrationRow['website']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'website', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Branch Address (if any)</label>
                                 <div class="input-group">
                                     <input type="text" id="branch" class="form-control" data-field="branch" value="<?= htmlspecialchars($RegistrationRow['branch']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'branch', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
 
@@ -268,14 +321,14 @@
                                 <label class="form-label">Authorised Capital</label>
                                 <div class="input-group">
                                     <input type="number" id="authorisedCapital" class="form-control" data-field="authorisedCapital" value="<?= htmlspecialchars($RegistrationRow['authorisedCapital']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'authorisedCapital', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Paid-up Capital</label>
                                 <div class="input-group">
                                     <input type="number" id="paidUpCapital" class="form-control" data-field="paidUpCapital" value="<?= htmlspecialchars($RegistrationRow['paidUpCapital']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'paidUpCapital', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                         </div>
@@ -296,28 +349,28 @@
                                 <label>Parent Company (Full Legal Name)</label>
                                 <div class="input-group">
                                     <input type="text" id="parentCompany" class="form-control" data-field="parentCompany" value="<?= htmlspecialchars($RegistrationRow['parentCompany']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'parentCompany', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label>Country</label>
                                 <div class="input-group">
                                     <input type="text" id="parentCompanyCountry" class="form-control" data-field="parentCompanyCountry" value="<?= htmlspecialchars($RegistrationRow['parentCompanyCountry']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'parentCompanyCountry', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label>Ultimate Parent Company (Full Legal Name)</label>
                                 <div class="input-group">
                                     <input type="text" id="ultimateParentCompany" class="form-control" data-field="ultimateParentCompany" value="<?= htmlspecialchars($RegistrationRow['ultimateParentCompany']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'ultimateParentCompany', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label>Country</label>
                                 <div class="input-group">
                                     <input type="text" id="ultimateParentCompanyCountry" class="form-control" data-field="ultimateParentCompanyCountry" value="<?= htmlspecialchars($RegistrationRow['ultimateParentCompanyCountry']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'ultimateParentCompanyCountry', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                         </div>
@@ -325,13 +378,13 @@
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle" id="shareholderTable">
                             <thead class="table-dark">
-                                <tr>
-                                    <th>ID / Registration Number</th>
+
+                                    <th>Shareholder ID</th>
                                     <th>Name</th>
                                     <th>Nationality</th>
                                     <th>Address</th>
                                     <th>% of shares</th>
-                                    <th>Action</th>
+                                    <!-- Action column removed from Shareholders table -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -342,15 +395,12 @@
                                     <td><input type="text" data-field="nationality" class="form-control" value="<?= htmlspecialchars($row['nationality']) ?>" readonly></td>
                                     <td><input type="text" data-field="address" class="form-control" value="<?= htmlspecialchars($row['address']) ?>" readonly></td>
                                     <td><input type="number" data-field="sharePercentage" class="form-control" step="0.01" value="<?= htmlspecialchars($row['sharePercentage']) ?>" readonly></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'Shareholders', 'shareholderID')">Edit</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'Shareholders', 'shareholderID')">Delete</button>
-                                    </td>
+                                    <!-- Action cell removed from Shareholders table -->
                                 </tr>
                                 <?php endwhile; ?>
                             </tbody>
                         </table>
-                        <button class="btn btn-success mt-3" onclick="addEditShareholders('Shareholders', 'shareholderTable')">Add New Shareholder</button>
+                        <!-- Add New Shareholder button removed -->
                     </div>
                 </div>
             </div>
@@ -372,7 +422,7 @@
                                         <th>Position</th>
                                         <th>Appointment Date</th>
                                         <th>Date of Birth</th>
-                                        <th>Action</th>
+                                        <!-- Action column removed from Directors table -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -383,15 +433,12 @@
                                         <td><input type="text" data-field="position" class="form-control" value="<?= htmlspecialchars($row['position']) ?>" readonly></td>
                                         <td><input type="date" data-field="appointmentDate" class="form-control" value="<?= ($row['appointmentDate'] == '0000-00-00' ? '' : htmlspecialchars($row['appointmentDate'])) ?>" readonly></td>
                                         <td><input type="date" data-field="dob" class="form-control" value="<?= ($row['dob'] == '0000-00-00' ? '' : htmlspecialchars($row['dob'])) ?>" readonly></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'DirectorAndSecretary', 'directorID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'DirectorAndSecretary', 'directorID')">Delete</button>
-                                        </td>
+                                        <!-- Action cell removed from Directors table -->
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
-                            <button class="btn btn-success mt-3" onclick="addEditShareholders('DirectorAndSecretary', 'DirectorTable')">Add Director</button>
+                            <!-- Add Director button removed -->
                         </div>
                     </div>
                 </div>
@@ -414,7 +461,7 @@
                                     <th>Position</th>
                                     <th>Years in Position</th>
                                     <th>Years in Field</th>
-                                    <th>Action</th>
+                                    <!-- Action column removed from Management table -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -425,15 +472,12 @@
                                     <td><input type="text" data-field="position" class="form-control" value="<?= htmlspecialchars($row['position']) ?>" readonly></td>
                                     <td><input type="number" data-field="yearsInPosition" class="form-control" value="<?= htmlspecialchars($row['yearsInPosition']) ?>" readonly></td>
                                     <td><input type="number" data-field="yearsInRelatedField" class="form-control" value="<?= htmlspecialchars($row['yearsInRelatedField']) ?>" readonly></td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTableRow(this,'Management','managementID')">Edit</button>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteEditRow(this,'Management','managementID')">Delete</button>
-                                    </td>
+                                    <!-- Action cell removed from Management table -->
                                 </tr>
                                 <?php endwhile; ?>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-3" onclick='addEditShareholders("Management","ManagementTable")'>Add Management</button>
+                        <!-- Add Management button removed -->
                     </div>
                 </div>
             </div>
@@ -463,8 +507,10 @@
                                 <label class="small text-muted">If yes, description:</label>
                                 <div class="input-group">
                                     <input type="text" id="description" class="form-control" data-field="description" value="<?= htmlspecialchars($RegistrationRow['description']) ?>" readonly>
+                                    <?php if ($canEdit): ?>
                                     <button class="btn btn-outline-primary" onclick="editField(this, 'description', 'RegistrationForm')">Edit Description</button>
                                     <button class="btn btn-secondary ms-2" onclick="editRadioGroup(this, 'BankruptcyGroup', 'RegistrationForm')">Toggle Yes/No</button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -486,39 +532,39 @@
                                     <tr>
                                         <td rowspan="3" class="fw-bold bg-light">Auditors</td>
                                         <td><label>Name</label></td>
-                                        <td><div class="input-group"><input type="text" id="auditorCompanyName" class="form-control" data-field="auditorCompanyName" value="<?= htmlspecialchars($RegistrationRow['auditorCompanyName']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorCompanyName', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="auditorCompanyName" class="form-control" data-field="auditorCompanyName" value="<?= htmlspecialchars($RegistrationRow['auditorCompanyName']) ?>" readonly></div></td>
                                         <td><label>Name</label></td>
-                                        <td><div class="input-group"><input type="text" id="auditorName" class="form-control" data-field="auditorName" value="<?= htmlspecialchars($RegistrationRow['auditorName']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorName', 'RegistrationForm')">Edit</button></div></td>
-                                        <td rowspan="3"><div class="input-group"><input type="number" id="auditorYearOfService" class="form-control" data-field="auditorYearOfService" value="<?= htmlspecialchars($RegistrationRow['auditorYearOfService']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorYearOfService', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="auditorName" class="form-control" data-field="auditorName" value="<?= htmlspecialchars($RegistrationRow['auditorName']) ?>" readonly></div></td>
+                                        <td rowspan="3"><div class="input-group"><input type="number" id="auditorYearOfService" class="form-control" data-field="auditorYearOfService" value="<?= htmlspecialchars($RegistrationRow['auditorYearOfService']) ?>" readonly></div></td>
                                     </tr>
                                     <tr>
                                         <td rowspan="2"><label>Address</label></td>
-                                        <td rowspan="2"><div class="input-group h-100"><textarea id="auditorCompanyAddress" class="form-control" data-field="auditorCompanyAddress" readonly><?= htmlspecialchars($RegistrationRow['auditorCompanyAddress']) ?></textarea><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorCompanyAddress', 'RegistrationForm')">Edit</button></div></td>
+                                        <td rowspan="2"><div class="input-group h-100"><textarea id="auditorCompanyAddress" class="form-control" data-field="auditorCompanyAddress" readonly><?= htmlspecialchars($RegistrationRow['auditorCompanyAddress']) ?></textarea></div></td>
                                         <td><label>Email</label></td>
-                                        <td><div class="input-group"><input type="text" id="auditorEmail" class="form-control" data-field="auditorEmail" value="<?= htmlspecialchars($RegistrationRow['auditorEmail']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorEmail', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="auditorEmail" class="form-control" data-field="auditorEmail" value="<?= htmlspecialchars($RegistrationRow['auditorEmail']) ?>" readonly></div></td>
                                     </tr>
                                     <tr>
                                         <td><label>Phone</label></td>
-                                        <td><div class="input-group"><input type="text" id="auditorPhone" class="form-control" data-field="auditorPhone" value="<?= htmlspecialchars($RegistrationRow['auditorPhone']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'auditorPhone', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="auditorPhone" class="form-control" data-field="auditorPhone" value="<?= htmlspecialchars($RegistrationRow['auditorPhone']) ?>" readonly></div></td>
                                     </tr>
 
                                     <tr>
                                         <td rowspan="3" class="fw-bold bg-light">Advocates & Solicitors</td>
                                         <td><label>Name</label></td>
-                                        <td><div class="input-group"><input type="text" id="advocatesCompanyName" class="form-control" data-field="advocatesCompanyName" value="<?= htmlspecialchars($RegistrationRow['advocatesCompanyName']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesCompanyName', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="advocatesCompanyName" class="form-control" data-field="advocatesCompanyName" value="<?= htmlspecialchars($RegistrationRow['advocatesCompanyName']) ?>" readonly></div></td>
                                         <td><label>Name</label></td>
-                                        <td><div class="input-group"><input type="text" id="advocatesName" class="form-control" data-field="advocatesName" value="<?= htmlspecialchars($RegistrationRow['advocatesName']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesName', 'RegistrationForm')">Edit</button></div></td>
-                                        <td rowspan="3"><div class="input-group"><input type="number" id="advocatesYearOfService" class="form-control" data-field="advocatesYearOfService" value="<?= htmlspecialchars($RegistrationRow['advocatesYearOfService']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesYearOfService', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="advocatesName" class="form-control" data-field="advocatesName" value="<?= htmlspecialchars($RegistrationRow['advocatesName']) ?>" readonly></div></td>
+                                        <td rowspan="3"><div class="input-group"><input type="number" id="advocatesYearOfService" class="form-control" data-field="advocatesYearOfService" value="<?= htmlspecialchars($RegistrationRow['advocatesYearOfService']) ?>" readonly></div></td>
                                     </tr>
                                     <tr>
                                         <td rowspan="2"><label>Address</label></td>
-                                        <td rowspan="2"><div class="input-group h-100"><textarea id="advocatesCompanyAddress" class="form-control" data-field="advocatesCompanyAddress" readonly><?= htmlspecialchars($RegistrationRow['advocatesCompanyAddress']) ?></textarea><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesCompanyAddress', 'RegistrationForm')">Edit</button></div></td>
+                                        <td rowspan="2"><div class="input-group h-100"><textarea id="advocatesCompanyAddress" class="form-control" data-field="advocatesCompanyAddress" readonly><?= htmlspecialchars($RegistrationRow['advocatesCompanyAddress']) ?></textarea></div></td>
                                         <td><label>Email</label></td>
-                                        <td><div class="input-group"><input type="text" id="advocatesEmail" class="form-control" data-field="advocatesEmail" value="<?= htmlspecialchars($RegistrationRow['advocatesEmail']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesEmail', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="advocatesEmail" class="form-control" data-field="advocatesEmail" value="<?= htmlspecialchars($RegistrationRow['advocatesEmail']) ?>" readonly></div></td>
                                     </tr>
                                     <tr>
                                         <td><label>Phone</label></td>
-                                        <td><div class="input-group"><input type="text" id="advocatesPhone" class="form-control" data-field="advocatesPhone" value="<?= htmlspecialchars($RegistrationRow['advocatesPhone']) ?>" readonly><button class="btn btn-sm btn-outline-primary" onclick="editField(this, 'advocatesPhone', 'RegistrationForm')">Edit</button></div></td>
+                                        <td><div class="input-group"><input type="text" id="advocatesPhone" class="form-control" data-field="advocatesPhone" value="<?= htmlspecialchars($RegistrationRow['advocatesPhone']) ?>" readonly></div></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -527,19 +573,19 @@
                         <h6 class="mt-4">Bank Information</h6>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped" id="bankTable">
-                                <thead class="table-dark"><tr><th>Bank Name</th><th>Address</th><th>Swift Code</th><th>Action</th></tr></thead>
+                                <thead class="table-dark"><tr><th>Bank Name</th><th>Address</th><th>Swift Code</th></tr></thead>
                                 <tbody>
                                     <?php while($row = $BankTable->fetch_assoc()): ?>
                                     <tr data-id="<?= $row['bankID'] ?>">
                                         <td><input type="text" data-field="bankName" class="form-control" value="<?= htmlspecialchars($row['bankName']) ?>" readonly></td>
                                         <td><input type="text" data-field="bankAddress" class="form-control" value="<?= htmlspecialchars($row['bankAddress']) ?>" readonly></td>
                                         <td><input type="text" data-field="swiftCode" class="form-control" value="<?= htmlspecialchars($row['swiftCode']) ?>" readonly></td>
-                                        <td><button class="btn btn-sm btn-outline-primary" onclick="editTableRow(this, 'Bank', 'bankID')">Edit</button><button class="btn btn-sm btn-danger ms-1" onclick="deleteEditRow(this, 'Bank', 'bankID')">Delete</button></td>
+                                        <!-- Action cell removed from Bank table -->
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
-                            <button class="btn btn-success mt-3" onclick="addEditShareholders('Bank', 'bankTable')">Add Bank</button>
+                            <!-- Add Bank button removed -->
                         </div>
 
                         <p class="section-desc mt-3">Please include the last 6 months Bank Statement.</p>
@@ -568,7 +614,7 @@
                                         <td data-id="<?= $rid ?>" data-year="<?= $y ?>">
                                             <div class="input-group input-group-sm">
                                                 <input type="number" data-field="<?= $dbField ?>" class="form-control" value="<?= htmlspecialchars($val) ?>" readonly>
-                                                <button class="btn btn-outline-secondary" onclick="editSpecialRow(this, 'NetWorth', 'networthID')">Edit</button>
+                                                <!-- Edit button removed from Net Worth table -->
                                             </div>
                                         </td>
                                         <?php endfor; ?>
@@ -598,7 +644,7 @@
                                             <th>Unutilised Amount (RM)</th>
                                             <th>Expiry Date</th>
                                             <th>As At Date</th>
-                                            <th>Action</th>
+                                            <!-- Action column removed from Credit Facilities table -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -610,15 +656,12 @@
                                             <td><input type="number" data-field="unutilisedAmountCurrentlyAvailable" class="form-control" value="<?= htmlspecialchars($row['unutilisedAmountCurrentlyAvailable']) ?>" readonly></td>
                                             <td><input type="date" data-field="expiryDate" class="form-control" value="<?= ($row['expiryDate'] == '0000-00-00' ? '' : htmlspecialchars($row['expiryDate'])) ?>" readonly></td>
                                             <td><input type="date" data-field="asAtDate" class="form-control" value="<?= ($row['asAtDate'] == '0000-00-00' ? '' : htmlspecialchars($row['asAtDate'])) ?>" readonly></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="editTableRow(this, 'CreditFacilities', 'facilityID')">Edit</button>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CreditFacilities', 'facilityID')">Delete</button>
-                                            </td>
+                                            <!-- Action cell removed from Credit Facilities table -->
                                         </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
-                                <button class="btn btn-success mt-3" onclick="addEditShareholders('CreditFacilities', 'CreditTable')">Add Credit Facility</button>
+                                <!-- Add Credit Facility button removed -->
                             </div>
                         </div>
                     </div>
@@ -638,14 +681,12 @@
                                 <label>CIDB Grade</label>
                                 <div class="input-group">
                                     <input type="text" id="cidb" class="form-control" data-field="cidb" value="<?= htmlspecialchars($RegistrationRow['cidb']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidb', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label>Validity Date</label>
                                 <div class="input-group">
                                     <input type="date" id="cidbVal" class="form-control" data-field="cidbValidationTill" value="<?= htmlspecialchars($RegistrationRow['cidbValidationTill']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidbVal', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -670,7 +711,6 @@
                                     <input class="form-check-input" type="radio" name="CIDBTrade" value="Others" <?= (!in_array($trade, ['ISP','OSP','O&M','M&E']) && !empty($trade))?'checked':'' ?> disabled> <label>Others</label>
                                 </div>
                             </div>
-                            <button class="btn btn-sm btn-secondary mt-2 w-25" onclick="editRadioGroup(this, 'TradeGroup', 'RegistrationForm')">Edit Trade</button>
                         </div>
 
                         <div class="row g-3">
@@ -685,7 +725,6 @@
                                         <div class="form-check"><input class="form-check-input" type="radio" name="SimilarProject" value="1M-4.9M" <?= $vSim=='1M-4.9M'?'checked':'' ?> disabled> <label>RM1M - RM4.9M</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="SimilarProject" value="<1M" <?= $vSim=='<1M'?'checked':'' ?> disabled> <label>< RM1M</label></div>
                                     </div>
-                                    <button class="btn btn-sm btn-secondary mt-2" onclick="editRadioGroup(this, 'SimilarProjGroup', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>
 
@@ -699,7 +738,6 @@
                                         <div class="form-check"><input class="form-check-input" type="radio" name="CurrentProjectVal" value="0.5M-1.9M" <?= $vCur=='0.5M-1.9M'?'checked':'' ?> disabled> <label>RM0.5M - RM1.9M</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="CurrentProjectVal" value="<0.5M" <?= $vCur=='<0.5M'?'checked':'' ?> disabled> <label>< RM0.5M</label></div>
                                     </div>
-                                    <button class="btn btn-sm btn-secondary mt-2" onclick="editRadioGroup(this, 'CurrentProjGroup', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -708,7 +746,6 @@
                             <label class="form-label fw-bold">Experience in the Industry (Years)</label>
                             <div class="input-group">
                                 <input type="number" id="yearsOfExperienceInIndustry" class="form-control" data-field="yearsOfExperienceInIndustry" value="<?= htmlspecialchars($RegistrationRow['yearsOfExperienceInIndustry'] ?? '') ?>" readonly>
-                                <button class="btn btn-outline-primary" onclick="editField(this, 'yearsOfExperienceInIndustry', 'RegistrationForm')">Edit</button>
                             </div>
                         </div>
 
@@ -717,7 +754,7 @@
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm">
                                 <thead class="table-light text-center">
-                                    <tr><th>Equipment Type</th><th>Qty</th><th>Brand/Model</th><th>Rating</th><th>Ownership</th><th>Year Mfg</th><th>Reg No</th><th>Action</th></tr>
+                                    <tr><th>Equipment Type</th><th>Qty</th><th>Brand/Model</th><th>Rating</th><th>Ownership</th><th>Year Mfg</th><th>Reg No</th></tr>
                                 </thead>
                                 <tbody>
                                     <?php 
@@ -734,13 +771,11 @@
                                         <td><input type="text" data-field="ownership" class="form-control form-control-sm" value="<?= $d['ownership']??'' ?>" readonly></td>
                                         <td><input type="date" data-field="yearsOfManufacture" class="form-control form-control-sm" value="<?= $d['yearsOfManufacture']??'' ?>" readonly></td>
                                         <td><input type="text" data-field="registrationNo" class="form-control form-control-sm" value="<?= $d['registrationNo']??'' ?>" readonly></td>
-                                        <td><button class="btn btn-sm btn-outline-secondary" onclick="editSpecialRow(this, 'Equipment', 'equipmentRecordID')">Edit</button></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
-
 
                         <h6 class="mt-5">List of Site Team and Site Staff</h6>
                         <div class="table-responsive">
@@ -755,7 +790,6 @@
                                         <th>Status</th>
                                         <th>Skills</th>
                                         <th>Certification</th>
-                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -769,15 +803,13 @@
                                         <td><input type="text" data-field="employmentStatus" class="form-control" value="<?= htmlspecialchars($row['employmentStatus']) ?>" readonly></td>
                                         <td><input type="text" data-field="skills" class="form-control" value="<?= htmlspecialchars($row['skills']) ?>" readonly></td>
                                         <td><input type="text" data-field="relevantCertification" class="form-control" value="<?= htmlspecialchars($row['relevantCertification']) ?>" readonly></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'Staff', 'staffID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'Staff', 'staffID')">Delete</button>
-                                        </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
+                            <?php if ($canEdit): ?>
                             <button class="btn btn-success mt-3" onclick="addEditShareholders('Staff', 'StaffTeamTable')">Add Staff</button>
+                            <?php endif; ?>
                         </div>
 
                         <h6 class="mt-5">Project Track Record (Last 5 Years)</h6>
@@ -793,7 +825,6 @@
                                         <th>Value</th>
                                         <th>Start</th>
                                         <th>End</th>
-                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -807,15 +838,13 @@
                                         <td><input type="number" data-field="projectValue" class="form-control" value="<?= htmlspecialchars($row['projectValue']) ?>" readonly></td>
                                         <td><input type="date" data-field="commencementDate" class="form-control" value="<?= ($row['commencementDate'] == '0000-00-00' ? '' : htmlspecialchars($row['commencementDate'])) ?>" readonly></td>
                                         <td><input type="date" data-field="completionDate" class="form-control" value="<?= ($row['completionDate'] == '0000-00-00' ? '' : htmlspecialchars($row['completionDate'])) ?>" readonly></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'ProjectTrackRecord', 'projectRecordID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'ProjectTrackRecord', 'projectRecordID')">Delete</button>
-                                        </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
+                            <?php if ($canEdit): ?>
                             <button class="btn btn-success mt-3" onclick="addEditShareholders('ProjectTrackRecord', 'ProjectRecordTable')">Add Project Record</button>
+                            <?php endif; ?>
                         </div>
                         <h6 class="mt-5">Current Projects</h6>
                         <div class="table-responsive">
@@ -830,8 +859,7 @@
                                         <th>Value</th>
                                         <th>Start</th>
                                         <th>End</th>
-                                        <th>Progress (%)</th>
-                                        <th>Action</th>
+                                        <th>Progress (%)</th>                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -846,15 +874,13 @@
                                         <td><input type="date" data-field="commencementDate" class="form-control" value="<?= ($row['commencementDate'] == '0000-00-00' ? '' : htmlspecialchars($row['commencementDate'])) ?>" readonly></td>
                                         <td><input type="date" data-field="completionDate" class="form-control" value="<?= ($row['completionDate'] == '0000-00-00' ? '' : htmlspecialchars($row['completionDate'])) ?>" readonly></td>
                                         <td><input type="number" data-field="progressOfTheWork" class="form-control" value="<?= htmlspecialchars($row['progressOfTheWork']) ?>" readonly></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'CurrentProject', 'currentProjectID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'CurrentProject', 'currentProjectID')">Delete</button>
-                                        </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
+                            <?php if ($canEdit): ?>
                             <button class="btn btn-success mt-3" onclick="addEditShareholders('CurrentProject', 'CurrentProjTable')">Add Current Project</button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -896,7 +922,9 @@
                                 </div>
                             </div>
                             <div class="col-12 text-end">
+                                <?php if ($canEdit): ?>
                                 <button class="btn btn-outline-primary btn-sm" onclick="editTableRow(this, 'Contacts', 'contactID')">Edit Contact</button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -983,17 +1011,17 @@
                                 <label>Name:</label>
                                 <div class="input-group mb-2">
                                     <input type="text" id="verifierName" class="form-control" data-field="verifierName" value="<?= htmlspecialchars($RegistrationRow['verifierName']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'verifierName', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                                 <label>Designation:</label>
                                 <div class="input-group mb-2">
                                     <input type="text" id="verifierDesignation" class="form-control" data-field="verifierDesignation" value="<?= htmlspecialchars($RegistrationRow['verifierDesignation']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'verifierDesignation', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                                 <label>Date:</label>
                                 <div class="input-group mb-2">
                                     <input type="date" id="dateOfVerification" class="form-control" data-field="dateOfVerification" value="<?= htmlspecialchars($RegistrationRow['dateOfVerification']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'dateOfVerification', 'RegistrationForm')">Edit</button>
+                                    <!-- Edit button removed -->
                                 </div>
                             </div>
                         </div>
@@ -1001,12 +1029,74 @@
                 </div>
             </div>
         </div>
-
-        </div> <div class="d-grid gap-2 mt-5">
-            <a href="VendorHomepage.php" class="btn btn-lg btn-primary">Return to Homepage</a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="VendorUpdateScript.js"></script> </body>
+</body>
+<?php
+// Floating approval bar: only show for admin and pending status
+if (($role === 'admin') && strtolower($RegistrationRow['status']) === 'pending') {
+        // Get vendor accountID for redirect
+        $stmtAcc = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+        $stmtAcc->bind_param("s", $RegistrationRow['newCompanyRegistrationNumber']);
+        $stmtAcc->execute();
+        $accResult = $stmtAcc->get_result();
+        $vendorAccountID = ($accRow = $accResult->fetch_assoc()) ? $accRow['accountID'] : '';
+        $redirectUrl = 'AdminVendorFormList.php?accountID=' . urlencode($vendorAccountID);
+?>
+<style>
+        .floating-approval-bar {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                background: #fff;
+                box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+                padding: 16px 0;
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+        }
+</style>
+<div class="floating-approval-bar">
+        <form method="post" action="APIUpdateFormStatus.php" style="margin:0;">
+                <input type="hidden" name="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
+                <input type="hidden" name="status" value="approved">
+                <input type="hidden" name="redirectUrl" value="<?= htmlspecialchars($redirectUrl) ?>">
+                <button type="submit" class="btn btn-success btn-lg">Approve</button>
+        </form>
+        <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject</button>
+        <a href="<?= htmlspecialchars($redirectUrl) ?>" class="btn btn-lg btn-primary">Return to Homepage</a>
+</div>
+
+<!-- Modal for rejection reason -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="APIUpdateFormStatus.php">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
+                    <input type="hidden" name="status" value="rejected">
+                    <input type="hidden" name="redirectUrl" value="<?= htmlspecialchars($redirectUrl) ?>">
+                    <div class="mb-3">
+                        <label for="rejectionReason" class="form-label">Rejection Reason</label>
+                        <textarea class="form-control" id="rejectionReason" name="rejectionReason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php } ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="VendorUpdateScript.js"></script>
 </html>

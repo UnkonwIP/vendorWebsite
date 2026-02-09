@@ -113,7 +113,7 @@ function editTableRow(button, tableName, idName) {
     } else {
         inputs.forEach(i => i.readOnly = true);
         button.textContent = "Edit"; 
-        if(tableName === 'NetWorth' || tableName === 'Equipment') button.textContent = "✎"; 
+        if(tableName === 'NetWorth' || tableName === 'Equipment') button.textContent = "Edit"; 
         button.classList.remove("btn-success");
         button.classList.add("btn-outline-primary");
         inputs.forEach(input => {

@@ -6,7 +6,7 @@
 <body>
 <div class="container mt-5">
 <?php
-    include "config.php";
+    require_once "config.php";
     if ($conn->connect_error) { die('Connection Failed : ' . $conn->connect_error); }
 
     // --- Variables ---

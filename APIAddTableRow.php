@@ -8,7 +8,7 @@ ini_set('display_errors', 0);
 // 2. Set Header to JSON
 header('Content-Type: application/json');
 
-include "config.php";
+require_once "config.php";
 
 if ($conn->connect_error) {
     echo json_encode(["success" => false, "error" => "DB Connection Failed: " . $conn->connect_error]);

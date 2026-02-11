@@ -1,5 +1,6 @@
 <?php
-include "config.php";
+// APIDeleteTableRow.php
+require_once "config.php";
 if ($conn->connect_error) exit("Connection failed");
 
 $id = $_POST['ID'] ?? '';

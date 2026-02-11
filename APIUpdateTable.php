@@ -1,6 +1,6 @@
 <?php
 // UpdateTableRow.php
-include "config.php";
+require_once "config.php";
 if ($conn->connect_error) { http_response_code(500); exit("DB connection failed"); }
 
 $required = ['field', 'value', 'registrationFormID', 'Table', 'idName'];

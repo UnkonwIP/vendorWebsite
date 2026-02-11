@@ -1,5 +1,6 @@
 <?php
-include "config.php";
+// APIUpdateField.php
+require_once "config.php";
 
 if (!isset($_POST['field'], $_POST['value'], $_POST['registrationFormID'])) {
     http_response_code(400);

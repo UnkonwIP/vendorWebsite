@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "config.php";
+require_once "config.php";
 
 // 1. Logic to handle the login attempt
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

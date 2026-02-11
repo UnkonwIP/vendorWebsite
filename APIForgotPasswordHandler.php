@@ -8,7 +8,6 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-include 'config.php';
 
 // Rate limiting (simple session-based, for demo)
 session_start();
@@ -73,7 +72,7 @@ $resetLink = APP_URL . 'reset_password.php?token=' . urlencode($token);
 $mail = new PHPMailer(true);
 try {
 	$mail->isSMTP();
-	$mail->Host       = 'smtp.gmail.com';
+	$mail->Host       = MAIL_HOST;
 	$mail->SMTPAuth   = true;
 	$mail->Username   = MAIL_USER;
 	$mail->Password   = MAIL_PASS;

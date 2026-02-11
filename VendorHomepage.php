@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "config.php";
+require_once "config.php";  
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 // Protect page (vendor only)

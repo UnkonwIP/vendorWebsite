@@ -1,6 +1,7 @@
 <?php
 session_start();
-include "config.php";
+
+require_once "config.php";
 
 // Protect admin page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json'); // important: tell browser it's JSON
 
-include "config.php";
+require_once "config.php";
 
 if ($conn->connect_error) {
     http_response_code(500);
@@ -11,7 +11,7 @@ if ($conn->connect_error) {
 
 $registration = $_POST['registration'] ?? '';
 
-$stmt = $conn->prepare("SELECT time FROM registrationform WHERE NewCompanyRegistration = ?");
+$stmt = $conn->prepare("SELECT time FROM registrationform WHERE newCompanyRegistrationNumber = ?");
 $stmt->bind_param("s", $registration);
 $stmt->execute();
 $result = $stmt->get_result();

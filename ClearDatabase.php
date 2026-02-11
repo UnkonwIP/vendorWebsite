@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'config.php';
+require_once 'config.php';
 
 // Protect admin page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -25,7 +25,7 @@ if (isset($_POST['clear_database'])){
     }
 
     $conn ->query("SET FOREIGN_KEY_CHECKS = 1;");
-    echo "<script>alert(Database cleared successfully!)</script>";
+    echo "<script>alert('Database cleared successfully!')</script>";
     header("Location: admin.php");
     exit();
 }

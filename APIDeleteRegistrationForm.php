@@ -2,7 +2,7 @@
 // APIDeleteRegistrationForm.php
 header('Content-Type: text/html');
 session_start();
-include "config.php";
+require_once "config.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo "<div class='alert alert-danger'>Invalid request method.</div>";

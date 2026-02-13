@@ -228,7 +228,7 @@
                 <th>Action</th>
             </tr>
             <tr>
-                <td><input type="number" name="CompanyShareholderID[]" step="1" min="0" max="9999999999"></td>
+                <td><input type="text" name="CompanyShareholderID[]" step="1" min="0" max="9999999999"></td>
                 <!-- check for shareholder ID format -->
                 <td><input type="text" name="ShareholderName[]"></td>
                 <td><input type="text" name="ShareholderNationality[]"></td>
@@ -595,7 +595,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>Bobcat/JCB</td>
                     <td><input type="number" name="BobcatQuantity"></td>
                     <td><input type="text" name="BobcatBrandModel"></td>
-                    <td><input type="number" name="BobcatRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="BobcatRating"></td>
                     <td><input type="text" name="BobcatOwnership"></td>
                     <td><input type="date" name="BobcatYearOfManufacture"></td>
                     <td><input type="text" name="BobcatRegistrationNo"></td>
@@ -604,7 +604,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>HDD Equipment</td>
                     <td><input type="number" name="HDDQuantity"></td>
                     <td><input type="text" name="HDDBrandModel"></td>
-                    <td><input type="number" name="HDDRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="HDDRating"></td>
                     <td><input type="text" name="HDDOwnership"></td>
                     <td><input type="date" name="HDDYearOfManufacture"></td>
                     <td><input type="text" name="HDDRegistrationNo"></td>
@@ -613,7 +613,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>Splicing Equipment</td>
                     <td><input type="number" name="SplicingQuantity"></td>
                     <td><input type="text" name="SplicingBrandModel"></td>
-                    <td><input type="number" name="SplicingRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="SplicingRating"></td>
                     <td><input type="text" name="SplicingOwnership"></td>
                     <td><input type="date" name="SplicingYearOfManufacture"></td>
                     <td><input type="text" name="SplicingRegistrationNo"></td>
@@ -622,7 +622,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>Optical Power Meter (OPM)</td>
                     <td><input type="number" name="OPMQuantity"></td>
                     <td><input type="text" name="OPMBrandModel"></td>
-                    <td><input type="number" name="OPMRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="OPMRating"></td>
                     <td><input type="text" name="OPMOwnership"></td>
                     <td><input type="date" name="OPMYearOfManufacture"></td>
                     <td><input type="text" name="OPMRegistrationNo"></td>
@@ -631,7 +631,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>Optical Time Domain Reflectometer (OTDR)</td>
                     <td><input type="number" name="OTDRQuantity"></td>
                     <td><input type="text" name="OTDRBrandModel"></td>
-                    <td><input type="number" name="OTDRRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="OTDRRating"></td>
                     <td><input type="text" name="OTDROwnership"></td>
                     <td><input type="date" name="OTDRYearOfManufacture"></td>
                     <td><input type="text" name="OTDRRegistrationNo"></td>
@@ -640,7 +640,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <td>Equipment/Test Gear</td>
                     <td><input type="number" name="TestGearQuantity"></td>
                     <td><input type="text" name="TestGearBrandModel"></td>
-                    <td><input type="number" name="TestGearRating" min="0" max="9.9" step="0.1"></td>
+                    <td><input type="text" name="TestGearRating"></td>
                     <td><input type="text" name="TestGearOwnership"></td>
                     <td><input type="date" name="TestGearYearOfManufacture"></td>
                     <td><input type="text" name="TestGearRegistrationNo"></td>
@@ -664,7 +664,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <th>Action</th>
             </tr>
             <tr>
-                <td><input type="number" name="StaffNo[]" min="1"></td>
+                <td></td>
                 <td><input type="text" name="StaffName[]"></td>
                 <td><input type="text" name="StaffDesignation[]"></td>
                 <td><input type="text" name="StaffQualification[]"></td>
@@ -693,7 +693,7 @@ The Contractor is required to complete the form by listing all plant and machine
                 <th>Action</th>
             </tr>
             <tr>
-                <td><input min="1" type="number" name="ProjectRecordNo[]"></td>
+                <td></td>
                 <td><input type="text" name="ProjectTitle[]"></td>
                 <td><input type="text" name="ProjectNature[]"></td>
                 <td><input type="text" name="ProjectLocation[]"></td>
@@ -723,7 +723,7 @@ The Contractor is required to complete the form by listing all plant and machine
                     <th>Action</th>
                 </tr>
                 <tr>
-                    <td><input min="1" type="number" name="CurrentProjectRecordNo[]"></td>
+                    <td></td>
                     <td><input type="text" name="CurrentProjTitle[]"></td>
                     <td><input type="text" name="CurrentProjNature[]"></td>
                     <td><input type="text" name="CurrentProjLocation[]"></td>
@@ -862,7 +862,6 @@ The Contractor is required to complete the form by listing all plant and machine
                 <script>
                     function autoFillTestData() {
                         console.log("Auto-fill function called");
-
                         document.querySelectorAll("input").forEach(input => {
                             if (input.readOnly || input.disabled) return;
                             switch (input.type) {
@@ -912,6 +911,37 @@ The Contractor is required to complete the form by listing all plant and machine
                             }
                         });
                     }
+
+                    // Patch add/delete row functions to update row numbers
+                    const originalAddStaffList = window.addStaffList;
+                    window.addStaffList = function() {
+                        if (typeof originalAddStaffList === 'function') originalAddStaffList();
+                        updateRowNumbers('StaffTeamTable');
+                    };
+                    const originalAddProjectRecord = window.addProjectRecord;
+                        window.addProjectRecord = function() {
+                            if (typeof originalAddProjectRecord === 'function') originalAddProjectRecord();
+                            updateRowNumbers('ProjectRecordTable');
+                        };
+                    const originalAddCurrentProjectRecord = window.addCurrentProjectRecord;
+                    window.addCurrentProjectRecord = function() {
+                        if (typeof originalAddCurrentProjectRecord === 'function') originalAddCurrentProjectRecord();
+                        updateRowNumbers('CurrentProjTable');
+                    };
+                    const originalDeleteRow = window.deleteRow;
+                    window.deleteRow = function(btn) {
+                        if (typeof originalDeleteRow === 'function') originalDeleteRow(btn);
+                        updateRowNumbers('StaffTeamTable');
+                        updateRowNumbers('ProjectRecordTable');
+                        updateRowNumbers('CurrentProjTable');
+                    };
+
+                    // On page load, update all row numbers
+                    document.addEventListener('DOMContentLoaded', function() {
+                        updateRowNumbers('StaffTeamTable');
+                        updateRowNumbers('ProjectRecordTable');
+                        updateRowNumbers('CurrentProjTable');
+                    });
                 </script>
 
                 <!-- submit button -->

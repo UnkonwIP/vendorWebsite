@@ -18,7 +18,7 @@ function addShareholders(){
     
     // FIX: Capitalized names to match the HTML form and PHP $_POST expectations
     const colums = [
-        { type: "number", name: "CompanyShareholderID[]" },
+        { type: "text", name: "CompanyShareholderID[]" },
         { type: "text", name: "ShareholderName[]" },
         { type: "text", name: "ShareholderNationality[]" },
         { type: "text", name: "ShareholderAddress[]" },
@@ -150,8 +150,12 @@ function addStaffList() {
     const table = document.getElementById("StaffTeamTable");
     const newRow = table.insertRow(-1);
     
+    // Insert empty cell for row number
+    let cell = newRow.insertCell();
+    cell.textContent = ""; // This will be updated by the row numbering function
+
     const columns = [
-        { type: "number", name: "StaffNo[]" , min : 1 },
+
         { type: "text", name: "StaffName[]" },
         { type: "text", name: "StaffDesignation[]" },
         { type: "text", name: "StaffQualification[]" },
@@ -178,14 +182,18 @@ function addStaffList() {
     btn.type = "button"; btn.textContent = "Delete";
     btn.onclick = function() { deleteRow(this); };
     cell.appendChild(btn);
+    updateRowNumbers('StaffTeamTable');
 }
 
 function addProjectRecord() {
     const table = document.getElementById("ProjectRecordTable");
     const newRow = table.insertRow(-1);
+
+    // Insert empty cell for row number
+    let cell = newRow.insertCell();
+    cell.textContent = ""; // This will be updated by the row numbering function
     
     const colums = [
-        { type : "number" ,  name : "ProjectRecordNo[]" , min : 1 },
         { type : "text" , name : "ProjectTitle[]"},
         {type : "text" , name : "ProjectNature[]"},
         {type : "text" , name : "ProjectLocation[]"},
@@ -210,14 +218,18 @@ function addProjectRecord() {
     btn.type = "button"; btn.textContent = "Delete";
     btn.onclick = function() { deleteRow(this); };
     cell.appendChild(btn);
+    updateRowNumbers('ProjectRecordTable');
 }
 
 function addCurrentProjectRecord() {
     const table = document.getElementById("CurrentProjTable");
     const newRow = table.insertRow(-1);
     
+    // Insert empty cell for row number
+    let cell = newRow.insertCell();
+    cell.textContent = ""; // This will be updated by the row numbering function
+
     const columns = [
-        { type: "number", name: "CurrentProjectRecordNo[]" , min : 1 },
         { type: "text", name: "CurrentProjTitle[]" },
         { type: "text", name: "CurrentProjNature[]" },
         { type: "text", name: "CurrentProjLocation[]" },
@@ -245,9 +257,22 @@ function addCurrentProjectRecord() {
     btn.type = "button"; btn.textContent = "Delete";
     btn.onclick = function() { deleteRow(this); };
     cell.appendChild(btn);
+    updateRowNumbers('CurrentProjTable');
 }
 
 console.log("VendorRegistration.js loaded. and updated 2.0");
+
+// --- Auto Row Numbering for Dynamic Tables ---
+function updateRowNumbers(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const rows = table.getElementsByTagName('tr');
+    let rowIndex = 1;
+    for (let i = 1; i < rows.length; i++) { // skip header
+        const firstCell = rows[i].getElementsByTagName('td')[0];
+        if (firstCell) firstCell.textContent = rowIndex++;
+    }
+}
 
 // Form Validation and Submission
 function validateAndSubmit() {

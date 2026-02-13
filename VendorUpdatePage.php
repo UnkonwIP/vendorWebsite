@@ -144,7 +144,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Company Registration No (Old)</label>
                                 <div class="input-group">
-                                    <input type="number" id="oldCompanyRegistrationNumber" class="form-control" data-field="oldCompanyRegistrationNumber" value="<?= htmlspecialchars($RegistrationRow['oldCompanyRegistrationNumber']) ?>" readonly>
+                                    <input type="text" id="oldCompanyRegistrationNumber" class="form-control" data-field="oldCompanyRegistrationNumber" value="<?= htmlspecialchars($RegistrationRow['oldCompanyRegistrationNumber']) ?>" readonly>
                                     <button class="btn btn-outline-primary" onclick="editField(this, 'oldCompanyRegistrationNumber', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>

@@ -116,7 +116,7 @@ CREATE TABLE `equipment` (
   `equipmentID` int(11) NOT NULL,
   `quantity` int(11) DEFAULT NULL,
   `brand` varchar(30) DEFAULT NULL,
-  `rating` decimal(3,1) DEFAULT NULL,
+  `rating` varchar(10) DEFAULT NULL,
   `ownership` varchar(20) DEFAULT NULL,
   `yearsOfManufacture` date DEFAULT NULL,
   `registrationNo` varchar(30) DEFAULT NULL

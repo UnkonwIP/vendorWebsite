@@ -17,10 +17,10 @@ header("Expires: 0");
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 // Protect page (admin only) - Uncomment when ready
-// if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-//     header("Location: index.php");
-//     exit();
-// }
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: index.php");
+    exit();
+}
 
 $message = "";
 $messageType = ""; // success | error

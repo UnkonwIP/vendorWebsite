@@ -259,7 +259,7 @@ if ($result) {
     <div class="vendor-container">
         <div class="d-flex flex-wrap mb-3">
             <a href="AccountCreation.php" class="btn-add">+ Add Account</a>
-            <form method="post" action="ClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database?\nThis action cannot be undone.');">
+            <form method="post" action="APIClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database?\nThis action cannot be undone.');">
                 <button type="submit" name="clear_database" class="btn-clear">Clear Database</button>
             </form>
         </div>

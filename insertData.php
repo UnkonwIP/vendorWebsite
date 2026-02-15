@@ -162,33 +162,33 @@
 
     // 6. Project Track Record
     insertRows($conn,
-        "INSERT INTO projecttrackrecord (registrationFormID, projectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?,?,?,?,?,?,?,?,?)",
-        "iisssssss",
+        "INSERT INTO projecttrackrecord (registrationFormID, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?,?,?,?,?,?,?,?)",
+        "isssssss",
         [
             array_fill(0, count($_POST['ProjectTitle']??[]), $registrationFormID),
-            $_POST['ProjectRecordNo']??[], $_POST['ProjectTitle']??[], $_POST['ProjectNature']??[], $_POST['ProjectLocation']??[],
+            $_POST['ProjectTitle']??[], $_POST['ProjectNature']??[], $_POST['ProjectLocation']??[],
             $_POST['ProjectClientName']??[], $_POST['ProjectValue']??[], $_POST['ProjectCommencementDate']??[], $_POST['ProjectCompletionDate']??[]
         ]
     );
 
     // 7. Current Project
     insertRows($conn,
-        "INSERT INTO currentproject (registrationFormID, currentProjectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?,?,?,?,?,?,?,?,?,?)",
-        "iisssssssd",
+        "INSERT INTO currentproject (registrationFormID, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?,?,?,?,?,?,?,?,?)",
+        "isssssssd",
         [
             array_fill(0, count($_POST['CurrentProjTitle']??[]), $registrationFormID),
-            $_POST['CurrentProjectRecordNo']??[], $_POST['CurrentProjTitle']??[], $_POST['CurrentProjNature']??[], $_POST['CurrentProjLocation']??[],
+            $_POST['CurrentProjTitle']??[], $_POST['CurrentProjNature']??[], $_POST['CurrentProjLocation']??[],
             $_POST['CurrentProjClientName']??[], $_POST['CurrentProjValue']??[], $_POST['CurrentProjStartDate']??[], $_POST['CurrentProjEndDate']??[], $_POST['CurrentProjProgress']??[]
         ]
     );
 
     // 8. Staff
     insertRows($conn,
-        "INSERT INTO staff (registrationFormID, staffNo, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?,?,?,?,?,?,?,?,?)",
-        "iisssisss",
+        "INSERT INTO staff (registrationFormID, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?,?,?,?,?,?,?,?)",
+        "issssiss",
         [
             array_fill(0, count($_POST['StaffName']??[]), $registrationFormID),
-            $_POST['StaffNo']??[], $_POST['StaffName']??[], $_POST['StaffDesignation']??[], $_POST['StaffQualification']??[],
+            $_POST['StaffName']??[], $_POST['StaffDesignation']??[], $_POST['StaffQualification']??[],
             $_POST['StaffExperience']??[], $_POST['StaffEmploymentStatus']??[], $_POST['StaffSkills']??[], $_POST['StaffCertification']??[]
         ]
     );

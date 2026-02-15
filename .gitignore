@@ -1,3 +1,4 @@
 .env
 config.php
 temp.txt
+.DS_Store

@@ -314,11 +314,11 @@ if ($result) {
                         </div>
                         <div class="vendor-detail">
                             <span class="vendor-detail-label">Company Reg. No</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['newCompanyRegistrationNumber']); ?></span>
+                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['newCompanyRegistrationNumber'] ?? ""); ?></span>
                         </div>
                         <!-- <div class="vendor-detail">
                             <span class="vendor-detail-label">Company Name</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['companyName']); ?></span>
+                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['companyName'] ?? ""); ?></span>
                         </div> -->
                     </div>
                     <!-- You can add admin actions here if needed -->

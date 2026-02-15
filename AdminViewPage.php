@@ -793,9 +793,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($row = $StaffTeamTable->fetch_assoc()): ?>
-                                    <tr data-id="<?= $row['staffID'] ?>"> 
-                                        <td><input type="number" data-field="staffNo" class="form-control" value="<?= htmlspecialchars($row['staffNo']) ?>" readonly></td>
+                                    <?php $staffNo = 1; while($row = $StaffTeamTable->fetch_assoc()): ?>
+                                    <tr data-id="<?= $row['staffID'] ?>">
+                                        <td><?= $staffNo++ ?></td>
                                         <td><input type="text" data-field="name" class="form-control" value="<?= htmlspecialchars($row['name']) ?>" readonly></td>
                                         <td><input type="text" data-field="designation" class="form-control" value="<?= htmlspecialchars($row['designation']) ?>" readonly></td>
                                         <td><input type="text" data-field="qualification" class="form-control" value="<?= htmlspecialchars($row['qualification']) ?>" readonly></td>
@@ -828,9 +828,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($row = $ProjectRecordTable->fetch_assoc()): ?>
+                                    <?php $projNo = 1; while($row = $ProjectRecordTable->fetch_assoc()): ?>
                                     <tr data-id="<?= $row['projectRecordID'] ?>">
-                                        <td><input type="number" data-field="projectRecordNo" class="form-control" value="<?= htmlspecialchars($row['projectRecordNo']) ?>" readonly></td>
+                                        <td><?= $projNo++ ?></td>
                                         <td><input type="text" data-field="projectTitle" class="form-control" value="<?= htmlspecialchars($row['projectTitle']) ?>" readonly></td>
                                         <td><input type="text" data-field="projectNature" class="form-control" value="<?= htmlspecialchars($row['projectNature']) ?>" readonly></td>
                                         <td><input type="text" data-field="location" class="form-control" value="<?= htmlspecialchars($row['location']) ?>" readonly></td>
@@ -863,9 +863,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($row = $CurrentProjTable->fetch_assoc()): ?>
+                                    <?php $currNo = 1; while($row = $CurrentProjTable->fetch_assoc()): ?>
                                     <tr data-id="<?= $row['currentProjectID'] ?>">
-                                        <td><input type="number" data-field="currentProjectRecordNo" class="form-control" value="<?= htmlspecialchars($row['currentProjectRecordNo']) ?>" readonly></td>
+                                        <td><?= $currNo++ ?></td>
                                         <td><input type="text" data-field="projectTitle" class="form-control" value="<?= htmlspecialchars($row['projectTitle']) ?>" readonly></td>
                                         <td><input type="text" data-field="projectNature" class="form-control" value="<?= htmlspecialchars($row['projectNature']) ?>" readonly></td>
                                         <td><input type="text" data-field="location" class="form-control" value="<?= htmlspecialchars($row['location']) ?>" readonly></td>

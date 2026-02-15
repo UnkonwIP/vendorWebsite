@@ -77,7 +77,6 @@ CREATE TABLE `creditfacilities` (
 CREATE TABLE `currentproject` (
   `currentProjectID` int(11) NOT NULL,
   `registrationFormID` int(11) NOT NULL,
-  `currentProjectRecordNo` int(11) NOT NULL,
   `projectTitle` varchar(50) DEFAULT NULL,
   `projectNature` varchar(50) DEFAULT NULL,
   `location` varchar(100) DEFAULT NULL,
@@ -182,7 +181,6 @@ CREATE TABLE `nettworth` (
 CREATE TABLE `projecttrackrecord` (
   `projectRecordID` int(11) NOT NULL,
   `registrationFormID` int(11) NOT NULL,
-  `projectRecordNo` int(11) NOT NULL,
   `projectTitle` varchar(50) DEFAULT NULL,
   `projectNature` varchar(30) DEFAULT NULL,
   `location` varchar(56) DEFAULT NULL,
@@ -277,7 +275,6 @@ CREATE TABLE `shareholders` (
 CREATE TABLE `staff` (
   `staffID` int(11) NOT NULL,
   `registrationFormID` int(11) NOT NULL,
-  `staffNo` int(11) NOT NULL,
   `name` varchar(30) DEFAULT NULL,
   `designation` varchar(30) DEFAULT NULL,
   `qualification` varchar(30) DEFAULT NULL,

@@ -15,7 +15,7 @@ $idName = $_POST['idName'];
 
 // Configuration: Whitelist
 $AllowedConfig = [
-    'Shareholders' => ['table' => 'shareholders', 'fields' => ['companyShareholderID', 'name', 'nationality', 'address', 'sharePercentage']],
+    'Shareholders' => ['table' => 'shareholders', 'fields' => ['name', 'nationality', 'address', 'sharePercentage']],
     'Equipment' => ['table' => 'equipment', 'fields' => ['quantity', 'brand', 'rating', 'ownership', 'yearsOfManufacture', 'registrationNo']],
     'NetWorth' => ['table' => 'nettworth', 'fields' => ['totalLiabilities', 'totalAssets', 'netWorth', 'workingCapital']],
     'Contacts' => ['table' => 'contacts', 'fields' => ['contactPersonName', 'department', 'telephoneNumber', 'emailAddress']],
@@ -23,9 +23,9 @@ $AllowedConfig = [
     'Management' => ['table' => 'management','fields' => ['nationality', 'name', 'position', 'yearsInPosition', 'yearsInRelatedField']],
     'Bank' => ['table' => 'bank','fields' => ['bankName', 'bankAddress', 'swiftCode']],
     'CreditFacilities' => ['table' => 'creditfacilities','fields' => ['typeOfCreditFacilities', 'financialInstitution', 'totalAmount', 'expiryDate', 'unutilisedAmountCurrentlyAvailable', 'asAtDate']],
-    'Staff' => ['table' => 'staff','fields' => ['staffNo', 'name', 'designation', 'qualification', 'yearsOfExperience', 'employmentStatus', 'skills', 'relevantCertification']],
-    'ProjectTrackRecord' => ['table' => 'projecttrackrecord','fields' => ['projectRecordNo', 'projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate']],
-    'CurrentProject' => ['table' => 'currentproject','fields' => ['currentProjectRecordNo', 'projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate', 'progressOfTheWork']],
+    'Staff' => ['table' => 'staff','fields' => ['name', 'designation', 'qualification', 'yearsOfExperience', 'employmentStatus', 'skills', 'relevantCertification']],
+    'ProjectTrackRecord' => ['table' => 'projecttrackrecord','fields' => ['projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate']],
+    'CurrentProject' => ['table' => 'currentproject','fields' => ['projectTitle', 'projectNature', 'location', 'clientName', 'projectValue', 'commencementDate', 'completionDate', 'progressOfTheWork']],
 ];
 
 if (!isset($AllowedConfig[$table])) exit("Invalid table");

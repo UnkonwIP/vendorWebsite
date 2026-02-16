@@ -28,16 +28,15 @@ $stmt = false;
 // --- Logic per table ---
 try {
     if ($table === 'Shareholders') {
-        $sql = "INSERT INTO shareholders (registrationFormID, companyShareholderID, name, nationality, address, sharePercentage) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO shareholders (registrationFormID, name, nationality, address, sharePercentage) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
             // Check if POST keys exist, default to empty string/0 if not
-            $shareID = $_POST['companyShareholderID'] ?? '000';
             $name = $_POST['name'] ?? '';
             $nat = $_POST['nationality'] ?? '';
             $addr = $_POST['address'] ?? '';
             $perc = $_POST['sharePercentage'] ?? 0;
-            $stmt->bind_param("issssd", $formID, $shareID, $name, $nat, $addr, $perc);
+            $stmt->bind_param("isssd", $formID, $name, $nat, $addr, $perc);
         }
 
     } elseif ($table === 'DirectorAndSecretary') {
@@ -75,10 +74,9 @@ try {
         }
 
     } elseif ($table === 'Staff') {
-        $sql = "INSERT INTO staff (registrationFormID, staffNo, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO staff (registrationFormID, name, designation, qualification, yearsOfExperience, employmentStatus, skills, relevantCertification) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $no = $_POST['staffNo'] ?? 0;
             $name = $_POST['name'] ?? '';
             $desig = $_POST['designation'] ?? '';
             $qual = $_POST['qualification'] ?? '';
@@ -86,14 +84,13 @@ try {
             $emp = $_POST['employmentStatus'] ?? '';
             $skill = $_POST['skills'] ?? '';
             $cert = $_POST['relevantCertification'] ?? '';
-            $stmt->bind_param("iisssisss", $formID, $no, $name, $desig, $qual, $exp, $emp, $skill, $cert);
+            $stmt->bind_param("isssisss", $formID, $name, $desig, $qual, $exp, $emp, $skill, $cert);
         }
 
     } elseif ($table === 'ProjectTrackRecord') {
-        $sql = "INSERT INTO projecttrackrecord (registrationFormID, projectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO projecttrackrecord (registrationFormID, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $no = $_POST['projectRecordNo'] ?? 0;
             $title = $_POST['projectTitle'] ?? '';
             $nat = $_POST['projectNature'] ?? '';
             $loc = $_POST['location'] ?? '';
@@ -101,14 +98,13 @@ try {
             $val = $_POST['projectValue'] ?? 0;
             $start = $_POST['commencementDate'] ?? date('Y-m-d');
             $end = $_POST['completionDate'] ?? date('Y-m-d');
-            $stmt->bind_param("iisssssss", $formID, $no, $title, $nat, $loc, $client, $val, $start, $end);
+            $stmt->bind_param("isssssss", $formID, $title, $nat, $loc, $client, $val, $start, $end);
         }
 
     } elseif ($table === 'CurrentProject') {
-        $sql = "INSERT INTO currentproject (registrationFormID, currentProjectRecordNo, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO currentproject (registrationFormID, projectTitle, projectNature, location, clientName, projectValue, commencementDate, completionDate, progressOfTheWork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $no = $_POST['currentProjectRecordNo'] ?? 0;
             $title = $_POST['projectTitle'] ?? '';
             $nat = $_POST['projectNature'] ?? '';
             $loc = $_POST['location'] ?? '';
@@ -117,7 +113,7 @@ try {
             $start = $_POST['commencementDate'] ?? date('Y-m-d');
             $end = $_POST['completionDate'] ?? date('Y-m-d');
             $prog = $_POST['progressOfTheWork'] ?? 0;
-            $stmt->bind_param("iisssssssd", $formID, $no, $title, $nat, $loc, $client, $val, $start, $end, $prog);
+            $stmt->bind_param("isssssssd", $formID, $title, $nat, $loc, $client, $val, $start, $end, $prog);
         }
 
     } elseif ($table === 'CreditFacilities') {

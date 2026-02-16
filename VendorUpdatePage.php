@@ -59,6 +59,11 @@
     $stmt->execute();
     $RegistrationRow = $stmt->get_result()->fetch_assoc();
     if (!$RegistrationRow) die("Error: Record not found.");
+    // Parse trade and otherTradeDetails for UI
+    $tradeStr = $RegistrationRow['trade'] ?? '';
+    $tradeArr = array_map('trim', explode(',', $tradeStr));
+    $tradeOptions = ['ISP','OSP','O&M','M&E','Others'];
+    $otherTradeDetails = $RegistrationRow['otherTradeDetails'] ?? '';
 
     // Helper functions to fetch tables
     function fetchTable($conn, $sql, $id) {
@@ -655,24 +660,28 @@
                         <div class="card p-3 my-3 bg-light">
                             <label class="fw-bold">Trade</label>
                             <div id="TradeGroup" data-field="trade">
-                                <?php $trade = $RegistrationRow['trade']; ?>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="ISP" <?= $trade=='ISP'?'checked':'' ?> disabled> <label>ISP</label>
+                                    <input class="form-check-input" type="checkbox" name="CIDBTrade[]" value="ISP" <?= in_array('ISP', $tradeArr)?'checked':'' ?> disabled> <label>ISP</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="OSP" <?= $trade=='OSP'?'checked':'' ?> disabled> <label>OSP</label>
+                                    <input class="form-check-input" type="checkbox" name="CIDBTrade[]" value="OSP" <?= in_array('OSP', $tradeArr)?'checked':'' ?> disabled> <label>OSP</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="O&M" <?= $trade=='O&M'?'checked':'' ?> disabled> <label>O&M</label>
+                                    <input class="form-check-input" type="checkbox" name="CIDBTrade[]" value="O&M" <?= in_array('O&M', $tradeArr)?'checked':'' ?> disabled> <label>O&M</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="M&E" <?= $trade=='M&E'?'checked':'' ?> disabled> <label>M&E</label>
+                                    <input class="form-check-input" type="checkbox" name="CIDBTrade[]" value="M&E" <?= in_array('M&E', $tradeArr)?'checked':'' ?> disabled> <label>M&E</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="Others" <?= (!in_array($trade, ['ISP','OSP','O&M','M&E']) && !empty($trade))?'checked':'' ?> disabled> <label>Others</label>
+                                    <input class="form-check-input" type="checkbox" name="CIDBTrade[]" id="CIDBOthers" value="Others" <?= in_array('Others', $tradeArr)?'checked':'' ?> disabled onchange="toggleOthersDetails()"> <label>Others</label>
+                                </div>
+                                <div class="form-check form-check-inline" id="CIDBOthersDetails" style="display:<?= in_array('Others', $tradeArr) ? 'inline-block' : 'none' ?>;">
+                                    <input type="text" id="CIDBOthersInput" value="<?= htmlspecialchars($otherValue) ?>" class="form-control form-control-sm" style="width:150px;" readonly>
                                 </div>
                             </div>
-                            <button class="btn btn-sm btn-secondary mt-2 w-25" onclick="editRadioGroup(this, 'TradeGroup', 'RegistrationForm')">Edit Trade</button>
+                            <div class="input-group mt-2 w-50">
+                                <button id="tradeEditSaveBtn" class="btn btn-outline-primary" onclick="toggleTradeEditSave(event)">Edit</button>
+                            </div>
                         </div>
 
                         <div class="row g-3">
@@ -716,73 +725,6 @@
 
                         <h6 class="mt-4">List of Plant, Machinery and Equipment</h6>
                         <p class="section-desc">The Contractor is required to complete the form by listing all plant and machinery... provide valid calibration certificates...</p>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead class="table-light text-center">
-                                    <tr><th>Equipment Type</th><th>Qty</th><th>Brand/Model</th><th>Rating</th><th>Ownership</th><th>Year Mfg</th><th>Reg No</th><th>Action</th></tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    $eqTypes = [1=>'Bobcat/JCB', 2=>'HDD Equipment', 3=>'Splicing', 4=>'OPM', 5=>'OTDR', 6=>'Test Gear'];
-                                    foreach($eqTypes as $id => $name):
-                                        $d = $EquipmentData[$id] ?? [];
-                                        $rid = $d['equipmentRecordID'] ?? '';
-                                    ?>
-                                    <tr data-id="<?= $rid ?>" data-type-id="<?= $id ?>">
-                                        <td class="fw-bold"><?= $name ?></td>
-                                        <td><input type="number" data-field="quantity" class="form-control form-control-sm" value="<?= $d['quantity']??'' ?>" readonly></td>
-                                        <td><input type="text" data-field="brand" class="form-control form-control-sm" value="<?= $d['brand']??'' ?>" readonly></td>
-                                        <td><input type="text" data-field="rating" class="form-control form-control-sm" value="<?= $d['rating']??'' ?>" readonly></td>
-                                        <td><input type="text" data-field="ownership" class="form-control form-control-sm" value="<?= $d['ownership']??'' ?>" readonly></td>
-                                        <td><input type="date" data-field="yearsOfManufacture" class="form-control form-control-sm" value="<?= $d['yearsOfManufacture']??'' ?>" readonly></td>
-                                        <td><input type="text" data-field="registrationNo" class="form-control form-control-sm" value="<?= $d['registrationNo']??'' ?>" readonly></td>
-                                        <td><button class="btn btn-sm btn-outline-secondary" onclick="editSpecialRow(this, 'Equipment', 'equipmentRecordID')">Edit</button></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-
-                        <h6 class="mt-5">List of Site Team and Site Staff</h6>
-                        <div class="table-responsive">
-                            <table id="StaffTeamTable" class="table table-bordered table-striped align-middle">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Name</th>
-                                        <th>Designation</th>
-                                        <th>Qualification</th>
-                                        <th>Exp (Yrs)</th>
-                                        <th>Status</th>
-                                        <th>Skills</th>
-                                        <th>Certification</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $staffNo = 1; while($row = $StaffTeamTable->fetch_assoc()): ?>
-                                    <tr data-id="<?= $row['staffID'] ?>">
-                                        <td><?= $staffNo++ ?></td>
-                                        <td><input type="text" data-field="name" class="form-control" value="<?= htmlspecialchars($row['name']) ?>" readonly></td>
-                                        <td><input type="text" data-field="designation" class="form-control" value="<?= htmlspecialchars($row['designation']) ?>" readonly></td>
-                                        <td><input type="text" data-field="qualification" class="form-control" value="<?= htmlspecialchars($row['qualification']) ?>" readonly></td>
-                                        <td><input type="number" data-field="yearsOfExperience" class="form-control" value="<?= htmlspecialchars($row['yearsOfExperience']) ?>" readonly></td>
-                                        <td><input type="text" data-field="employmentStatus" class="form-control" value="<?= htmlspecialchars($row['employmentStatus']) ?>" readonly></td>
-                                        <td><input type="text" data-field="skills" class="form-control" value="<?= htmlspecialchars($row['skills']) ?>" readonly></td>
-                                        <td><input type="text" data-field="relevantCertification" class="form-control" value="<?= htmlspecialchars($row['relevantCertification']) ?>" readonly></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTableRow(this, 'Staff', 'staffID')">Edit</button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEditRow(this, 'Staff', 'staffID')">Delete</button>
-                                        </td>
-                                    </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                            <button class="btn btn-success mt-3" onclick="addEditShareholders('Staff', 'StaffTeamTable')">Add Staff</button>
-                        </div>
-
-                        <h6 class="mt-5">Project Track Record (Last 5 Years)</h6>
                         <div class="table-responsive">
                             <table id="ProjectRecordTable" class="table table-bordered table-striped align-middle">
                                 <thead class="table-dark">

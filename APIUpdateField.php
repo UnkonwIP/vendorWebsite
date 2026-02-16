@@ -29,7 +29,7 @@ $allowed = [
     'advocatesCompanyName', 'advocatesCompanyAddress', 'advocatesName', 'advocatesEmail', 'advocatesPhone', 'advocatesYearOfService',
     
     // Part F (Technical)
-    'cidb', 'cidbValidationTill', 'trade', 'valueOfSimilarProject', 
+    'cidb', 'cidbValidationTill', 'trade', 'otherTradeDetails', 'valueOfSimilarProject', 
     'valueOfCurrentProject', 'yearsOfExperienceInIndustry',
     
     // Part J

@@ -10,6 +10,14 @@ function deleteRow(button) {
         return;
     }
     row.remove();
+        // Update row numbers if this is a table with numbering
+    if (table.id === "StaffTeamTable") {
+        updateRowNumbers('StaffTeamTable');
+    } else if (table.id === "ProjectRecordTable") {
+        updateRowNumbers('ProjectRecordTable');
+    } else if (table.id === "CurrentProjTable") {
+        updateRowNumbers('CurrentProjTable');
+    }
 }
 
 function addShareholders(){
@@ -394,6 +402,26 @@ document.addEventListener("DOMContentLoaded", function() {
     var form = document.getElementById("vendorForm");
     if (form) {
         form.addEventListener("submit", function (e) {
+            // Before validation, join all checked CIDBTrade checkboxes and Others input
+            const tradeCheckboxes = document.querySelectorAll('input[name="CIDBTrade[]"]:checked');
+            let trades = Array.from(tradeCheckboxes).map(cb => cb.value);
+            const othersCheckbox = document.getElementById('CIDBOthers');
+            const othersInput = document.getElementById('CIDBOthersInput');
+            if (othersCheckbox && othersCheckbox.checked && othersInput && othersInput.value.trim()) {
+                trades = trades.filter(t => t !== 'Others'); // Remove 'Others' label if present
+                trades.push(othersInput.value.trim());
+            }
+            // Create or update a hidden input to store the comma-separated trades
+            let hidden = document.getElementById('CIDBTradeHidden');
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'CIDBTradeFinal';
+                hidden.id = 'CIDBTradeHidden';
+                form.appendChild(hidden);
+            }
+            hidden.value = trades.join(', ');
+
             if (!validateAndSubmit()) {
                 e.preventDefault(); // stop submit
             }

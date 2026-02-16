@@ -500,28 +500,23 @@
         </div>
         <div class="grid-row-full-width">
             <div class="grid-column-full-width"><label for="CIDBTrade">Trade</label>
-            
             <div>
-            <input type="radio" name="CIDBTrade" id="ISP" value="ISP" onclick="OffOthersDetails()">
-            <label for="ISP">ISP</label>
-            
-            <input type="radio" name="CIDBTrade" id="OSP" value="OSP" onclick="OffOthersDetails()">
-            <label for="OSP">OSP</label>
-            
-            <input type="radio" name="CIDBTrade" id="O&M" value="O&M" onclick="OffOthersDetails()">
-            <label for="O&M">O&M</label>
-            
-            <input type="radio" name="CIDBTrade" id="M&E" value="M&E" onclick="OffOthersDetails()">
-            <label for="M&E">M&E</label>
-            
-            <input type="radio" name="CIDBTrade" onclick="OnOthersDetails()">
-            <label for="CIDBOthers" id="CIDBOthersRadio">Others</label>
+                <input type="checkbox" name="CIDBTrade[]" id="ISP" value="ISP" onclick="toggleOthersDetails()">
+                <label for="ISP">ISP</label>
+                <input type="checkbox" name="CIDBTrade[]" id="OSP" value="OSP" onclick="toggleOthersDetails()">
+                <label for="OSP">OSP</label>
+                <input type="checkbox" name="CIDBTrade[]" id="O&M" value="O&M" onclick="toggleOthersDetails()">
+                <label for="O&M">O&M</label>
+                <input type="checkbox" name="CIDBTrade[]" id="M&E" value="M&E" onclick="toggleOthersDetails()">
+                <label for="M&E">M&E</label>
+                <input type="checkbox" name="CIDBTrade[]" id="CIDBOthers" value="Others" onclick="toggleOthersDetails()">
+                <label for="CIDBOthers">Others</label>
             </div>
             </div>
         </div>
         <div id="CIDBOthersDetails" style="display: none;">
             <div><label>(Please specify)</label></div>
-            <div><input type="text" id="CIDBOthersInput" ></div>
+            <div><input type="text" id="CIDBOthersInput" name="CIDBOthersInput"></div>
         </div>
         <br>
         <div class="grid-row">
@@ -860,6 +855,11 @@ The Contractor is required to complete the form by listing all plant and machine
                 </button>
 
                 <script>
+                    function toggleOthersDetails() {
+                        const othersCheckbox = document.getElementById('CIDBOthers');
+                        const detailsDiv = document.getElementById('CIDBOthersDetails');
+                        detailsDiv.style.display = othersCheckbox && othersCheckbox.checked ? 'block' : 'none';
+                    }
                     function autoFillTestData() {
                         console.log("Auto-fill function called");
                         document.querySelectorAll("input").forEach(input => {
@@ -911,31 +911,6 @@ The Contractor is required to complete the form by listing all plant and machine
                             }
                         });
                     }
-
-                    // Patch add/delete row functions to update row numbers
-                    const originalAddStaffList = window.addStaffList;
-                    window.addStaffList = function() {
-                        if (typeof originalAddStaffList === 'function') originalAddStaffList();
-                        updateRowNumbers('StaffTeamTable');
-                    };
-                    const originalAddProjectRecord = window.addProjectRecord;
-                        window.addProjectRecord = function() {
-                            if (typeof originalAddProjectRecord === 'function') originalAddProjectRecord();
-                            updateRowNumbers('ProjectRecordTable');
-                        };
-                    const originalAddCurrentProjectRecord = window.addCurrentProjectRecord;
-                    window.addCurrentProjectRecord = function() {
-                        if (typeof originalAddCurrentProjectRecord === 'function') originalAddCurrentProjectRecord();
-                        updateRowNumbers('CurrentProjTable');
-                    };
-                    const originalDeleteRow = window.deleteRow;
-                    window.deleteRow = function(btn) {
-                        if (typeof originalDeleteRow === 'function') originalDeleteRow(btn);
-                        updateRowNumbers('StaffTeamTable');
-                        updateRowNumbers('ProjectRecordTable');
-                        updateRowNumbers('CurrentProjTable');
-                    };
-
                     // On page load, update all row numbers
                     document.addEventListener('DOMContentLoaded', function() {
                         updateRowNumbers('StaffTeamTable');

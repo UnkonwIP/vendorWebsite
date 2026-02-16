@@ -227,6 +227,7 @@ CREATE TABLE `registrationform` (
   `cidb` varchar(20) DEFAULT NULL,
   `cidbValidationTill` date DEFAULT NULL,
   `trade` varchar(30) DEFAULT NULL,
+  `otherTradeDetails` varchar(30) DEFAULT NULL,
   `valueOfSimilarProject` varchar(50) DEFAULT NULL,
   `valueOfCurrentProject` varchar(50) DEFAULT NULL,
   `yearsOfExperienceInIndustry` int(11) DEFAULT NULL,

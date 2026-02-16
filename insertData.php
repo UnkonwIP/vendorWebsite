@@ -38,7 +38,13 @@
     $bankruptcyDescription = $_POST['bankruptcy-details'] ?? '';
     $CIDB = $_POST['CIDB'] ?? '';
     $CIDBValidityDate = $_POST['CIDBValidityDate'] ?? '';
-    $CIDBTrade = $_POST['CIDBTrade'] ?? '';
+    $CIDBTradeArr = $_POST['CIDBTrade'] ?? [];
+    $otherTradeDetails = '';
+    // Only keep standard options in trade array, store 'Others' text separately
+    if (in_array('Others', $CIDBTradeArr)) {
+        $otherTradeDetails = trim($_POST['CIDBOthersInput'] ?? '');
+    }
+    $CIDBTrade = implode(',', $CIDBTradeArr);
     $ValueOfSimilarProject = $_POST['ValueOfSimilarProject'] ?? '';
     $ValueOfCurrentProject = $_POST['ValueOfCurrentProject'] ?? '';
     $ExperienceInIndustry = $_POST['ExperienceInIndustry'] ?? 0;
@@ -66,17 +72,17 @@
     // Mapped 'CountryOfIncorporation' correctly as 's' (string).
     
     $stmt = $conn->prepare("INSERT INTO registrationform (
-    newCompanyRegistrationNumber, formFirstSubmissionDate, companyName, taxRegistrationNumber, faxNo, 
-    companyOrganisation, oldCompanyRegistrationNumber, otherNames, telephoneNumber, emailAddress, 
-    website, branch, authorisedCapital, paidUpCapital, countryOfIncorporation, 
-    dateOfIncorporation, natureAndLineOfBusiness, registeredAddress, correspondenceAddress, typeOfOrganisation, 
-    parentCompany, parentCompanyCountry, ultimateParentCompany, ultimateParentCompanyCountry, bankruptHistory, 
-    description, cidb, cidbValidationTill, trade, valueOfSimilarProject, 
-    valueOfCurrentProject, yearsOfExperienceInIndustry, creditFacilitiesStatus, verifierName, verifierDesignation, 
-    dateOfVerification, auditorCompanyName, auditorCompanyAddress, auditorName, auditorEmail, 
-    auditorPhone, auditorYearOfService, advocatesCompanyName, advocatesCompanyAddress, advocatesName, 
-    advocatesEmail, advocatesPhone, advocatesYearOfService, status) 
-    VALUES (?,?,?,?,?, 
+        newCompanyRegistrationNumber, formFirstSubmissionDate, companyName, taxRegistrationNumber, faxNo, 
+        companyOrganisation, oldCompanyRegistrationNumber, otherNames, telephoneNumber, emailAddress, 
+        website, branch, authorisedCapital, paidUpCapital, countryOfIncorporation, 
+        dateOfIncorporation, natureAndLineOfBusiness, registeredAddress, correspondenceAddress, typeOfOrganisation, 
+        parentCompany, parentCompanyCountry, ultimateParentCompany, ultimateParentCompanyCountry, bankruptHistory, 
+        description, cidb, cidbValidationTill, trade, otherTradeDetails, valueOfSimilarProject, 
+        valueOfCurrentProject, yearsOfExperienceInIndustry, creditFacilitiesStatus, verifierName, verifierDesignation, 
+        dateOfVerification, auditorCompanyName, auditorCompanyAddress, auditorName, auditorEmail, 
+        auditorPhone, auditorYearOfService, advocatesCompanyName, advocatesCompanyAddress, advocatesName, 
+        advocatesEmail, advocatesPhone, advocatesYearOfService, status) 
+        VALUES (?,?,?,?,?, 
             ?,?,?,?,?, 
             ?,?,?,?,?, 
             ?,?,?,?,?, 
@@ -85,10 +91,10 @@
             ?,?,?,?,?, 
             ?,?,?,?,?, 
             ?,?,?,?,?, 
-            ?,?,?,?)");
+            ?,?,?,?,?)");
 
     // Correct Bind String: 12 strings, 2 doubles, then strings...
-    $bindString = "ssssssssssssddsssssssssssssssssssssssssssisssssis"; 
+    $bindString = "ssssssssssssddssssssssssssssssssssssssssssisssssis"; 
     
     $stmt->bind_param($bindString, 
     $newCRN, $currentDate, $CompanyName, $tax, $FaxNo, 
@@ -96,7 +102,7 @@
     $website, $BranchAddress, $AuthorisedCapital, $PaidUpCapital, $CountryOfIncorporation, 
     $DateOfIncorporation, $NatureOfBusiness, $RegisteredAddress, $CorrespondenceAddress, $TypeOfOrganisation, 
     $ParentCompany, $ParentCompanyCountry, $UltimateParentCompany, $UParentCompanyCountry, $bankruptcy, 
-    $bankruptcyDescription, $CIDB, $CIDBValidityDate, $CIDBTrade, $ValueOfSimilarProject, 
+    $bankruptcyDescription, $CIDB, $CIDBValidityDate, $CIDBTrade, $otherTradeDetails, $ValueOfSimilarProject, 
     $ValueOfCurrentProject, $ExperienceInIndustry, $creditFacilitiesStatus, $name, $DesignationOfWritter, 
     $DateOfWritting, $AuditorCompanyName, $AuditorCompanyAddress, $AuditorPersonName, $AuditorPersonEmail, 
     $AuditorPersonPhone, $AuditorYearOfService, $AdvocatesCompanyName, $AdvocatesCompanyAddress, $AdvocatesPersonName, 

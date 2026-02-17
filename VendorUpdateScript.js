@@ -1,4 +1,19 @@
+// Renumber UI-only 'No' column for Staff, ProjectTrackRecord, and CurrentProject tables
+function renumberTableRows(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    let tbody = table.querySelector('tbody');
+    if (!tbody) tbody = table;
+    let rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach((row, idx) => {
+        const noCell = row.querySelector('td.no-col');
+        if (noCell) noCell.textContent = idx + 1;
+    });
+}
 /* VendorUpdateScript.js */
+// Import renumberTableRows function
+// <script src="renumberTableRows.js"></script> (for HTML) or import if using modules
+// If not using modules, ensure this file is included in HTML after renumberTableRows.js
 const formID = document.getElementById("registrationFormID").value;
 function showLoading() { document.getElementById('loadingOverlay').style.display = 'block'; }
 function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
@@ -23,7 +38,7 @@ function editField(button, inputId, tableName) {
 
 function updateField(dbField, value, tableName) {
     showLoading();
-    fetch("UpdateRegistration.php", {
+    fetch("APIUpdateField.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ "field": dbField, "value": value, "registrationFormID": formID, "Table": tableName })
@@ -73,7 +88,7 @@ function editTableRow(button, tableName, idName) {
 }
 
 function updateTableField(tableName, rowId, dbField, value, idName, extraYear, extraTypeId, container) {
-    fetch("UpdateTableRow.php", {
+    fetch("APIUpdateTable.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -92,11 +107,19 @@ function updateTableField(tableName, rowId, dbField, value, idName, extraYear, e
 function deleteEditRow(button, tableName, idName) {
     if(!confirm("Delete this record?")) return;
     const row = button.closest("tr");
-    fetch("DeleteTableRow.php", {
+    const table = row.closest('table');
+    fetch("APIDeleteTableRow.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ "ID": row.dataset.id, "idName": idName, "registrationFormID": formID, "Table": tableName })
-    }).then(res => res.text()).then(data => { if(data.trim()==="Deleted") row.remove(); });
+    }).then(res => res.text()).then(data => {
+        if(data.trim()==="Deleted") {
+            row.remove();
+            if(["Staff","ProjectTrackRecord","CurrentProject"].includes(tableName) && table && table.id) {
+                renumberTableRows(table.id);
+            }
+        }
+    });
 }
 
 /** Add Row Logic */
@@ -124,17 +147,17 @@ function addEditShareholders(tableName, tableId) {
         params.append("bankName", "New Bank"); params.append("bankAddress", "-"); params.append("swiftCode", "-");
     }
     else if (tableName === 'Staff') {
-        params.append("staffNo", 1); params.append("name", "New Staff"); params.append("designation", "-");
+        params.append("name", "New Staff"); params.append("designation", "-");
         params.append("qualification", "-"); params.append("yearsOfExperience", 0); params.append("employmentStatus", "Permanent");
         params.append("skills", "-"); params.append("relevantCertification", "-");
     }
     else if (tableName === 'ProjectTrackRecord') {
-        params.append("projectRecordNo", 1); params.append("projectTitle", "New Project"); params.append("projectNature", "OSP");
+        params.append("projectTitle", "New Project"); params.append("projectNature", "OSP");
         params.append("location", "-"); params.append("clientName", "-"); params.append("projectValue", 0);
         params.append("commencementDate", today); params.append("completionDate", today);
     }
     else if (tableName === 'CurrentProject') {
-        params.append("currentProjectRecordNo", 1); params.append("projectTitle", "New Current Project"); params.append("projectNature", "OSP");
+        params.append("projectTitle", "New Current Project"); params.append("projectNature", "OSP");
         params.append("location", "-"); params.append("clientName", "-"); params.append("projectValue", 0);
         params.append("commencementDate", today); params.append("completionDate", today); params.append("progressOfTheWork", 0);
     }
@@ -144,7 +167,7 @@ function addEditShareholders(tableName, tableId) {
         params.append("unutilisedAmountCurrentlyAvailable", 0); params.append("asAtDate", today);
     }
 
-    fetch("insertUpdatedTableRow.php", { method: "POST", body: params })
+    fetch("APIAddTableRow.php", { method: "POST", body: params })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
@@ -217,7 +240,7 @@ function addEditShareholders(tableName, tableId) {
                 tr = document.createElement('tr');
                 tr.setAttribute('data-id', data.id);
                 tr.innerHTML = `
-                    <td><input type="number" data-field="staffNo" class="form-control" value="1" readonly></td>
+                    <td class="no-col"></td>
                     <td><input type="text" data-field="name" class="form-control" value="New Staff" readonly></td>
                     <td><input type="text" data-field="designation" class="form-control" value="-" readonly></td>
                     <td><input type="text" data-field="qualification" class="form-control" value="-" readonly></td>
@@ -231,12 +254,13 @@ function addEditShareholders(tableName, tableId) {
                     </td>
                 `;
                 tbody.appendChild(tr);
+                renumberTableRows(tableId);
             } else if(table && tableName === 'ProjectTrackRecord') {
                 const tbody = table.querySelector('tbody') || table;
                 tr = document.createElement('tr');
                 tr.setAttribute('data-id', data.id);
                 tr.innerHTML = `
-                    <td><input type="number" data-field="projectRecordNo" class="form-control" value="1" readonly></td>
+                    <td class="no-col"></td>
                     <td><input type="text" data-field="projectTitle" class="form-control" value="New Project" readonly></td>
                     <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
                     <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
@@ -250,12 +274,13 @@ function addEditShareholders(tableName, tableId) {
                     </td>
                 `;
                 tbody.appendChild(tr);
+                renumberTableRows(tableId);
             } else if(table && tableName === 'CurrentProject') {
                 const tbody = table.querySelector('tbody') || table;
                 tr = document.createElement('tr');
                 tr.setAttribute('data-id', data.id);
                 tr.innerHTML = `
-                    <td><input type="number" data-field="currentProjectRecordNo" class="form-control" value="1" readonly></td>
+                    <td class="no-col"></td>
                     <td><input type="text" data-field="projectTitle" class="form-control" value="New Current Project" readonly></td>
                     <td><input type="text" data-field="projectNature" class="form-control" value="OSP" readonly></td>
                     <td><input type="text" data-field="location" class="form-control" value="-" readonly></td>
@@ -270,6 +295,7 @@ function addEditShareholders(tableName, tableId) {
                     </td>
                 `;
                 tbody.appendChild(tr);
+                renumberTableRows(tableId);
             } else if(table && tableName === 'CreditFacilities') {
                 const tbody = table.querySelector('tbody') || table;
                 tr = document.createElement('tr');

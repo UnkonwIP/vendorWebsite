@@ -676,7 +676,7 @@
                                     <input class="form-check-input" type="checkbox" name="CIDBTrade[]" id="CIDBOthers" value="Others" <?= in_array('Others', $tradeArr)?'checked':'' ?> disabled onchange="toggleOthersDetails()"> <label>Others</label>
                                 </div>
                                 <div class="form-check form-check-inline" id="CIDBOthersDetails" style="display:<?= in_array('Others', $tradeArr) ? 'inline-block' : 'none' ?>;">
-                                    <input type="text" id="CIDBOthersInput" value="<?= htmlspecialchars($otherValue) ?>" class="form-control form-control-sm" style="width:150px;" readonly>
+                                    <input type="text" id="CIDBOthersInput" value="<?= htmlspecialchars($otherTradeDetails) ?>" class="form-control form-control-sm" style="width:150px;" readonly>
                                 </div>
                             </div>
                             <div class="input-group mt-2 w-50">

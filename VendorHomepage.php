@@ -13,16 +13,46 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'vendor') {
 $vendorAccountID = $_SESSION['accountID'] ?? '';
 $vendorNewCompanyRegistration = '';
 
+$formRenewalStatus = '';
 if (empty($vendorAccountID)) {
     echo "Error: Vendor account ID not found in session.";
 } else {
-    $stmtAcc = $conn->prepare("SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ?");
+    $stmtAcc = $conn->prepare("SELECT newCompanyRegistrationNumber, formRenewalStatus FROM vendoraccount WHERE accountID = ?");
     $stmtAcc->bind_param("s", $vendorAccountID);
     $stmtAcc->execute();
     $accResult = $stmtAcc->get_result();
     if ($accRow = $accResult->fetch_assoc()) {
-    $vendorNewCompanyRegistration = $accRow['newCompanyRegistrationNumber'];
+        $vendorNewCompanyRegistration = $accRow['newCompanyRegistrationNumber'];
+        $formRenewalStatus = $accRow['formRenewalStatus'] ?? '';
     }
+}
+
+$isFirstTimeUser = true;
+if (!empty($vendorNewCompanyRegistration)) {
+    $stmt = $conn->prepare(
+        "SELECT registrationFormID FROM registrationform WHERE newCompanyRegistrationNumber = ? LIMIT 1"
+    );
+    $stmt->bind_param("s", $vendorNewCompanyRegistration);
+    $stmt->execute();
+    $formsResult = $stmt->get_result();
+    $isFirstTimeUser = ($formsResult->num_rows === 0);
+}
+
+// Redirect compulsory for first-time user
+if ($isFirstTimeUser) {
+    echo '<script>alert("Welcome! You must fill up the registration form before accessing the dashboard."); window.location.href = "registration.php";</script>';
+    exit();
+}
+
+// Popup for existing user if formRenewalStatus is not 'done'
+if (isset($formRenewalStatus) && strtolower($formRenewalStatus) !== 'done') {
+    echo '<script>
+        setTimeout(function() {
+            if (confirm("Your registration form renewal is required. Would you like to fill it now?")) {
+                window.location.href = "registration.php";
+            }
+        }, 300);
+    </script>';
 }
 
 $forms = [];
@@ -391,7 +421,9 @@ if (!empty($vendorNewCompanyRegistration)) {
     </div>
 
     <div class="forms-container">
-        <a href="registration.php" class="new-form-btn">+ New Registration Form</a>
+        <?php if (strtolower($formRenewalStatus ?? '') !== 'done'): ?>
+            <a href="registration.php" class="new-form-btn">+ New Registration Form</a>
+        <?php endif; ?>
 
         <?php if (empty($forms)): ?>
             <div class="forms-empty">

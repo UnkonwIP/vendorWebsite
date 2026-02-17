@@ -300,7 +300,9 @@ CREATE TABLE `vendoraccount` (
   `role` varchar(10) NOT NULL,
   `vendorType` varchar(50) DEFAULT NULL,
   `resetToken` varchar(64) DEFAULT NULL,
-  `resetExpiry` datetime DEFAULT NULL
+  `resetExpiry` datetime DEFAULT NULL,
+  `formRenewalStatus` varchar(20) DEFAULT 'not complete'
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

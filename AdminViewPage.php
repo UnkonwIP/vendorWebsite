@@ -694,22 +694,20 @@
                         <div class="card p-3 my-3 bg-light">
                             <label class="fw-bold">Trade</label>
                             <div id="TradeGroup" data-field="trade">
-                                <?php $trade = $RegistrationRow['trade']; ?>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="ISP" <?= $trade=='ISP'?'checked':'' ?> disabled> <label>ISP</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="OSP" <?= $trade=='OSP'?'checked':'' ?> disabled> <label>OSP</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="O&M" <?= $trade=='O&M'?'checked':'' ?> disabled> <label>O&M</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="M&E" <?= $trade=='M&E'?'checked':'' ?> disabled> <label>M&E</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="CIDBTrade" value="Others" <?= (!in_array($trade, ['ISP','OSP','O&M','M&E']) && !empty($trade))?'checked':'' ?> disabled> <label>Others</label>
-                                </div>
+                                <?php 
+                                    $tradeStr = $RegistrationRow['trade'] ?? '';
+                                    $tradeArr = array_map('trim', explode(',', $tradeStr));
+                                    $tradeOptions = ['ISP', 'OSP', 'O&M', 'M&E', 'Others'];
+                                ?>
+                                <?php foreach ($tradeOptions as $option): ?>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="CIDBTrade[]" value="<?= $option ?>" <?= in_array($option, $tradeArr) ? 'checked' : '' ?> disabled>
+                                        <label><?= $option ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                                <?php if (in_array('Others', $tradeArr) && !empty($RegistrationRow['otherTradeDetails'])): ?>
+                                    <input type="text" class="form-control d-inline-block ms-2" style="width:auto;max-width:200px;" value="<?= htmlspecialchars($RegistrationRow['otherTradeDetails']) ?>" readonly>
+                                <?php endif; ?>
                             </div>
                         </div>
 

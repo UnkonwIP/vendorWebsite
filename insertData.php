@@ -112,6 +112,13 @@
     if ($stmt->execute()) {
         $registrationFormID = $conn->insert_id;
         echo "<div class='alert alert-success'>Basic Registration Saved ✓</div>";
+        // Update formRenewalStatus to 'done' for this vendor
+        if (!empty($newCRN)) {
+            $updateStmt = $conn->prepare("UPDATE vendoraccount SET formRenewalStatus = 'done' WHERE newCompanyRegistrationNumber = ?");
+            $updateStmt->bind_param("s", $newCRN);
+            $updateStmt->execute();
+            $updateStmt->close();
+        }
     } else {
         die("<div class='alert alert-danger'>Error Saving Registration: " . $stmt->error . "</div>");
     }

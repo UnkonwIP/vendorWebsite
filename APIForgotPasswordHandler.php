@@ -58,7 +58,9 @@ if ($user['role'] === 'vendor') {
 	}
 }
 
-// Generate reset token and expiry
+
+// Generate reset token and expiry (Asia/Kuala_Lumpur)
+date_default_timezone_set('Asia/Kuala_Lumpur');
 $token  = bin2hex(random_bytes(32));
 $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
 

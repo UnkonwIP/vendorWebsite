@@ -17,7 +17,8 @@ if ($keyword !== '') {
     $kw = mysqli_real_escape_string($conn, $keyword);
     $where = "WHERE username LIKE '%$kw%' OR newCompanyRegistrationNumber LIKE '%$kw%' OR email LIKE '%$kw%'";
 }
-$sql = "SELECT accountID, username, email, newCompanyRegistrationNumber FROM vendoraccount $where ORDER BY accountID DESC";
+$roleWhere = ($where ? "$where AND role = 'vendor'" : "WHERE role = 'vendor'");
+$sql = "SELECT accountID, username, email, newCompanyRegistrationNumber FROM vendoraccount $roleWhere ORDER BY accountID DESC";
 $result = mysqli_query($conn, $sql);
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
@@ -258,12 +259,29 @@ if ($result) {
 
     <div class="vendor-container">
         <div class="d-flex flex-wrap mb-3">
-            <a href="AccountCreation.php" class="btn-add">+ Add Account</a>
-            <form method="post" action="APIClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database?\nThis action cannot be undone.');">
-                <button type="submit" name="clear_database" class="btn-clear">Clear Database</button>
-            </form>
+            <a href="AccountCreation.php" class="btn-add" style="display:inline; margin-right: 15px;">+ Add Account</a>
+            <div>
+                <form method="post" action="APIRequestFormRenewal.php" style="display:inline" onsubmit="return confirm('Are you sure you want to request a new registration form from ALL vendors? This will reset their renewal status.');">
+                    <button type="submit" class="btn-add" style="background:#f59e42;">Request New Registration Form</button>
+                </form>
+                <form method="post" action="APIClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database?\nThis action cannot be undone.');">
+                    <button type="submit" name="clear_database" class="btn-clear">Clear Database</button>
+                </form>
+            </div>
         </div>
-        <form method="get" class="search-box mb-4 row g-3 align-items-center">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <?php if (isset($_SESSION['form_renewal_message'])): ?>
+                <div class="alert alert-info" role="alert" id="formRenewalMsg">
+                    <?php echo htmlspecialchars($_SESSION['form_renewal_message']); unset($_SESSION['form_renewal_message']); ?>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var msg = document.getElementById('formRenewalMsg');
+                        if (msg) { msg.style.display = 'none'; }
+                    }, 5000);
+                </script>
+            <?php endif; ?>
+            <form method="get" class="search-box mb-4 row g-3 align-items-center">
             <div class="col-md-8">
                 <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword); ?>" placeholder="Search by username, company, email..." class="form-control">
             </div>

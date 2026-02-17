@@ -223,17 +223,72 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
     <?php if ($tokenValid): ?>
         <p>Complete your account setup below.</p>
 
-        <form method="post">
+        <form method="post" autocomplete="off" id="setupForm">
             <input type="text" name="accountID" placeholder="Account ID" required>
 
             <input type="text" name="username" placeholder="Username" required>
-            
-            <input type="password" name="password" placeholder="Password (min 6 characters)" required>
-            
-            <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-            
-            <button type="submit">Complete Setup</button>
+
+            <div style="position: relative; width: 100%; display: block; margin-bottom: 15px; text-align: left;">
+                <input type="password" name="password" id="password" placeholder="Password" required 
+                    style="width: 100%; padding: 12px 45px 12px 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; display: block;">
+                
+                <button type="button" id="togglePassword" tabindex="-1" 
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666; font-size: 18px; padding: 5px; width: auto; height: auto; line-height: 1; z-index: 10;">
+                    👁️
+                </button>
+            </div>
+            <div id="passwordHelp" class="form-text" style="text-align:left;margin-bottom:0.5em;font-size:13px;">Must be at least 8 characters, include upper/lowercase, number, and symbol.</div>
+            <div id="strengthFeedback" class="strength-feedback" style="font-size:13px;color:#d32f2f;text-align:left;margin-bottom:10px;"></div>
+
+            <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
+
+            <button type="submit" id="submitBtn">Complete Setup</button>
         </form>
+        <script>
+        // Password strength validation (same as reset_password.php)
+        const passwordInput = document.getElementById('password');
+        const feedback = document.getElementById('strengthFeedback');
+        const submitBtn = document.getElementById('submitBtn');
+        const togglePassword = document.getElementById('togglePassword');
+        function checkStrength(pw) {
+            let msg = [];
+            if (pw.length < 8) msg.push('at least 8 characters');
+            if (!/[A-Z]/.test(pw)) msg.push('an uppercase letter');
+            if (!/[a-z]/.test(pw)) msg.push('a lowercase letter');
+            if (!/[0-9]/.test(pw)) msg.push('a number');
+            if (!/[^A-Za-z0-9]/.test(pw)) msg.push('a symbol');
+            return msg.length === 0 ? '' : 'Password must contain ' + msg.join(', ') + '.';
+        }
+        function updateStrength() {
+            const pw = passwordInput.value;
+            const msg = checkStrength(pw);
+            feedback.textContent = msg;
+            if (msg) {
+                feedback.style.color = '#d32f2f';
+                submitBtn.disabled = true;
+            } else {
+                feedback.textContent = 'Password strength: Good!';
+                feedback.style.color = '#388e3c';
+                submitBtn.disabled = false;
+            }
+        }
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updateStrength);
+            updateStrength();
+        }
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    togglePassword.textContent = '🙈';
+                } else {
+                    passwordInput.type = 'password';
+                    togglePassword.textContent = '👁️';
+                }
+            });
+        }
+        </script>
     <?php else: ?>
         <p>Please use the setup link sent to your email to create your account.</p>
         

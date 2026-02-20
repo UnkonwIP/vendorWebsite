@@ -339,7 +339,13 @@ if ($result) {
                             <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['companyName'] ?? ""); ?></span>
                         </div> -->
                     </div>
-                    <!-- You can add admin actions here if needed -->
+                    <div style="margin-top:12px; display:flex; gap:8px;">
+                        <form method="get" action="export_admin_vendor_pdf.php" style="margin:0;">
+                            <input type="hidden" name="accountID" value="<?php echo htmlspecialchars($vendor['accountID']); ?>">
+                            <button type="submit" class="btn btn-sm btn-primary">Export PDF</button>
+                        </form>
+                        <a href="AdminVendorFormList.php?accountID=<?php echo urlencode($vendor['accountID']); ?>" class="btn btn-sm btn-outline-secondary">View Forms</a>
+                    </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vendor Report - {{COMPANY_NAME}}</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:20px}
+    .header{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:20px}
+    .meta{font-size:13px;color:#444}
+    section{margin-top:18px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #ccc;padding:6px;font-size:13px}
+    th{background:#f2f2f2;text-align:left}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>{{COMPANY_NAME}}</h1>
+      <div class="meta">Account: {{ACCOUNT_ID}} &nbsp; | &nbsp; Username: {{USERNAME}} &nbsp; | &nbsp; Email: {{EMAIL}}</div>
+      <div class="meta">Vendor Type: {{VENDOR_TYPE}} &nbsp; | &nbsp; CRN: {{CRN}} &nbsp; | &nbsp; Submitted: {{SUBMISSION_DATE}}</div>
+    </div>
+    <div style="text-align:right">
+      <img src="Image/company%20logo.png" alt="Logo" style="height:60px">
+    </div>
+  </div>
+
+  <section>
+    <h3>Shareholders</h3>
+    {{SHAREHOLDERS}}
+  </section>
+
+  <section>
+    <h3>Directors & Company Secretary</h3>
+    {{DIRECTORS}}
+  </section>
+
+  <section>
+    <h3>Project Track Record</h3>
+    {{PROJECTS}}
+  </section>
+
+  <section>
+    <h3>Banking</h3>
+    {{BANKS}}
+  </section>
+
+  <section>
+    <h3>Net Worth</h3>
+    {{NETWORTH}}
+  </section>
+
+  <section>
+    <h3>Staff</h3>
+    {{STAFF}}
+  </section>
+
+  <section>
+    <h3>Management</h3>
+    {{MANAGEMENT}}
+  </section>
+
+  <section>
+    <h3>Credit Facilities</h3>
+    {{CREDITFACILITIES}}
+  </section>
+
+</body>
+</html>

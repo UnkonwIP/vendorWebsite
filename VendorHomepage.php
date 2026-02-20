@@ -424,6 +424,8 @@ if (!empty($vendorNewCompanyRegistration)) {
         <?php if (strtolower($formRenewalStatus ?? '') !== 'done'): ?>
             <a href="registration.php" class="new-form-btn">+ New Registration Form</a>
         <?php endif; ?>
+        <!-- Export PDF button -->
+        <a href="export_vendor_pdf.php" class="new-form-btn" style="margin-left:12px;">Export My Info (PDF)</a>
 
         <?php if (empty($forms)): ?>
             <div class="forms-empty">

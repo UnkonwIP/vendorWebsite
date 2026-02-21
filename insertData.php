@@ -36,7 +36,9 @@
     $UParentCompanyCountry = $_POST['UParentCompanyCountry'] ?? '';
     $bankruptcy = $_POST['bankruptcy'] ?? '';
     $bankruptcyDescription = $_POST['bankruptcy-details'] ?? '';
-    $CIDB = $_POST['CIDB'] ?? '';
+    // CIDB: grade dropdown + specialization
+    $CIDBGrade = $_POST['cidbGrade'] ?? '';
+    $CIDBSpecialization = $_POST['cidbSpecialization'] ?? '';
     $CIDBValidityDate = $_POST['CIDBValidityDate'] ?? '';
     $CIDBTradeArr = $_POST['CIDBTrade'] ?? [];
     $otherTradeDetails = '';
@@ -71,45 +73,41 @@
     // Mapped 'AuthorisedCapital' and 'PaidUpCapital' as 'd' (decimal).
     // Mapped 'CountryOfIncorporation' correctly as 's' (string).
     
-    $stmt = $conn->prepare("INSERT INTO registrationform (
-        newCompanyRegistrationNumber, formFirstSubmissionDate, companyName, taxRegistrationNumber, faxNo, 
-        companyOrganisation, oldCompanyRegistrationNumber, otherNames, telephoneNumber, emailAddress, 
-        website, branch, authorisedCapital, paidUpCapital, countryOfIncorporation, 
-        dateOfIncorporation, natureAndLineOfBusiness, registeredAddress, correspondenceAddress, typeOfOrganisation, 
-        parentCompany, parentCompanyCountry, ultimateParentCompany, ultimateParentCompanyCountry, bankruptHistory, 
-        description, cidb, cidbValidationTill, trade, otherTradeDetails, valueOfSimilarProject, 
-        valueOfCurrentProject, yearsOfExperienceInIndustry, creditFacilitiesStatus, verifierName, verifierDesignation, 
-        dateOfVerification, auditorCompanyName, auditorCompanyAddress, auditorName, auditorEmail, 
-        auditorPhone, auditorYearOfService, advocatesCompanyName, advocatesCompanyAddress, advocatesName, 
-        advocatesEmail, advocatesPhone, advocatesYearOfService, status) 
-        VALUES (?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?, 
-            ?,?,?,?,?)");
+    // Build and execute INSERT by escaping values to keep handling straightforward
+    $esc = function($v) use ($conn) {
+        if ($v === null || $v === '') return "''";
+        return "'" . $conn->real_escape_string((string)$v) . "'";
+    };
 
-    // Correct Bind String: 12 strings, 2 doubles, then strings...
-    $bindString = "ssssssssssssddssssssssssssssssssssssssssssisssssis"; 
-    
-    $stmt->bind_param($bindString, 
-    $newCRN, $currentDate, $CompanyName, $tax, $FaxNo, 
-    $companyOrganisation, $oldCRN, $OtherName, $telephone, $EmailAddress, 
-    $website, $BranchAddress, $AuthorisedCapital, $PaidUpCapital, $CountryOfIncorporation, 
-    $DateOfIncorporation, $NatureOfBusiness, $RegisteredAddress, $CorrespondenceAddress, $TypeOfOrganisation, 
-    $ParentCompany, $ParentCompanyCountry, $UltimateParentCompany, $UParentCompanyCountry, $bankruptcy, 
-    $bankruptcyDescription, $CIDB, $CIDBValidityDate, $CIDBTrade, $otherTradeDetails, $ValueOfSimilarProject, 
-    $ValueOfCurrentProject, $ExperienceInIndustry, $creditFacilitiesStatus, $name, $DesignationOfWritter, 
-    $DateOfWritting, $AuditorCompanyName, $AuditorCompanyAddress, $AuditorPersonName, $AuditorPersonEmail, 
-    $AuditorPersonPhone, $AuditorYearOfService, $AdvocatesCompanyName, $AdvocatesCompanyAddress, $AdvocatesPersonName, 
-    $AdvocatesPersonEmail, $AdvocatesPersonPhone, $AdvocatesYearOfService, $Status
-    );
+    $cols = [
+        'newCompanyRegistrationNumber','formFirstSubmissionDate','companyName','taxRegistrationNumber','faxNo',
+        'companyOrganisation','oldCompanyRegistrationNumber','otherNames','telephoneNumber','emailAddress',
+        'website','branch','authorisedCapital','paidUpCapital','countryOfIncorporation',
+        'dateOfIncorporation','natureAndLineOfBusiness','registeredAddress','correspondenceAddress','typeOfOrganisation',
+        'parentCompany','parentCompanyCountry','ultimateParentCompany','ultimateParentCompanyCountry','bankruptHistory',
+        'description','cidbGrade','cidbSpecialization','cidbValidationTill','trade','otherTradeDetails','valueOfSimilarProject',
+        'valueOfCurrentProject','yearsOfExperienceInIndustry','creditFacilitiesStatus','verifierName','verifierDesignation',
+        'dateOfVerification','auditorCompanyName','auditorCompanyAddress','auditorName','auditorEmail',
+        'auditorPhone','auditorYearOfService','advocatesCompanyName','advocatesCompanyAddress','advocatesName',
+        'advocatesEmail','advocatesPhone','advocatesYearOfService','status'
+    ];
 
-    if ($stmt->execute()) {
+    $values = [
+        $newCRN, $currentDate, $CompanyName, $tax, $FaxNo,
+        $companyOrganisation, $oldCRN, $OtherName, $telephone, $EmailAddress,
+        $website, $BranchAddress, $AuthorisedCapital, $PaidUpCapital, $CountryOfIncorporation,
+        $DateOfIncorporation, $NatureOfBusiness, $RegisteredAddress, $CorrespondenceAddress, $TypeOfOrganisation,
+        $ParentCompany, $ParentCompanyCountry, $UltimateParentCompany, $UParentCompanyCountry, $bankruptcy,
+        $bankruptcyDescription, $CIDBGrade, $CIDBSpecialization, $CIDBValidityDate, $CIDBTrade, $otherTradeDetails, $ValueOfSimilarProject,
+        $ValueOfCurrentProject, $ExperienceInIndustry, $creditFacilitiesStatus, $name, $DesignationOfWritter,
+        $DateOfWritting, $AuditorCompanyName, $AuditorCompanyAddress, $AuditorPersonName, $AuditorPersonEmail,
+        $AuditorPersonPhone, $AuditorYearOfService, $AdvocatesCompanyName, $AdvocatesCompanyAddress, $AdvocatesPersonName,
+        $AdvocatesPersonEmail, $AdvocatesPersonPhone, $AdvocatesYearOfService, $Status
+    ];
+
+    $valsEsc = array_map($esc, $values);
+    $sql = "INSERT INTO registrationform (" . implode(',', $cols) . ") VALUES (" . implode(',', $valsEsc) . ")";
+    if ($conn->query($sql) === TRUE) {
         $registrationFormID = $conn->insert_id;
         echo "<div class='alert alert-success'>Basic Registration Saved ✓</div>";
         // Update formRenewalStatus to 'done' for this vendor
@@ -120,9 +118,9 @@
             $updateStmt->close();
         }
     } else {
-        die("<div class='alert alert-danger'>Error Saving Registration: " . $stmt->error . "</div>");
+        die("<div class='alert alert-danger'>Error Saving Registration: " . $conn->error . "</div>");
     }
-    $stmt->close();
+    // no global $stmt to close here (prepared statements used above are closed inline)
 
     // --- Helper for Multiple Rows ---
     function insertRows($conn, $sql, $types, $dataArrays) {

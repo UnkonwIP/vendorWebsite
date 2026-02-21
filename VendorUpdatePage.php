@@ -96,7 +96,21 @@
 
     <input type="hidden" id="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
 
+    <?php
+    $status = strtolower($RegistrationRow['status'] ?? 'draft');
+    $isEditable = ($status === 'rejected');
+    ?>
+
     <div class="container my-5">
+        <div class="mb-3"><strong>Form Status:</strong> <?= htmlspecialchars(strtoupper($RegistrationRow['status'] ?? '')) ?></div>
+        <?php if ($isEditable): ?>
+            <button id="resubmitBtn" class="btn btn-primary mb-3">Resubmit Form (submit changes to admin)</button>
+            <div class="alert alert-warning">This form was rejected by admin. You may edit fields and resubmit.</div>
+        <?php else: ?>
+            <div class="alert alert-info">Form cannot be edited unless rejected by admin.</div>
+        <?php endif; ?>
+
+        <script>window.VENDOR_CAN_EDIT = <?= $isEditable ? 'true' : 'false' ?>;</script>
         <div class="text-center mb-4">
             <img src="Image/company%20logo.png" alt="Company Logo" style="width: 150px;" class="mb-3">
             <h4><b>CIVIL CONTRACTOR REGISTRATION FORM</b></h4>
@@ -644,15 +658,27 @@
                             <div class="col-md-6">
                                 <label>CIDB Grade</label>
                                 <div class="input-group">
-                                    <input type="text" id="cidb" class="form-control" data-field="cidb" value="<?= htmlspecialchars($RegistrationRow['cidb']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidb', 'RegistrationForm')">Edit</button>
+                                    <select id="cidbGrade" class="form-control" data-field="cidbGrade" disabled>
+                                        <option value="">--</option>
+                                        <?php for($g=1;$g<=7;$g++): $val = 'G'.$g; ?>
+                                            <option value="<?= $val ?>" <?= ($RegistrationRow['cidbGrade'] ?? '') === $val ? 'selected' : '' ?>><?= $val ?></option>
+                                        <?php endfor; ?>
+                                    </select>
+                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidbGrade', 'RegistrationForm')">Edit</button>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label>Validity Date</label>
+                                <label>CIDB Specialisation</label>
                                 <div class="input-group">
-                                    <input type="date" id="cidbVal" class="form-control" data-field="cidbValidationTill" value="<?= htmlspecialchars($RegistrationRow['cidbValidationTill']) ?>" readonly>
-                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidbVal', 'RegistrationForm')">Edit</button>
+                                    <input type="text" id="cidbSpecialization" class="form-control" data-field="cidbSpecialization" value="<?= htmlspecialchars($RegistrationRow['cidbSpecialization'] ?? '') ?>" readonly>
+                                    <button class="btn btn-outline-primary" onclick="editField(this, 'cidbSpecialization', 'RegistrationForm')">Edit</button>
+                                </div>
+                                <div style="margin-top:8px">
+                                    <label>Validity Date</label>
+                                    <div class="input-group">
+                                        <input type="date" id="cidbVal" class="form-control" data-field="cidbValidationTill" value="<?= htmlspecialchars($RegistrationRow['cidbValidationTill'] ?? '') ?>" readonly>
+                                        <button class="btn btn-outline-primary" onclick="editField(this, 'cidbVal', 'RegistrationForm')">Edit</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

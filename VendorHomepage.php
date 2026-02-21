@@ -434,10 +434,13 @@ if (!empty($vendorNewCompanyRegistration)) {
             </div>
         <?php else: ?>
             <?php foreach ($forms as $form): ?>
-                <div class="form-card">
+                <div class="form-card" data-regid="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
                     <div class="form-card-header">
-                        <div class="form-card-title">
-                            <?php echo htmlspecialchars($form['CompanyName'] ?? 'Unnamed Company'); ?>
+                        <div>
+                            <div class="form-card-title">
+                                <?php echo htmlspecialchars($form['CompanyName'] ?? 'Unnamed Company'); ?>
+                            </div>
+                            <div class="text-muted" style="font-size:12px;">Click to view details</div>
                         </div>
                         <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
                             <?php echo htmlspecialchars($form['status'] ?? 'Pending'); ?>
@@ -466,13 +469,14 @@ if (!empty($vendorNewCompanyRegistration)) {
                     <?php endif; ?>
 
                     <div class="form-card-actions">
+                        <form method="get" action="export_vendor_pdf.php" class="export-form">
+                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
+                            <button type="submit" class="btn-action btn-view" title="Export this form as PDF">Export PDF</button>
+                        </form>
+
                         <form method="post" action="APIDeleteRegistrationForm.php" onsubmit="return confirm('Are you sure you want to delete this form?');">
                             <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
                             <button type="submit" class="btn-action btn-delete">Delete</button>
-                        </form>
-                        <form method="post" action="VendorUpdatePage.php">
-                            <input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">
-                            <button type="submit" class="btn-action btn-view">View Details</button>
                         </form>
                     </div>
                 </div>
@@ -482,6 +486,31 @@ if (!empty($vendorNewCompanyRegistration)) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Make whole card clickable to open VendorUpdatePage via POST (but ignore clicks on buttons/links inside the card)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.form-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // If clicked element is a button or inside .form-card-actions, ignore
+                    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('.form-card-actions')) return;
+                    const regId = this.getAttribute('data-regid');
+                    if (!regId) return;
+                    // create form and submit via POST
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = 'VendorUpdatePage.php';
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'registrationFormID';
+                    input.value = regId;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+            });
+        });
+    </script>
 
 </body>
 </html>

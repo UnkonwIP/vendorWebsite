@@ -337,10 +337,27 @@ function validateAndSubmit() {
             alert('Please complete all required fields.');
         }
 
-        // Scroll to the first error and focus it
+        // Open the accordion containing the first error (if collapsed), then scroll/focus it
         if (firstInvalidEl) {
-            firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstInvalidEl.focus();
+            const collapseEl = firstInvalidEl.closest('.accordion-collapse');
+            if (collapseEl) {
+                try {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                    bsCollapse.show();
+                    // give collapse time to finish opening before scrolling/focusing
+                    setTimeout(() => {
+                        firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalidEl.focus();
+                    }, 250);
+                } catch (err) {
+                    // If bootstrap not available or fails, fallback to scrolling
+                    firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalidEl.focus();
+                }
+            } else {
+                firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidEl.focus();
+            }
         }
         
         form.reportValidity();

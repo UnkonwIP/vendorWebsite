@@ -116,9 +116,15 @@ while ($v = $vendors->fetch_assoc()) {
         '{{auditorCompanyName}}' => htmlspecialchars($registration['auditorCompanyName'] ?? ''),
         '{{auditorName}}' => htmlspecialchars($registration['auditorName'] ?? ''),
         '{{auditorPhone}}' => htmlspecialchars($registration['auditorPhone'] ?? ''),
+        '{{auditorCompanyAddress}}' => htmlspecialchars($registration['auditorCompanyAddress'] ?? ''),
+        '{{auditorEmail}}' => htmlspecialchars($registration['auditorEmail'] ?? ''),
+        '{{auditorYearOfService}}' => htmlspecialchars($registration['auditorYearOfService'] ?? ''),
         '{{advocatesCompanyName}}' => htmlspecialchars($registration['advocatesCompanyName'] ?? ''),
         '{{advocatesName}}' => htmlspecialchars($registration['advocatesName'] ?? ''),
         '{{advocatesPhone}}' => htmlspecialchars($registration['advocatesPhone'] ?? ''),
+        '{{advocatesCompanyAddress}}' => htmlspecialchars($registration['advocatesCompanyAddress'] ?? ''),
+        '{{advocatesEmail}}' => htmlspecialchars($registration['advocatesEmail'] ?? ''),
+        '{{advocatesYearOfService}}' => htmlspecialchars($registration['advocatesYearOfService'] ?? ''),
         '{{verifierName}}' => htmlspecialchars($registration['verifierName'] ?? ''),
         '{{verifierDesignation}}' => htmlspecialchars($registration['verifierDesignation'] ?? ''),
         '{{dateOfVerification}}' => htmlspecialchars($registration['dateOfVerification'] ?? ''),
@@ -187,6 +193,20 @@ while ($v = $vendors->fetch_assoc()) {
         $replacements['{{BANKRUPTCY_NO}}'] = 'checked';
     }
 
+    // Credit facilities radio state
+    $cfRaw = strtolower(trim((string)($registration['creditFacilitiesStatus'] ?? $registration['creditFacilities'] ?? $registration['CreditFacilitiesStatus'] ?? '')));
+    $replacements['{{CREDITFACILITIES_YES}}'] = '';
+    $replacements['{{CREDITFACILITIES_NO}}'] = '';
+    if ($cfRaw !== '') {
+        if (strpos($cfRaw, 'y') === 0 || strpos($cfRaw, 'yes') !== false || in_array($cfRaw, ['1','true','t'])) {
+            $replacements['{{CREDITFACILITIES_YES}}'] = 'checked';
+        } else {
+            $replacements['{{CREDITFACILITIES_NO}}'] = 'checked';
+        }
+    } else {
+        $replacements['{{CREDITFACILITIES_NO}}'] = 'checked';
+    }
+
     // Build HTML for each section
     $buildTable = function($rows, $cols) {
         if (empty($rows)) return '<p><em>None</em></p>';
@@ -225,10 +245,86 @@ while ($v = $vendors->fetch_assoc()) {
     $directorsHtml = $buildTable($directors, ['name'=>'Name','nationality'=>'Nationality','position'=>'Position','appointmentDate'=>'Appointment Date','dob'=>'DOB']);
     $projectsHtml = $buildTable($projects, ['projectTitle'=>'Title','projectNature'=>'Nature','location'=>'Location','clientName'=>'Client','projectValue'=>'Value','commencementDate'=>'Start','completionDate'=>'End']);
     $banksHtml = $buildTable($banks, ['bankName'=>'Bank','bankAddress'=>'Address','swiftCode'=>'SWIFT']);
-    $networthHtml = $buildTable($networth, ['yearOf'=>'Year','totalLiabilities'=>'Liabilities','totalAssets'=>'Assets','netWorth'=>'Net Worth','workingCapital'=>'Working Capital']);
+    // Build networth table to match VendorUpdatePage layout: Item | Year-1 (RM) | Year-2 (RM) | Year-3 (RM)
+    if (empty($networth)) {
+        $networthHtml = '<p><em>None</em></p>';
+    } else {
+        // networth rows come ordered by year DESC; take up to 3 most recent
+        $years = array_slice($networth, 0, 3);
+        // ensure consistent order left->right from most recent to older
+        $headers = [];
+        foreach ($years as $r) $headers[] = htmlspecialchars($r['yearOf']);
+        // if less than 3, pad with empty headers
+        for ($i = count($headers); $i < 3; $i++) $headers[] = '';
+
+        $formatVal = function($v) {
+            if ($v === null || $v === '') return '';
+            if (is_numeric($v)) return number_format((float)$v, 2);
+            return htmlspecialchars((string)$v);
+        };
+
+        $rowsByYear = [];
+        foreach ($years as $r) {
+            $rowsByYear[$r['yearOf']] = $r;
+        }
+
+        $items = [
+            'Total Liabilities' => 'totalLiabilities',
+            'Total Assets' => 'totalAssets',
+            'Net Worth (Assets - Liabilities)' => 'netWorth',
+            'Working Capital' => 'workingCapital'
+        ];
+
+        $networthHtml = '<table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">';
+        $networthHtml .= '<thead><tr><th>Item</th>';
+        foreach ($headers as $h) $networthHtml .= '<th>' . ($h !== '' ? $h . ' (RM)' : '') . '</th>';
+        $networthHtml .= '</tr></thead><tbody>';
+
+        foreach ($items as $label => $field) {
+            $networthHtml .= '<tr>';
+            $networthHtml .= '<td>' . htmlspecialchars($label) . '</td>';
+            foreach ($years as $y) {
+                $val = $y[$field] ?? '';
+                $networthHtml .= '<td style="text-align:right">' . $formatVal($val) . '</td>';
+            }
+            // pad if fewer than 3 years
+            for ($i = count($years); $i < 3; $i++) $networthHtml .= '<td></td>';
+            $networthHtml .= '</tr>';
+        }
+        $networthHtml .= '</tbody></table>';
+    }
     $staffHtml = $buildTable($staff, ['name'=>'Name','designation'=>'Designation','qualification'=>'Qualification','yearsOfExperience'=>'Years']);
     $managementHtml = $buildTable($management, ['name'=>'Name','nationality'=>'Nationality','position'=>'Position','yearsInPosition'=>'Years in Position','yearsInRelatedField'=>'Years in Field']);
-    $creditsHtml = $buildTable($credits, ['typeOfCreditFacilities'=>'Type','financialInstitution'=>'Institution','totalAmount'=>'Total','expiryDate'=>'Expiry','unutilisedAmountCurrentlyAvailable'=>'Unutilised','asAtDate'=>'As At']);
+    // Build Credits table with full column names and (RM) on amount columns
+    if (empty($credits)) {
+        $creditsHtml = '<p><em>None</em></p>';
+    } else {
+        $formatVal = function($v) {
+            if ($v === null || $v === '') return '';
+            if (is_numeric($v)) return number_format((float)$v, 2);
+            return htmlspecialchars((string)$v);
+        };
+        $creditsHtml = '<table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">';
+        $creditsHtml .= '<thead><tr>';
+        $creditsHtml .= '<th>Type of Credit</th>';
+        $creditsHtml .= '<th>Institution/Bank</th>';
+        $creditsHtml .= '<th>Total Amount (RM)</th>';
+        $creditsHtml .= '<th>Unutilised Amount Currently Available (RM)</th>';
+        $creditsHtml .= '<th>Expiry Date</th>';
+        $creditsHtml .= '<th>As At Date</th>';
+        $creditsHtml .= '</tr></thead><tbody>';
+        foreach ($credits as $c) {
+            $creditsHtml .= '<tr>';
+            $creditsHtml .= '<td>' . htmlspecialchars($c['typeOfCreditFacilities'] ?? '') . '</td>';
+            $creditsHtml .= '<td>' . htmlspecialchars($c['financialInstitution'] ?? '') . '</td>';
+            $creditsHtml .= '<td style="text-align:right">' . $formatVal($c['totalAmount'] ?? '') . '</td>';
+            $creditsHtml .= '<td style="text-align:right">' . $formatVal($c['unutilisedAmountCurrentlyAvailable'] ?? '') . '</td>';
+            $creditsHtml .= '<td>' . htmlspecialchars(($c['expiryDate'] ?? '') == '0000-00-00' ? '' : ($c['expiryDate'] ?? '')) . '</td>';
+            $creditsHtml .= '<td>' . htmlspecialchars(($c['asAtDate'] ?? '') == '0000-00-00' ? '' : ($c['asAtDate'] ?? '')) . '</td>';
+            $creditsHtml .= '</tr>';
+        }
+        $creditsHtml .= '</tbody></table>';
+    }
 
     $replacements['{{SHAREHOLDERS}}'] = $shareholdersHtml;
     $replacements['{{DIRECTORS}}'] = $directorsHtml;

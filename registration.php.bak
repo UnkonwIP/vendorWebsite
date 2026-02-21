@@ -745,7 +745,7 @@ The Contractor is required to complete the form by listing all plant and machine
             </table>
         </div>
         <div><button type="button" onclick="addCurrentProjectRecord()">add</button></div>
-        </div></div>
+        </div></div></div>
         
         <div class="accordion-item">
         <h2 class="accordion-header" id="headingSEVEN">

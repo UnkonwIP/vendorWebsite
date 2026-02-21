@@ -15,11 +15,20 @@ function renumberTableRows(tableId) {
 // <script src="renumberTableRows.js"></script> (for HTML) or import if using modules
 // If not using modules, ensure this file is included in HTML after renumberTableRows.js
 const formID = document.getElementById("registrationFormID").value;
+const VENDOR_CAN_EDIT = (typeof window.VENDOR_CAN_EDIT !== 'undefined') ? window.VENDOR_CAN_EDIT : false;
+function ensureEditable() {
+    if (!VENDOR_CAN_EDIT) {
+        alert('Edits are locked. You can only edit the form if it was rejected by admin.');
+        return false;
+    }
+    return true;
+}
 function showLoading() { document.getElementById('loadingOverlay').style.display = 'block'; }
 function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
 
 /** Single Field Edit */
 function editField(button, inputId, tableName) {
+    if (!ensureEditable()) return;
     const input = document.getElementById(inputId);
     const dbField = input.dataset.field;
     if (input.readOnly) {
@@ -47,6 +56,7 @@ function updateField(dbField, value, tableName) {
 
 /** Radio Group Edit */
 function editRadioGroup(button, groupId, tableName) {
+    if (!ensureEditable()) return;
     const group = document.getElementById(groupId);
     const radios = group.querySelectorAll("input[type='radio']");
     const dbField = group.dataset.field;
@@ -66,6 +76,7 @@ function editRadioGroup(button, groupId, tableName) {
 
 /** Table Row Edit */
 function editTableRow(button, tableName, idName) {
+    if (!ensureEditable()) return;
     const container = button.closest("tr") || button.closest(".row-container");
     const inputs = container.querySelectorAll("input");
     const rowId = container.dataset.id;
@@ -105,6 +116,7 @@ function updateTableField(tableName, rowId, dbField, value, idName, extraYear, e
 
 /** Delete Row */
 function deleteEditRow(button, tableName, idName) {
+    if(!ensureEditable()) return;
     if(!confirm("Delete this record?")) return;
     const row = button.closest("tr");
     const table = row.closest('table');
@@ -124,6 +136,7 @@ function deleteEditRow(button, tableName, idName) {
 
 /** Add Row Logic */
 function addEditShareholders(tableName, tableId) {
+    if(!ensureEditable()) return;
     if(!confirm("Create new blank row?")) return;
     const params = new URLSearchParams();
     params.append("Table", tableName);
@@ -340,6 +353,7 @@ function toggleOthersDetails() {
 function toggleTradeEditSave(e) {
     e.preventDefault();
     const btn = document.getElementById('tradeEditSaveBtn');
+    if (!ensureEditable()) return;
     const isEditing = btn.textContent === 'Save';
     const checkboxes = document.querySelectorAll('#TradeGroup input[type="checkbox"]');
     const othersInput = document.getElementById('CIDBOthersInput');
@@ -405,3 +419,72 @@ function toggleTradeEditSave(e) {
         .catch(() => alert('Error updating trade.'));
     }
 }
+
+// Resubmit handler (if present on the page)
+document.addEventListener('DOMContentLoaded', function() {
+    // If vendor cannot edit, hide all edit/delete/add buttons to match server rules
+    if (!VENDOR_CAN_EDIT) {
+        const btnSelectors = [
+            "button[onclick^=\"editField\"]",
+            "button[onclick^=\"editRadioGroup\"]",
+            "button[onclick^=\"editTableRow\"]",
+            "button[onclick^=\"deleteEditRow\"]",
+            "button[onclick^=\"addEditShareholders\"]",
+            "button[onclick^=\"addBanks\"]",
+            "button[onclick^=\"addStaffList\"]",
+            "button[onclick^=\"addProjectRecord\"]",
+            "button[onclick^=\"addCurrentProjectRecord\"]",
+            "button[onclick^=\"addCreditFacilities\"]",
+            "button[onclick^=\"toggleTradeEditSave\"]",
+            "button[onclick^=\"editSpecialRow\"]"
+        ].join(',');
+        try {
+            document.querySelectorAll(btnSelectors).forEach(b => b.style.display = 'none');
+        } catch (e) { /* ignore */ }
+
+        // Hide any table "Action" header and its corresponding column cells
+        function hideActionColumns() {
+            document.querySelectorAll('table').forEach(table => {
+                const headers = Array.from(table.querySelectorAll('th'));
+                headers.forEach((th, idx) => {
+                    const txt = (th.textContent || '').trim().toLowerCase();
+                    if (txt === 'action' || txt.includes('action')) {
+                        th.style.display = 'none';
+                        // hide all cells in this column (including rows without tbody)
+                        table.querySelectorAll('tr').forEach(tr => {
+                            const cells = tr.querySelectorAll('td, th');
+                            if (cells[idx]) cells[idx].style.display = 'none';
+                        });
+                    }
+                });
+            });
+        }
+
+        // initial hide
+        hideActionColumns();
+
+        // observe DOM changes so dynamically-added rows/columns are also hidden
+        try {
+            const observer = new MutationObserver(m => { hideActionColumns(); });
+            observer.observe(document.body, { childList: true, subtree: true });
+        } catch (e) { /* ignore on old browsers */ }
+    }
+    const resubmitBtn = document.getElementById('resubmitBtn');
+    if (resubmitBtn) {
+        resubmitBtn.addEventListener('click', function() {
+            if (!confirm('Resubmit will send the form to admin and lock further edits. Continue?')) return;
+            fetch('VendorResubmit.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ registrationFormID: formID })
+            }).then(r => r.json()).then(data => {
+                if (data && data.success) {
+                    alert('Form resubmitted to admin. Editing is now locked.');
+                    window.location.reload();
+                } else {
+                    alert('Resubmit failed: ' + (data.error || 'Unknown'));
+                }
+            }).catch(() => alert('Resubmit request failed'));
+        });
+    }
+});

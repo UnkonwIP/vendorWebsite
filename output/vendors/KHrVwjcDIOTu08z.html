@@ -136,25 +136,51 @@
         <div style="border:1px solid #000;padding:6px;min-height:36px;margin-top:6px;background:#fff"></div>
       </div>
       <div class="two-col">
-        <div class="col">
-          <table>
-            <tr><th>Auditor - Company</th><td></td></tr>
-            <tr><th>Auditor - Contact</th><td> / </td></tr>
-            <tr><th>Advocates - Company</th><td></td></tr>
-            <tr><th>Advocates - Contact</th><td> / </td></tr>
-          </table>
+          <div class="col">
+            <h4>Auditors & Advocates</h4>
+            <table style="width:100%;border-collapse:collapse;border:1px solid #888;margin-top:6px">
+              <thead>
+                <tr style="background:#efefef;font-weight:700">
+                  <th style="width:15%;border:1px solid #666;padding:6px">Category</th>
+                  <th style="width:35%;border:1px solid #666;padding:6px">Company Details</th>
+                  <th style="width:35%;border:1px solid #666;padding:6px">Contact Person Details</th>
+                  <th style="width:15%;border:1px solid #666;padding:6px">Year of Service</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="border:1px solid #666;padding:6px">Auditors</td>
+                  <td style="border:1px solid #666;padding:6px">Name: <br>Address: </td>
+                  <td style="border:1px solid #666;padding:6px">Name: <br>Email: <br>Phone: </td>
+                  <td style="border:1px solid #666;padding:6px;text-align:center"></td>
+                </tr>
+                <tr>
+                  <td style="border:1px solid #666;padding:6px">Advocates & Solicitors</td>
+                  <td style="border:1px solid #666;padding:6px">Name: <br>Address: </td>
+                  <td style="border:1px solid #666;padding:6px">Name: <br>Email: <br>Phone: </td>
+                  <td style="border:1px solid #666;padding:6px;text-align:center"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col">
+            <h4>Banking</h4>
+            <p><em>None</em></p>
+          </div>
         </div>
-        <div class="col">
-          <h4>Banking</h4>
-          <p><em>None</em></p>
-        </div>
-      </div>
 
       <h4 style="margin-top:8px">Net Worth</h4>
       <p><em>None</em></p>
 
       <h4 style="margin-top:8px">Credit Facilities</h4>
-      <p><em>None</em></p>
+      <div style="margin-top:6px">
+        <strong>Does the Company have any credit facilities?</strong>
+        <div style="margin-top:6px">
+          <label><input type="radio" name="CreditFacilitiesStatus" disabled > Yes</label>
+          <label style="margin-left:12px"><input type="radio" name="CreditFacilitiesStatus" disabled checked> No</label>
+        </div>
+      </div>
+      <div style="margin-top:6px"><p><em>None</em></p></div>
     </section>
 
     <section class="section">

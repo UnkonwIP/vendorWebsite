@@ -940,7 +940,16 @@
             </h2>
             <div id="collapseTen" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    <p class="legal-text">By signing this document, the undersigned... certify the following...</p>
+                    <div class="legal-text" style="text-align:justify;">
+                        <p>By signing this document, the undersigned, being duly authorized to complete this form, hereby certify the following:</p>
+                        <ol>
+                            <li>declares that he/she has, or has obtained from the relevant authority, the proper mandate and authority to disclose such information;</li>
+                            <li>consents to the processing of such information for the purpose described in the Notice of Disclosure;</li>
+                            <li>acknowledges that the processing of such information may be conducted by a third party on behalf of MSAR which may occur in another country than the country of disclosure; and</li>
+                            <li>represents that the information provided in this document is, to the best of his/her knowledge, accurate, current and complete as of the date of disclosure.</li>
+                            <li>pursuant to the Credit Reporting Agencies Act 2010 (“the CRA”) and Central Bank of Malaysia Act 2009, the Company do hereby give our consent to MSAR and CTOS Data Systems Sdn. Bhd. (“CTOS”), a registered credit reporting agency under the CRA to process our Company’s personal data as per the Personal Data Protection Act 2010 including for the purpose of conducting credit/trade check.</li>
+                        </ol>
+                    </div>
                     
                     <div class="verification-container">
                         <p><strong>The above information had been verified by:</strong></p>

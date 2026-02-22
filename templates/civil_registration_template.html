@@ -19,7 +19,6 @@
     table{width:100%;border-collapse:collapse;margin-top:6px}
     th,td{border:1px solid #888;padding:6px;vertical-align:top;font-size:11px}
     th{background:#f7f7f7;font-weight:600}
-    /* Part B specific table to match original PDF layout */
     .partb-table { table-layout: fixed; width:100%; border-collapse:collapse }
     .partb-table th, .partb-table td { padding:4px 6px; font-size:11px; border:1px solid #666 }
     .partb-table th { background:#efefef; font-weight:700 }
@@ -28,7 +27,7 @@
     .no-border td{border:0;padding:2px}
     .notes{font-size:11px;color:#333;margin-top:8px}
     .signature{margin-top:20px;display:flex;justify-content:space-between}
-    .sig-box{width:48%;border-top:1px solid #000;padding-top:8px;text-align:left}
+    .sig-box{width:48%;padding-top:8px;text-align:left}
   </style>
 </head>
 <body>
@@ -184,22 +183,145 @@
     </section>
 
     <section class="section">
-      <h2>Project Track Record</h2>
-      {{PROJECTS}}
+      <h2>Part F: Contractor's Technical Capability</h2>
+      <table>
+        <tr>
+          <th>CIDB Grade & Specialisation</th>
+          <td>{{CIDB_GRADE_SPECIAL}}</td>
+          <th>CIDB Validity Till</th>
+          <td>{{CIDB_VALIDITY}}</td>
+        </tr>
+        <tr>
+          <th>Trade</th>
+          <td colspan="3">{{CIDB_TRADES}}</td>
+        </tr>
+        <tr>
+          <th>Value of Similar Project (last 5 years)</th>
+          <td>{{VALUE_SIMILAR_RADIOS}}</td>
+          <th>Value of Current On Going Project</th>
+          <td>{{VALUE_CURRENT_RADIOS}}</td>
+        </tr>
+        <tr>
+          <th>Experience in the Industry (Years)</th>
+          <td colspan="3">{{ExperienceInIndustry}}</td>
+        </tr>
+      </table>
+
+      <div style="margin-top:8px">
+        <div style="font-weight:700;margin-bottom:6px">List of Plant, Machinery and Equipment</div>
+        <div style="margin-bottom:12px">{{EQUIPMENT}}</div>
+
+        <div style="font-weight:700;margin-bottom:6px">List of Site Team and Site Staff</div>
+        <div style="margin-bottom:12px">{{STAFF}}</div>
+
+        <div style="font-weight:700;margin-bottom:6px">Project Track Record</div>
+        <div style="margin-bottom:12px">{{PROJECTS_PAST}}</div>
+
+        <div style="font-weight:700;margin-bottom:6px">Current Projects</div>
+        <div style="margin-bottom:12px">{{PROJECTS_CURRENT}}</div>
+
+        <section class="section">
+          <h2>Part G: Contact Details</h2>
+          <table style="margin-top:6px">
+            <tbody>
+              <tr>
+                <th style="width:28%;font-weight:700">Primary Contact Person</th>
+                <td colspan="5">{{PrimaryContactPerson}}</td>
+              </tr>
+              <tr>
+                <th>Department</th>
+                <td colspan="5">{{PrimaryDepartment}}</td>
+              </tr>
+              <tr>
+                <th>Telephone</th>
+                <td>{{PrimaryTelephone}}</td>
+                <th>Email</th>
+                <td colspan="3">{{PrimaryEmail}}</td>
+              </tr>
+
+              <tr>
+                <th style="font-weight:700">Secondary Contact Person</th>
+                <td colspan="5">{{SecondaryContactPerson}}</td>
+              </tr>
+              <tr>
+                <th>Department</th>
+                <td colspan="5">{{SecondaryDepartment}}</td>
+              </tr>
+              <tr>
+                <th>Telephone</th>
+                <td>{{SecondaryTelephone}}</td>
+                <th>Email</th>
+                <td colspan="3">{{SecondaryEmail}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section">
+          <h2>Part H: Self Declaration</h2>
+          <div style="margin-top:6px">
+            <p>We understand and acknowledge that MSA RESOURCES SDN. BHD. <strong>(Company No. 199801006982 (463109-M)) (“MSAR”)</strong> observes good business conduct and is committed to adhere to all laws and regulations wherever it operates including but not limited to economic sanctions, export control, competition or anti-trust, personal data protection laws, guided by MSAR’s policies.</p>
+            <p>Accordingly, we confirm and declare that, to the best of our knowledge, the Company and/or any of its affiliates, including its and their directors, officers, employees–</p>
+            <ol type="a">
+              <li>are not the target or subjects of any sanctions;</li>
+              <li>are not owned or controlled by any person who is the target or subject of any sanctions;</li>
+              <li>are not acting for the benefit of or on behalf of any person (including but not limited to any natural person, corporation, limited liability company, trust, joint venture, association, company, partnership, Governmental Authority or other entity) that is the target or subject of any sanctions;</li>
+              <li>have not been engaging in any conduct/activity that would result in us being in breach of any sanctions or becoming a target or subject of sanctions;</li>
+              <li>have not been the subject of any convictions or prosecutions or is it the subject of any pending investigations by a public authority, in relation to export control regulations within the last 5 years.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Part I: Notice of Disclosure</h2>
+          <div style="margin-top:6px; text-align:justify; font-size:11px">
+            <p><strong>Applicable Laws relating to regulation of the Processing of Personal Data ("Data Protection Law")</strong></p>
+            <p>Pursuant to the requirement of Data Protection Law, we hereby wish to give this notice and seek your consent on the processing of your personal data. The Personal Data will be processed by MSAR or such other third parties (as the case may be) for the following purposes:</p>
+            <ol type="a">
+              <li>to evaluate and process your application for registration as a vendor;</li>
+              <li>to enable MSAR to discharge its contractual obligations, including but not limited to the preparation of various contract-related documents, payment-related purposes and to communicate with you;</li>
+              <li>to respond to your inquiries and/or complaints and to resolve disputes;</li>
+              <li>to enable MSAR to comply with its legal and regulatory obligations, including but not limited to any anti-money laundering and/or anti-terrorism financing laws and regulations and for any other purpose required by law;</li>
+              <li>for MSAR’s internal record keeping, analysis and/or for any other purpose that is incidental or ancillary to the above-mentioned purposes.</li>
+            </ol>
+            <p>Please note that it is necessary for MSAR to process your Personal Data for the purposes stated above. If you do not provide MSAR with your Personal Data or do not consent to this notice, MSAR will not be able to evaluate and process your application for registration as a vendor and/or to communicate with you.</p>
+            <p>You may, at any time, make a request in writing for access to, or to request for correction or rectification of your Personal Data, or to limit the processing of your Personal Data by contacting:</p>
+            <div>
+              <strong>Name:</strong> En. Razlan Radzi<br>
+              <strong>Phone No:</strong> 019 - 258 8888<br>
+              <strong>Email:</strong> razlan@msar.tech
+            </div>
+          </div>
+        </section>
+
+      </div>
     </section>
 
     <section class="section">
-      <h2>Staff & Equipment</h2>
-      <h4>Staff</h4>
-      {{STAFF}}
-      <h4 style="margin-top:6px">Equipment</h4>
-      {{EQUIPMENT}}
-    </section>
+      <h2>Part J: Information Verification</h2>
+      <div style="margin-top:6px; font-size:11px; text-align:justify">
+        <p>By signing this document, the undersigned, being duly authorized to complete this form, hereby certify the following:</p>
+        <ol>
+          <li>declares that he/she has, or has obtained from the relevant authority, the proper mandate and authority to disclose such information;</li>
+          <li>consents to the processing of such information for the purpose described in the Notice of Disclosure;</li>
+          <li>acknowledges that the processing of such information may be conducted by a third party on behalf of MSAR which may occur in another
+          country than the country of disclosure; and</li>
+          <li>represents that the information provided in this document is, to the best of his/her knowledge is accurate, current and complete as of the
+          date of disclosure.</li>
+          <li>pursuant to the Credit Reporting Agencies Act 2010 (“the CRA”) and Central Bank of Malaysia Act 2009, the Company do hereby give
+          our consent to MSAR and CTOS Data Systems Sdn. Bhd. (“CTOS”), a registered credit reporting agency under the CRA to process our
+          Company’s personal data as per the Personal Data Protection Act 2010 including for the purpose of conducting credit/trade check.</li>
+        </ol>
+      </div>
 
-    <div class="signature">
-      <div class="sig-box">Verifier: {{verifierName}} <br>Designation: {{verifierDesignation}}</div>
-      <div class="sig-box">Date of Verification: {{dateOfVerification}}</div>
-    </div>
+      <div class="signature" style="margin-top:12px">
+        <div class="sig-box">
+          <div style="height:48px"></div>
+          <p class="small" style="margin-top:6px;color:#555">(Authorised Signature and Company Stamp)<br>Chairman/Director/Company Secretary</p>
+        </div>
+        <div class="sig-box">Name: {{verifierName}} <br>Designation: {{verifierDesignation}}<br>Date: {{dateOfVerification}}</div>
+      </div>
+    </section>
 
     <p class="notes">Notes: This generated document is a representation of the registration form. Documentary evidence should be provided where required.</p>
   </div>

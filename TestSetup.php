@@ -22,8 +22,8 @@ function testEmailConnection() {
         $mail->SMTPAuth   = true;
         $mail->Username   = MAIL_USER; // Change as needed
         $mail->Password   = MAIL_PASS; // Change as needed
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
+        $mail->SMTPSecure = MAIL_ENCRYPTION; // Change as needed
+        $mail->Port       = MAIL_PORT; // Change as needed
 
         $mail->setFrom(MAIL_USER, 'Test System');
         $mail->addAddress(DEFAULT_ADMIN_EMAIL);

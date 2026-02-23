@@ -84,8 +84,8 @@ try {
 	$mail->SMTPAuth   = true;
 	$mail->Username   = MAIL_USER;
 	$mail->Password   = MAIL_PASS;
-	$mail->SMTPSecure = 'tls';
-	$mail->Port       = 587;
+	$mail->SMTPSecure = MAIL_ENCRYPTION;
+	$mail->Port       = MAIL_PORT;
 	$mail->setFrom(MAIL_USER, 'Vendor System');
 	$mail->addAddress($email);
 	$mail->isHTML(true);

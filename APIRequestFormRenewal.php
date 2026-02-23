@@ -16,6 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $_SESSION['form_renewal_message'] = 'Error updating vendor accounts.';
     }
-    header("Location: admin.php");
+    header("Location: AdminVendorManagement.php");
     exit();
 }

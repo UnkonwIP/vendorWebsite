@@ -305,7 +305,7 @@ if (!empty($vendorNewCompanyRegistration)) {
 
 <nav class="navbar navbar-expand-lg navbar-light">
 	<div class="container-fluid">
-		<a class="navbar-brand" href="admin.php">
+		<a class="navbar-brand" href="AdminVendorManagement.php">
 			<img src="Image/company%20logo.png" alt="Logo" style="height: 30px; margin-right: 10px;">
 			Admin Panel
 		</a>
@@ -331,7 +331,7 @@ if (!empty($vendorNewCompanyRegistration)) {
 	<div class="page-header">
 		<h1>Registration Forms for <?php echo htmlspecialchars($vendorUsername); ?></h1>
 		<p>View and manage all registration forms submitted by this vendor</p>
-		<a href="admin.php" class="btn btn-secondary mt-2">&larr; Back to Vendor List</a>
+		<a href="AdminVendorManagement.php" class="btn btn-secondary mt-2">&larr; Back to Vendor List</a>
 	</div>
 
 	<div class="forms-container">

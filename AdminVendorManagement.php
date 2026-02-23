@@ -18,7 +18,16 @@ if ($keyword !== '') {
     $where = "WHERE username LIKE '%$kw%' OR newCompanyRegistrationNumber LIKE '%$kw%' OR email LIKE '%$kw%'";
 }
 $roleWhere = ($where ? "$where AND role = 'vendor'" : "WHERE role = 'vendor'");
-$sql = "SELECT accountID, username, email, newCompanyRegistrationNumber FROM vendoraccount $roleWhere ORDER BY accountID DESC";
+// Fetch vendor accounts with registration info and project stats
+$sql = "SELECT va.accountID, va.username, va.email, va.newCompanyRegistrationNumber, "
+    . "rf.companyName, rf.trade, rf.cidbGrade, "
+    . "MAX(ptr.projectValue) AS maxProjectValue, MIN(ptr.projectValue) AS minProjectValue "
+    . "FROM vendoraccount va "
+    . "LEFT JOIN registrationform rf ON va.newCompanyRegistrationNumber = rf.newCompanyRegistrationNumber "
+    . "LEFT JOIN projecttrackrecord ptr ON rf.registrationFormID = ptr.registrationFormID "
+    . $roleWhere . " "
+    . "GROUP BY va.accountID, va.username, va.email, va.newCompanyRegistrationNumber, rf.companyName, rf.trade, rf.cidbGrade "
+    . "ORDER BY va.accountID DESC";
 $result = mysqli_query($conn, $sql);
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
@@ -41,6 +50,32 @@ if ($result) {
             --bg-gradient: linear-gradient(135deg, #064e3b, #065f46);
             --text-main: #1e293b;
             --text-muted: #64748b;
+
+            /* cp design vars (partial set from provided theme) */
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            --cp-blue: #003da6;
+            --cp-indigo: #202654;
+            --cp-purple: #31006f;
+            --cp-red: #dc3545;
+            --cp-orange: #de5c2e;
+            --cp-yellow: #ffc107;
+            --cp-green: #198754;
+            --cp-teal: #20c997;
+            --cp-cyan: #0dcaf0;
+            --cp-black: #000;
+            --cp-white: #fff;
+            --cp-gray: #6d7983;
+            --cp-primary: #003da6;
+            --cp-success: #198754;
+            --cp-info: #0dcaf0;
+            --cp-warning: #ffc107;
+            --cp-danger: #dc3545;
+            --cp-light: #fafafa;
+            --cp-dark: #243746;
+            --cp-accent: #de5c2e;
+            --cp-primary-text-emphasis: #001842;
+            --cp-body-font-family: "Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
         }
         body {
             background: var(--bg-gradient);
@@ -54,6 +89,11 @@ if ($result) {
             padding: 15px 20px;
             margin-bottom: 30px;
             border-radius: 12px;
+            /* avoid overlapping the fixed sidebar on wide screens */
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            position: relative;
+            z-index: 15;
         }
         .navbar-brand {
             font-weight: 700;
@@ -71,6 +111,9 @@ if ($result) {
         .navbar-nav .logout-link {
             color: #dc2626 !important;
         }
+        .nav-page-header { display:flex; flex-direction:column; margin-left:8px; }
+        .nav-page-title { font-size:18px; font-weight:700; color: var(--text-main); line-height:1; }
+        .nav-page-subtitle { font-size:12px; color: var(--text-muted); margin-top:2px; }
         .container-main {
             max-width: 1000px;
             margin: 0 auto;
@@ -114,6 +157,7 @@ if ($result) {
             transition: all 0.3s;
             background: white;
         }
+        .vendor-divider { height:1px; background:#c9ced2; margin:12px 0; border-radius:1px; }
         .vendor-card:hover {
             box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
             border-color: var(--primary-color);
@@ -156,6 +200,63 @@ if ($result) {
             gap: 10px;
             margin-top: 10px;
         }
+            .layout {
+                display: flex;
+                gap: 24px;
+                align-items: flex-start;
+            }
+            .sidebar {
+                width: 260px;
+                background: white;
+                padding: 24px 18px;
+                border-radius: 0;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                overflow: auto;
+                z-index: 10;
+            }
+            .cp-main-menu__container { display:flex; flex-direction:column; gap:16px; }
+            .cp-main-menu__logo-container { padding-bottom:6px; border-bottom:1px solid var(--cp-secondary-bg, #e5e7e9); display:flex; align-items:center; }
+            .sidebar-brand { display:flex; align-items:center; text-decoration:none; }
+            .sidebar-brand-text { color: var(--primary-color) !important; font-weight:700; font-size:18px; }
+            .links { list-style:none; padding:0; margin:8px 0 0 0; }
+            .list-item { margin:8px 0; }
+            .list-item__link {
+                display:flex; align-items:center; gap:12px; text-decoration:none; padding:8px 10px; border-radius:8px;
+                color:var(--cp-white); background:transparent; transition:background .12s, color .12s;
+            }
+            .list-item__icon { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; background:var(--cp-primary); border-radius:6px; }
+            .list-item__text { font-weight:600; color:#000; }
+            .list-item__link { color: inherit; }
+            .list-item__link:hover { background: rgba(var(--cp-primary-rgb, 0,61,166), 0.08); color:var(--cp-primary-text-emphasis); }
+            .sidebar h4 {
+                margin-top: 0;
+                margin-bottom: 12px;
+                color: var(--text-main);
+                font-size: 16px;
+            }
+            .sidebar .sidebar-link {
+                display: block;
+                padding: 8px 10px;
+                color: var(--text-main);
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+            .sidebar .sidebar-link:hover {
+                background: #f0fdf4;
+                color: var(--primary-color);
+                text-decoration: none;
+            }
+            .main-content {
+                flex: 1 1 auto;
+                margin-left: 260px;
+                padding: 20px;
+            }
         .btn-add {
             display: inline-block;
             padding: 12px 24px;
@@ -229,10 +330,10 @@ if ($result) {
 
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="admin.php">
-            <img src="Image/company%20logo.png" alt="Logo" style="height: 30px; margin-right: 10px;">
-            Admin Panel
-        </a>
+        <div class="nav-page-header d-none d-md-flex flex-column ms-3">
+            <span class="nav-page-title">Vendor Accounts</span>
+            <small class="nav-page-subtitle">View and manage all registered vendors</small>
+        </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -251,11 +352,63 @@ if ($result) {
     </div>
 </nav>
 
-<div class="container-main">
-    <div class="page-header">
-        <h1>Vendor Accounts</h1>
-        <p>View and manage all registered vendors</p>
-    </div>
+    <div class="layout">
+    <aside class="sidebar">
+        <div class="cp-main-menu__container">
+            <div class="cp-main-menu__logo-container">
+                <a href="AdminHome.php" title="Home" class="sidebar-brand">
+                    <img src="Image/company%20logo.png" alt="logo" style="height:34px; display:inline-block; margin-right:10px;">
+                    <span class="sidebar-brand-text">Admin Panel</span>
+                </a>
+            </div>
+            <ul class="links" id="cp-main-menu__link-list">
+                <li class="list-item">
+                    <a class="list-item__link" href="AdminHome.php">
+                        <span class="list-item__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11L12 3l9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8z" fill="var(--cp-white)"></path></svg>
+                        </span>
+                        <span class="list-item__text">Home</span>
+                    </a>
+                </li>
+                <li class="list-item">
+                    <a class="list-item__link" href="admin.php">
+                        <span class="list-item__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="var(--cp-white)"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6v1H4v-1z" fill="var(--cp-white)"></path></svg>
+                        </span>
+                        <span class="list-item__text">Vendor Management</span>
+                    </a>
+                </li>
+                <li class="list-item">
+                    <a class="list-item__link" href="#" onclick="alert('Development in progress'); return false;">
+                        <span class="list-item__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="var(--cp-white)"></circle></svg>
+                        </span>
+                        <span class="list-item__text">Registration</span>
+                    </a>
+                </li>
+                <li class="list-item">
+                    <a class="list-item__link" href="#" onclick="alert('Development in progress'); return false;">
+                        <span class="list-item__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="6" rx="1" fill="var(--cp-white)"></rect><rect x="3" y="14" width="18" height="6" rx="1" fill="var(--cp-white)"></rect></svg>
+                        </span>
+                        <span class="list-item__text">Procurement</span>
+                    </a>
+                </li>
+                <li class="list-item">
+                    <a class="list-item__link" href="#" onclick="alert('Development in progress'); return false;">
+                        <span class="list-item__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v10H4z" fill="var(--cp-white)"></path></svg>
+                        </span>
+                        <span class="list-item__text">Contract</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="container-main">
+    
 
     <div class="vendor-container">
         <div class="d-flex flex-wrap mb-3">
@@ -314,30 +467,38 @@ if ($result) {
                 ?>
                 <div class="vendor-card<?php echo $isVendor ? ' clickable-vendor-card' : ''; ?>"<?php if ($isVendor): ?> onclick="window.location.href='AdminVendorFormList.php?accountID=<?php echo urlencode($vendor['accountID']); ?>'" style="cursor:pointer;"<?php endif; ?>>
                     <div class="vendor-card-header">
-                        <div class="vendor-card-title">
-                            <?php echo htmlspecialchars($vendor['username']); ?>
+                        <div style="font-weight:700; color:var(--text-main);">
+                            <?php echo htmlspecialchars($vendor['companyName'] ?: ($vendor['newCompanyRegistrationNumber'] ?? 'Untitled Company')); ?>
                         </div>
-                            <span class="text-muted" style="font-size:13px;">
-                                Account ID: <?php echo htmlspecialchars($vendor['accountID']); ?>
-                            </span>
+                        <div style="color:var(--text-muted); font-size:13px; text-align:right;">
+                            Reg No: <?php echo htmlspecialchars($vendor['newCompanyRegistrationNumber'] ?? '-'); ?>
+                            &nbsp;&middot;&nbsp;
+                            Username: <?php echo htmlspecialchars($vendor['username'] ?? '-'); ?>
+                            &nbsp;&middot;&nbsp;
+                            Email: <?php echo htmlspecialchars($vendor['email'] ?? '-'); ?>
+                            &nbsp;&middot;&nbsp;
+                            ID: <?php echo htmlspecialchars($vendor['accountID'] ?? '-'); ?>
+                        </div>
                     </div>
+                    <div class="vendor-divider" aria-hidden="true"></div>
                     <div class="vendor-card-details">
+                        <!-- username and email removed from card as requested -->
                         <div class="vendor-detail">
-                            <span class="vendor-detail-label">Username</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['username']); ?></span>
+                            <span class="vendor-detail-label">Specialties</span>
+                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['trade'] ?? '-'); ?></span>
                         </div>
                         <div class="vendor-detail">
-                            <span class="vendor-detail-label">Email</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['email']); ?></span>
+                            <span class="vendor-detail-label">Largest Past Project</span>
+                            <span class="vendor-detail-value"><?php echo isset($vendor['maxProjectValue']) && $vendor['maxProjectValue'] !== null ? number_format((float)$vendor['maxProjectValue'], 2) : '-'; ?></span>
                         </div>
                         <div class="vendor-detail">
-                            <span class="vendor-detail-label">Company Reg. No</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['newCompanyRegistrationNumber'] ?? ""); ?></span>
+                            <span class="vendor-detail-label">Smallest Past Project</span>
+                            <span class="vendor-detail-value"><?php echo isset($vendor['minProjectValue']) && $vendor['minProjectValue'] !== null ? number_format((float)$vendor['minProjectValue'], 2) : '-'; ?></span>
                         </div>
-                        <!-- <div class="vendor-detail">
-                            <span class="vendor-detail-label">Company Name</span>
-                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['companyName'] ?? ""); ?></span>
-                        </div> -->
+                        <div class="vendor-detail">
+                            <span class="vendor-detail-label">CIDB Grade</span>
+                            <span class="vendor-detail-value"><?php echo htmlspecialchars($vendor['cidbGrade'] ?? '-'); ?></span>
+                        </div>
                     </div>
                     <div style="margin-top:12px; display:flex; gap:8px;">
                         <form method="get" action="export_admin_vendor_pdf.php" style="margin:0;">
@@ -349,8 +510,9 @@ if ($result) {
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+        </div>
+    </main>
     </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

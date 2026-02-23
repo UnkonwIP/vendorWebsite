@@ -177,8 +177,10 @@ if ($pfRes) {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                cursor: pointer;
             }
             .pending-card .meta { color: var(--text-muted); font-size:13px; margin-top:6px; }
+            .pending-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
             
             .stats-grid {
                 display: grid;
@@ -457,7 +459,7 @@ if ($pfRes) {
                     </a>
                 </li>
                 <li class="list-item">
-                    <a class="list-item__link" href="admin.php">
+                    <a class="list-item__link" href="AdminVendorManagement.php">
                         <span class="list-item__icon" aria-hidden="true">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="var(--cp-white)"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6v1H4v-1z" fill="var(--cp-white)"></path></svg>
                         </span>
@@ -504,7 +506,7 @@ if ($pfRes) {
         <?php else: ?>
             <div class="pending-list">
                 <?php foreach ($pendingForms as $pf): ?>
-                    <div class="pending-card">
+                    <div class="pending-card" role="button" tabindex="0" onclick="location.href='AdminViewPage.php?registrationFormID=<?php echo urlencode($pf['registrationFormID']); ?>'" onkeypress="if(event.key==='Enter') location.href='AdminViewPage.php?registrationFormID=<?php echo urlencode($pf['registrationFormID']); ?>'">
                         <div>
                             <div style="font-weight:700"><?php echo htmlspecialchars($pf['companyName'] ?: 'Untitled Company'); ?></div>
                             <div class="meta">
@@ -514,7 +516,7 @@ if ($pfRes) {
                             </div>
                         </div>
                         <div>
-                            <a href="AdminViewPage.php?registrationFormID=<?php echo urlencode($pf['registrationFormID']); ?>" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="AdminViewPage.php?registrationFormID=<?php echo urlencode($pf['registrationFormID']); ?>" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>
                         </div>
                     </div>
                 <?php endforeach; ?>

@@ -493,7 +493,7 @@ window.addEventListener('load', function() {
     </form>
 
     <div class="links">
-        <a href="admin.php">← Back to Admin Panel</a>
+        <a href="AdminVendorManagement.php">← Back to Admin Panel</a>
     </div>
 </div>
 

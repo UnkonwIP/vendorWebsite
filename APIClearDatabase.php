@@ -26,7 +26,7 @@ if (isset($_POST['clear_database'])){
 
     $conn ->query("SET FOREIGN_KEY_CHECKS = 1;");
     echo "<script>alert('Database cleared successfully!')</script>";
-    header("Location: admin.php");
+    header("Location: AdminHome.php");
     exit();
 }
 ?>

@@ -176,7 +176,7 @@ unset($_SESSION['error_msg']);
 
     <form method="POST" action="">
         <div class="form-group">
-            <label>Account ID</label>
+            <label>Username</label>
             <input type="text" name="username" placeholder="Enter Username" required>
         </div>
         

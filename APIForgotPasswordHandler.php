@@ -1,12 +1,18 @@
 <?php
 // Secure AJAX handler for forgot password
 header('Content-Type: application/json');
-require_once 'config.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-require 'PHPMailer/src/Exception.php';
-require 'PHPMailer/src/PHPMailer.php';
-require 'PHPMailer/src/SMTP.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+} else {
+    // Fallback to the old direct includes if vendor/autoload.php is not present
+    require  __DIR__ . '/PHPMailer/src/Exception.php';
+    require  __DIR__ . '/PHPMailer/src/PHPMailer.php';
+    require  __DIR__ . '/PHPMailer/src/SMTP.php';
+}
+require_once __DIR__ . '/config.php';
 
 
 // Rate limiting (simple session-based, for demo)

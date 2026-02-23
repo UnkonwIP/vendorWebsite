@@ -44,7 +44,11 @@
     require_once "config.php";   
     if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-    $registrationFormID = $_POST['registrationFormID'] ?? '';
+    // Accept registrationFormID from POST (preferred) or GET (link clicks)
+    $registrationFormID = $_POST['registrationFormID'] ?? $_GET['registrationFormID'] ?? '';
+
+    // Normalize to integer
+    $registrationFormID = is_numeric($registrationFormID) ? (int) $registrationFormID : 0;
 
     // Safety check
     if (empty($registrationFormID)) {

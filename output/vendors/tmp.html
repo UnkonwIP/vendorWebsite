@@ -42,8 +42,8 @@
           <h1 style="margin-top:0; font-size:15px;">CIVIL CONTRACTOR REGISTRATION FORM</h1>
           <div class="meta" style="margin-top:2px">(For all information given below, documentary evidence shall be submitted)</div>
           <div style="margin-top:6px;">
-            <strong>Company:</strong> {{COMPANY_NAME}}<br>
-            <strong>Company Reg. No (New):</strong> {{CRN}} &nbsp;&nbsp; <strong>Submitted:</strong> {{SUBMISSION_DATE}}
+            <strong>Company:</strong> Test<br>
+            <strong>Company Reg. No (New):</strong> 1008 &nbsp;&nbsp; <strong>Submitted:</strong> 2026-02-23
           </div>
         </td>
         <td align="right" style="vertical-align: top; width:160px;">
@@ -55,30 +55,30 @@
     <section class="section">
       <h2>Part A: Particulars of Company</h2>
       <table>
-        <tr><th>Company Name</th><td>{{COMPANY_NAME}}</td><th>Telephone No</th><td>{{telephoneNumber}}</td></tr>
-        <tr><th>Other Name / Trading Name</th><td>{{otherNames}}</td><th>Tax Registration No</th><td>{{taxRegistrationNumber}}</td></tr>
-        <tr><th>Company Registration No (Old)</th><td>{{oldCompanyRegistrationNumber}}</td><th>Fax No</th><td>{{faxNo}}</td></tr>
-        <tr><th>Email</th><td>{{emailAddress}}</td><th>Country of Incorporation</th><td>{{countryOfIncorporation}}</td></tr>
-        <tr><th>Date of Incorporation</th><td>{{dateOfIncorporation}}</td><th>Website</th><td>{{website}}</td></tr>
-        <tr><th>Branch Address</th><td colspan="3">{{BranchAddress}}</td></tr>
-        <tr><th>Registered Address</th><td colspan="3">{{registeredAddress}}</td></tr>
-        <tr><th>Correspondence / Business Address</th><td colspan="3">{{correspondenceAddress}}</td></tr>
+        <tr><th>Company Name</th><td>Test</td><th>Telephone No</th><td>1305725729</td></tr>
+        <tr><th>Other Name / Trading Name</th><td>Test</td><th>Tax Registration No</th><td>30</td></tr>
+        <tr><th>Company Registration No (Old)</th><td>92</td><th>Fax No</th><td>2459086370</td></tr>
+        <tr><th>Email</th><td>test@gmail.com</td><th>Country of Incorporation</th><td>Test</td></tr>
+        <tr><th>Date of Incorporation</th><td>2024-01-01</td><th>Website</th><td>Test</td></tr>
+        <tr><th>Branch Address</th><td colspan="3"></td></tr>
+        <tr><th>Registered Address</th><td colspan="3">Test</td></tr>
+        <tr><th>Correspondence / Business Address</th><td colspan="3">Test</td></tr>
         <tr><th>Type of Organisation</th>
           <td>
-            <label><input type="radio" name="TypeOfOrganisation" disabled {{TYPE_BERHAD}}> Berhad</label><br>
-            <label><input type="radio" name="TypeOfOrganisation" disabled {{TYPE_SDN}}> Sdn Bhd</label><br>
-            <label><input type="radio" name="TypeOfOrganisation" disabled {{TYPE_SOLE}}> sole Proprietor/Enterprise</label>
+            <label><input type="radio" name="TypeOfOrganisation" disabled checked> Berhad</label><br>
+            <label><input type="radio" name="TypeOfOrganisation" disabled > Sdn Bhd</label><br>
+            <label><input type="radio" name="TypeOfOrganisation" disabled > sole Proprietor/Enterprise</label>
           </td>
           <th>Company Organisation</th>
           <td>
-            <label><input type="radio" name="companyOrganisation" disabled {{ORG_MORE_THAN_15}}> More than 15</label><br>
-            <label><input type="radio" name="companyOrganisation" disabled {{ORG_10_15}}> 10 - 15</label><br>
-            <label><input type="radio" name="companyOrganisation" disabled {{ORG_5_10}}> 5 - 10</label><br>
-            <label><input type="radio" name="companyOrganisation" disabled {{ORG_LESS_5}}> Less than 5 supervisory, skilled and unskilled workers</label>
+            <label><input type="radio" name="companyOrganisation" disabled checked> More than 15</label><br>
+            <label><input type="radio" name="companyOrganisation" disabled > 10 - 15</label><br>
+            <label><input type="radio" name="companyOrganisation" disabled > 5 - 10</label><br>
+            <label><input type="radio" name="companyOrganisation" disabled > Less than 5 supervisory, skilled and unskilled workers</label>
           </td>
         </tr>
-        <tr><th>Nature and Line of Business</th><td colspan="3">{{natureAndLineOfBusiness}}</td></tr>
-        <tr><th>Authorised Capital</th><td>{{AuthorisedCapital}}</td><th>Paid-up Capital</th><td>{{PaidUpCapital}}</td></tr>
+        <tr><th>Nature and Line of Business</th><td colspan="3">Test</td></tr>
+        <tr><th>Authorised Capital</th><td>80.00</td><th>Paid-up Capital</th><td>46.00</td></tr>
       </table>
     </section>
 
@@ -94,15 +94,15 @@
         </colgroup>
           <tr>
             <th>Parent Company</th>
-            <td colspan="2">{{parentCompany}}</td>
+            <td colspan="2">Test</td>
             <th>Country</th>
-            <td>{{parentCompanyCountry}}</td>
+            <td>Test</td>
           </tr>
           <tr>
             <th>Ultimate Parent Company</th>
-            <td colspan="2">{{ultimateParentCompany}}</td>
+            <td colspan="2">Test</td>
             <th>Country</th>
-            <td>{{ultimateParentCompanyCountry}}</td>
+            <td>Test</td>
           </tr>
           <thead>
             <tr>
@@ -114,19 +114,19 @@
             </tr>
           </thead>
           <tbody>
-            {{SHAREHOLDERS}}
+            <tr><td>Test</td><td>Test</td><td>Test</td><td>Test</td><td>100.00</td></tr>
           </tbody>
         </table>
     </section>
 
     <section class="section">
       <h2>Part C: Particulars of Directors & Company Secretary</h2>
-      {{DIRECTORS}}
+      <table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Name</th><th>Nationality</th><th>Position</th><th>Appointment Date</th><th>DOB</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>2024-01-01</td></tr></tbody></table>
     </section>
 
     <section class="section">
       <h2>Part D: Management of Company</h2>
-      {{MANAGEMENT}}
+      <table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Name</th><th>Nationality</th><th>Position</th><th>Years in Position</th><th>Years in Field</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td><td>71</td><td>78</td></tr></tbody></table>
     </section>
 
     <section class="section">
@@ -134,11 +134,11 @@
       <div style="margin-top:6px">
         <strong>Does the Company have history of bankruptcy?</strong>
         <div style="margin-top:6px">
-          <label><input type="radio" name="bankruptcy" disabled {{BANKRUPTCY_YES}}> Yes</label>
-          <label style="margin-left:12px"><input type="radio" name="bankruptcy" disabled {{BANKRUPTCY_NO}}> No</label>
+          <label><input type="radio" name="bankruptcy" disabled checked> Yes</label>
+          <label style="margin-left:12px"><input type="radio" name="bankruptcy" disabled > No</label>
         </div>
         <div style="margin-top:6px">If yes, details:</div>
-        <div style="border:1px solid #000;padding:6px;min-height:36px;margin-top:6px;background:#fff">{{BANKRUPTCY_DETAILS}}</div>
+        <div style="border:1px solid #000;padding:6px;min-height:36px;margin-top:6px;background:#fff">Test</div>
       </div>
       <div class="two-col">
           <div class="col">
@@ -155,37 +155,37 @@
               <tbody>
                 <tr>
                   <td style="border:1px solid #666;padding:6px">Auditors</td>
-                  <td style="border:1px solid #666;padding:6px">Name: {{auditorCompanyName}}<br>Address: {{auditorCompanyAddress}}</td>
-                  <td style="border:1px solid #666;padding:6px">Name: {{auditorName}}<br>Email: {{auditorEmail}}<br>Phone: {{auditorPhone}}</td>
-                  <td style="border:1px solid #666;padding:6px;text-align:center">{{auditorYearOfService}}</td>
+                  <td style="border:1px solid #666;padding:6px">Name: Test<br>Address: Test</td>
+                  <td style="border:1px solid #666;padding:6px">Name: Test<br>Email: test@gmail.com<br>Phone: Test</td>
+                  <td style="border:1px solid #666;padding:6px;text-align:center">62</td>
                 </tr>
                 <tr>
                   <td style="border:1px solid #666;padding:6px">Advocates & Solicitors</td>
-                  <td style="border:1px solid #666;padding:6px">Name: {{advocatesCompanyName}}<br>Address: {{advocatesCompanyAddress}}</td>
-                  <td style="border:1px solid #666;padding:6px">Name: {{advocatesName}}<br>Email: {{advocatesEmail}}<br>Phone: {{advocatesPhone}}</td>
-                  <td style="border:1px solid #666;padding:6px;text-align:center">{{advocatesYearOfService}}</td>
+                  <td style="border:1px solid #666;padding:6px">Name: Test<br>Address: Test</td>
+                  <td style="border:1px solid #666;padding:6px">Name: Test<br>Email: test@gmail.com<br>Phone: Test</td>
+                  <td style="border:1px solid #666;padding:6px;text-align:center">3</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="col">
             <h4>Banking</h4>
-            {{BANKS}}
+            <table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Bank</th><th>Address</th><th>SWIFT</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td></tr></tbody></table>
           </div>
         </div>
 
       <h4 style="margin-top:8px">Net Worth</h4>
-      {{NETWORTH}}
+      <table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Item</th><th>2025 (RM)</th><th>2024 (RM)</th><th>2023 (RM)</th></tr></thead><tbody><tr><td>Total Liabilities</td><td style="text-align:right">92.00</td><td style="text-align:right">56.00</td><td style="text-align:right">99.00</td></tr><tr><td>Total Assets</td><td style="text-align:right">30.00</td><td style="text-align:right">23.00</td><td style="text-align:right">83.00</td></tr><tr><td>Net Worth (Assets - Liabilities)</td><td style="text-align:right">71.00</td><td style="text-align:right">11.00</td><td style="text-align:right">77.00</td></tr><tr><td>Working Capital</td><td style="text-align:right">100.00</td><td style="text-align:right">86.00</td><td style="text-align:right">55.00</td></tr></tbody></table>
 
       <h4 style="margin-top:8px">Credit Facilities</h4>
       <div style="margin-top:6px">
         <strong>Does the Company have any credit facilities?</strong>
         <div style="margin-top:6px">
-          <label><input type="radio" name="CreditFacilitiesStatus" disabled {{CREDITFACILITIES_YES}}> Yes</label>
-          <label style="margin-left:12px"><input type="radio" name="CreditFacilitiesStatus" disabled {{CREDITFACILITIES_NO}}> No</label>
+          <label><input type="radio" name="CreditFacilitiesStatus" disabled checked> Yes</label>
+          <label style="margin-left:12px"><input type="radio" name="CreditFacilitiesStatus" disabled > No</label>
         </div>
       </div>
-      <div style="margin-top:6px">{{CREDITFACILITIES}}</div>
+      <div style="margin-top:6px"><table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Type of Credit</th><th>Institution/Bank</th><th>Total Amount (RM)</th><th>Unutilised Amount Currently Available (RM)</th><th>Expiry Date</th><th>As At Date</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td style="text-align:right">50.00</td><td style="text-align:right">73.00</td><td>2024-01-01</td><td>2024-01-01</td></tr></tbody></table></div>
     </section>
 
     <section class="section">
@@ -193,38 +193,38 @@
       <table>
         <tr>
           <th>CIDB Grade & Specialisation</th>
-          <td>{{CIDB_GRADE_SPECIAL}}</td>
+          <td>G4 Test</td>
           <th>CIDB Validity Till</th>
-          <td>{{CIDB_VALIDITY}}</td>
+          <td>2024-01-01</td>
         </tr>
         <tr>
           <th>Trade</th>
-          <td colspan="3">{{CIDB_TRADES}}</td>
+          <td colspan="3"><label style="margin-right:8px"><input type="checkbox" disabled checked> ISP</label> <label style="margin-right:8px"><input type="checkbox" disabled > OSP</label> <label style="margin-right:8px"><input type="checkbox" disabled > O&amp;M</label> <label style="margin-right:8px"><input type="checkbox" disabled > M&amp;E</label> <label style="margin-right:8px"><input type="checkbox" disabled checked> Others</label> <span style="font-style:italic">(suppper)</span></td>
         </tr>
         <tr>
           <th>Value of Similar Project (last 5 years)</th>
-          <td>{{VALUE_SIMILAR_RADIOS}}</td>
+          <td><div style="margin-bottom:4px"><label><input type="radio" disabled checked> More than RM15M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > RM10M and More but less than RM14.9M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > RM5M and more but less than RM9.9M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > RM1M and more but less than RM4.9M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > Less than RM1M</label></div></td>
           <th>Value of Current On Going Project</th>
-          <td>{{VALUE_CURRENT_RADIOS}}</td>
+          <td><div style="margin-bottom:4px"><label><input type="radio" disabled checked> More than RM5M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > RM2M and more but less than RM4.9M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > RM0.5M and more but less than RM1.9M</label></div><div style="margin-bottom:4px"><label><input type="radio" disabled > Less than RM0.5M</label></div></td>
         </tr>
         <tr>
           <th>Experience in the Industry (Years)</th>
-          <td colspan="3">{{ExperienceInIndustry}}</td>
+          <td colspan="3">56</td>
         </tr>
       </table>
 
       <div style="margin-top:8px">
         <div style="font-weight:700;margin-bottom:6px">List of Plant, Machinery and Equipment</div>
-        <div style="margin-bottom:12px">{{EQUIPMENT}}</div>
+        <div style="margin-bottom:12px"><table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Equipment Type</th><th>Qty</th><th>Brand</th><th>Rating</th><th>Ownership</th><th>Year of Mfg</th><th>Reg No</th></tr></thead><tbody><tr><td>Bobcat/JCB</td><td>4</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr><tr><td>HDD Equipment</td><td>62</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr><tr><td>Splicing Equipment</td><td>100</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr><tr><td>Optical Power Meter (OPM)</td><td>78</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr><tr><td>OTDR</td><td>21</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr><tr><td>Equipment/Test Gear</td><td>7</td><td>Test</td><td>Test</td><td>Test</td><td>2024-01-01</td><td>Test</td></tr></tbody></table></div>
 
         <div style="font-weight:700;margin-bottom:6px">List of Site Team and Site Staff</div>
-        <div style="margin-bottom:12px">{{STAFF}}</div>
+        <div style="margin-bottom:12px"><table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Name</th><th>Designation</th><th>Qualification</th><th>Years</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td><td>15</td></tr></tbody></table></div>
 
         <div style="font-weight:700;margin-bottom:6px">Project Track Record</div>
-        <div style="margin-bottom:12px">{{PROJECTS_PAST}}</div>
+        <div style="margin-bottom:12px"><table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Title</th><th>Nature</th><th>Location</th><th>Client</th><th>Value</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td><td>Test</td><td>25.00</td><td>2024-01-01</td><td>2024-01-01</td></tr></tbody></table></div>
 
         <div style="font-weight:700;margin-bottom:6px">Current Projects</div>
-        <div style="margin-bottom:12px">{{PROJECTS_CURRENT}}</div>
+        <div style="margin-bottom:12px"><table class="table" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Title</th><th>Nature</th><th>Location</th><th>Client</th><th>Value</th><th>Start</th><th>End</th><th>Progress (%)</th></tr></thead><tbody><tr><td>Test</td><td>Test</td><td>Test</td><td>Test</td><td>72.00</td><td>2024-01-01</td><td>2024-01-01</td><td>90.00</td></tr></tbody></table></div>
 
         <section class="section">
           <h2>Part G: Contact Details</h2>
@@ -232,32 +232,32 @@
             <tbody>
               <tr>
                 <th style="width:28%;font-weight:700">Primary Contact Person</th>
-                <td colspan="5">{{PrimaryContactPerson}}</td>
+                <td colspan="5">Test</td>
               </tr>
               <tr>
                 <th>Department</th>
-                <td colspan="5">{{PrimaryDepartment}}</td>
+                <td colspan="5">Test</td>
               </tr>
               <tr>
                 <th>Telephone</th>
-                <td>{{PrimaryTelephone}}</td>
+                <td>Test</td>
                 <th>Email</th>
-                <td colspan="3">{{PrimaryEmail}}</td>
+                <td colspan="3">test@gmail.com</td>
               </tr>
 
               <tr>
                 <th style="font-weight:700">Secondary Contact Person</th>
-                <td colspan="5">{{SecondaryContactPerson}}</td>
+                <td colspan="5">Test</td>
               </tr>
               <tr>
                 <th>Department</th>
-                <td colspan="5">{{SecondaryDepartment}}</td>
+                <td colspan="5">Test</td>
               </tr>
               <tr>
                 <th>Telephone</th>
-                <td>{{SecondaryTelephone}}</td>
+                <td>Test</td>
                 <th>Email</th>
-                <td colspan="3">{{SecondaryEmail}}</td>
+                <td colspan="3">test@gmail.com</td>
               </tr>
             </tbody>
           </table>
@@ -325,7 +325,7 @@
           <div style="height:48px"></div>
           <p class="small" style="margin-top:6px;color:#555">(Authorised Signature and Company Stamp)<br>Chairman/Director/Company Secretary</p>
         </div>
-        <div class="sig-box">Name: {{verifierName}} <br>Designation: {{verifierDesignation}}<br>Date: {{dateOfVerification}}</div>
+        <div class="sig-box">Name: Test <br>Designation: Test<br>Date: 2024-01-01</div>
       </div>
     </section>
 

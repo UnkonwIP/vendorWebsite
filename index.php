@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // store email for vendor pages
             $_SESSION['email']     = $user['email'] ?? '';
 
-            $location = ($user['role'] === 'admin') ? "admin.php" : "VendorHomepage.php";
+            $location = ($user['role'] === 'admin') ? "AdminHome.php" : "VendorHomepage.php";
             header("Location: $location");
             exit();
         }

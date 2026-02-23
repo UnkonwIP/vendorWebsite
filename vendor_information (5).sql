@@ -249,7 +249,15 @@ CREATE TABLE `registrationform` (
   `advocatesPhone` varchar(20) DEFAULT NULL,
   `advocatesYearOfService` int(11) DEFAULT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'DRAFT',
-  `rejectionReason` varchar(255) DEFAULT NULL
+  `rejectionReason` varchar(255) DEFAULT NULL,
+  `planDepartmentStatus` varchar(10) NOT NULL DEFAULT 'pending',
+  `planDepartmentComments` varchar(255) DEFAULT NULL,
+  `financeDepartmentStatus` varchar(10) NOT NULL DEFAULT 'pending',
+  `financeDepartmentComments` varchar(255) DEFAULT NULL,
+  `legalDepartmentStatus` varchar(10) NOT NULL DEFAULT 'pending',
+  `legalDepartmentComments` varchar(255) DEFAULT NULL,
+  `projectDepartmentStatus` varchar(10) NOT NULL DEFAULT 'pending',
+  `projectDepartmentComments` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

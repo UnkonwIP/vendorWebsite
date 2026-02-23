@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Allowed roles and vendor types
     $allowedRoles = ['admin', 'vendor'];
     $allowedVendorTypes = ['Civil Contractor', 'Supplier', 'TMP Contractor', 'General Contractor'];
-    $allowedAdminDepartments = ['General', 'Finance', 'Legal', 'Project', 'Plan'];
+    $allowedAdminDepartments = ['General', 'Head - Finance', 'Head - Legal', 'Head - Project', 'Head - Plan'];
 
     $hasError = false;
     if (empty($email)) {
@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $messageType = "error";
         $hasError = true;
     } elseif ($role === 'admin' && (empty($adminDepartment) || !in_array($adminDepartment, $allowedAdminDepartments))) {
-        $message = "Please select a valid admin department.";
+        $message = "Please select a valid admin type.";
         $messageType = "error";
         $hasError = true;
     } elseif ($role === 'vendor' && empty($newCompanyRegistrationNumber)) {
@@ -119,14 +119,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // Ensure only one Head of Department per admin department (store department in vendorType)
-    if (!$hasError && $role === 'admin') {
+    // If admin selects a Head role, ensure only one admin has that head role
+    if (!$hasError && $role === 'admin' && stripos($adminDepartment, 'Head') === 0) {
         $deptCheck = $conn->prepare("SELECT username FROM vendoraccount WHERE role = 'admin' AND vendorType = ? LIMIT 1");
         $deptCheck->bind_param('s', $adminDepartment);
         $deptCheck->execute();
         $deptRes = $deptCheck->get_result();
         if ($deptRes && $deptRes->num_rows > 0) {
-            $message = "The selected department already has a Head assigned.";
+            $message = "The selected head role is already assigned to another admin.";
             $messageType = "error";
             $hasError = true;
         }
@@ -163,11 +163,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $accountID = generateAccountID();
 
-        // For admin accounts, store the chosen department in vendorType (as requested);
-        // for vendors, store the vendor type as before.
+        // For admin accounts, save the chosen admin type into `vendorType` (department column not used).
         $storeVendorType = null;
+        // Save admin type into vendorType column per request; department column left null
         if ($role === 'vendor') $storeVendorType = $vendorType;
-        if ($role === 'admin') $storeVendorType = $adminDepartment;
+        if ($role === 'admin') $storeVendorType = $adminDepartment ?: 'General';
         $storeNewCompanyRegistrationNumber = ($role === 'vendor') ? $newCompanyRegistrationNumber : null;
         $tempUsername = "PENDING_" . bin2hex(random_bytes(4));
 
@@ -458,14 +458,13 @@ window.addEventListener('load', function() {
 
             <div id="adminDeptDiv" style="display:none;">
                 <div class="form-group">
-                    <label for="adminDepartmentSelect">Admin Department</label>
+                    <label for="adminDepartmentSelect">Admin Type</label>
                     <select name="admin_department" id="adminDepartmentSelect">
-                        <option value="">-- Select Department --</option>
-                        <option value="General">General</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Legal">Legal</option>
-                        <option value="Project">Project</option>
-                        <option value="Plan">Plan</option>
+                        <option value="General" selected>General</option>
+                        <option value="Head - Finance">Head - Finance</option>
+                        <option value="Head - Legal">Head - Legal</option>
+                        <option value="Head - Project">Head - Project</option>
+                        <option value="Head - Plan">Head - Plan</option>
                     </select>
                 </div>
             </div>

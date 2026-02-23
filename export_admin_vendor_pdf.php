@@ -334,6 +334,23 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) { echo 'PDF library missing'
 require_once __DIR__ . '/vendor/autoload.php';
 
 $dompdf = new \Dompdf\Dompdf();
+// Allow Dompdf to load local file images via file:// URIs
+$dompdf->set_option('isRemoteEnabled', true);
+$imageDir = realpath(__DIR__ . '/Image');
+if ($imageDir !== false) {
+    $html = preg_replace_callback('#src\s*=\s*"Image/([^"<>]+)"#i', function($m) use ($imageDir) {
+        $fileName = rawurldecode($m[1]);
+        $path = $imageDir . DIRECTORY_SEPARATOR . $fileName;
+        if (!file_exists($path)) return $m[0];
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $map = ['png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','gif'=>'image/gif','svg'=>'image/svg+xml'];
+        $mime = $map[$ext] ?? 'application/octet-stream';
+        $data = file_get_contents($path);
+        if ($data === false) return $m[0];
+        $b64 = base64_encode($data);
+        return 'src="data:' . $mime . ';base64,' . $b64 . '"';
+    }, $html);
+}
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4','portrait');
 $dompdf->render();

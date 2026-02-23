@@ -176,7 +176,7 @@ emailInput.addEventListener('blur', function() {
     formLoading.style.display = 'block';
     submitBtn.disabled = true;
     // AJAX: check role
-    fetch('role_check.php', {
+    fetch('APIRoleCheck.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'email=' + encodeURIComponent(email)

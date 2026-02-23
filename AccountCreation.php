@@ -44,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
     $role = trim($_POST['role']);
     $vendorType = isset($_POST['vendor_type']) ? trim($_POST['vendor_type']) : '';
+    $adminDepartment = isset($_POST['admin_department']) ? trim($_POST['admin_department']) : '';
 
     // --- FIX STARTS HERE ---
     // One-time token check: strictly check if session token exists before comparing
@@ -68,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Allowed roles and vendor types
     $allowedRoles = ['admin', 'vendor'];
     $allowedVendorTypes = ['Civil Contractor', 'Supplier', 'TMP Contractor', 'General Contractor'];
+    $allowedAdminDepartments = ['General', 'Finance', 'Legal', 'Project', 'Plan'];
 
     $hasError = false;
     if (empty($email)) {
@@ -86,20 +88,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Please select a valid vendor type.";
         $messageType = "error";
         $hasError = true;
+    } elseif ($role === 'admin' && (empty($adminDepartment) || !in_array($adminDepartment, $allowedAdminDepartments))) {
+        $message = "Please select a valid admin department.";
+        $messageType = "error";
+        $hasError = true;
     } elseif ($role === 'vendor' && empty($newCompanyRegistrationNumber)) {
         $message = "Company Registration Number is required for vendor accounts.";
         $messageType = "error";
         $hasError = true;
     }
 
-    // Check if email already exists
-    if (!$hasError) {
+    // Check if email already exists (only enforce uniqueness for admin accounts)
+    if (!$hasError && $role === 'admin') {
         $checkStmt = $conn->prepare("SELECT username FROM vendoraccount WHERE email = ?");
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         $checkResult = $checkStmt->get_result();
         if ($checkResult->num_rows > 0) {
-            $message = "This email is already registered.";
+            $message = "This email is already registered for an admin account.";
+            $messageType = "error";
+            $hasError = true;
+        }
+    }
+
+    // Ensure only one Head of Department per admin department (store department in vendorType)
+    if (!$hasError && $role === 'admin') {
+        $deptCheck = $conn->prepare("SELECT username FROM vendoraccount WHERE role = 'admin' AND vendorType = ? LIMIT 1");
+        $deptCheck->bind_param('s', $adminDepartment);
+        $deptCheck->execute();
+        $deptRes = $deptCheck->get_result();
+        if ($deptRes && $deptRes->num_rows > 0) {
+            $message = "The selected department already has a Head assigned.";
             $messageType = "error";
             $hasError = true;
         }
@@ -136,8 +155,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $accountID = generateAccountID();
 
-        // For admin accounts, vendorType is NULL; for vendors, store the type
-        $storeVendorType = ($role === 'vendor') ? $vendorType : NULL;
+        // For admin accounts, store the chosen department in vendorType (as requested);
+        // for vendors, store the vendor type as before.
+        $storeVendorType = null;
+        if ($role === 'vendor') $storeVendorType = $vendorType;
+        if ($role === 'admin') $storeVendorType = $adminDepartment;
         $storeNewCompanyRegistrationNumber = ($role === 'vendor') ? $newCompanyRegistrationNumber : null;
         $tempUsername = "PENDING_" . bin2hex(random_bytes(4));
 
@@ -351,18 +373,44 @@ function toggleVendorType() {
     const companyRegDiv = document.getElementById('companyRegDiv');
     const companyRegInput = document.getElementById('newcompanyregistration');
     
+    const adminDeptDiv = document.getElementById('adminDeptDiv');
+    const adminDeptSelect = document.getElementById('adminDepartmentSelect');
+
     if (roleSelect.value === 'vendor') {
         vendorTypeDiv.style.display = 'block';
         vendorTypeSelect.required = true;
         companyRegDiv.style.display = 'block';
         companyRegInput.required = true;
-    } else {
+
+        // Hide admin fields
+        adminDeptDiv.style.display = 'none';
+        adminDeptSelect.required = false;
+        adminDeptSelect.value = '';
+    } else if (roleSelect.value === 'admin') {
+        // Show admin department selector and hide vendor-only fields
+        adminDeptDiv.style.display = 'block';
+        adminDeptSelect.required = true;
+
         vendorTypeDiv.style.display = 'none';
         vendorTypeSelect.required = false;
         vendorTypeSelect.value = '';
+
         companyRegDiv.style.display = 'none';
         companyRegInput.required = false;
         companyRegInput.value = '';
+    } else {
+        // No role selected: hide both vendor and admin specific fields
+        vendorTypeDiv.style.display = 'none';
+        vendorTypeSelect.required = false;
+        vendorTypeSelect.value = '';
+
+        companyRegDiv.style.display = 'none';
+        companyRegInput.required = false;
+        companyRegInput.value = '';
+
+        adminDeptDiv.style.display = 'none';
+        adminDeptSelect.required = false;
+        adminDeptSelect.value = '';
     }
 }
 
@@ -399,6 +447,20 @@ window.addEventListener('load', function() {
                 <option value="vendor">Vendor</option>
             </select>
         </div>
+
+            <div id="adminDeptDiv" style="display:none;">
+                <div class="form-group">
+                    <label for="adminDepartmentSelect">Admin Department</label>
+                    <select name="admin_department" id="adminDepartmentSelect">
+                        <option value="">-- Select Department --</option>
+                        <option value="General">General</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Project">Project</option>
+                        <option value="Plan">Plan</option>
+                    </select>
+                </div>
+            </div>
 
         <div id="companyRegDiv" style="display:none;">
             <div class="form-group">

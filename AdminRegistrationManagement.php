@@ -10,42 +10,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 	exit();
 }
 
-$accountID = $_GET['accountID'] ?? '';
-$vendorNewCompanyRegistration = '';
-$vendorUsername = '';
-
-if (empty($accountID)) {
-	echo "<div style='color:red;text-align:center;margin-top:40px;'>Error: Vendor account ID not specified.</div>";
-	exit();
-}
-
-// Get vendor's company registration number and username
-$stmtAcc = $conn->prepare("SELECT newCompanyRegistrationNumber, username FROM vendoraccount WHERE accountID = ?");
-$stmtAcc->bind_param("s", $accountID);
-$stmtAcc->execute();
-$accResult = $stmtAcc->get_result();
-if ($accRow = $accResult->fetch_assoc()) {
-	$vendorNewCompanyRegistration = $accRow['newCompanyRegistrationNumber'];
-	$vendorUsername = $accRow['username'];
-} else {
-	echo "<div style='color:red;text-align:center;margin-top:40px;'>Error: Vendor not found.</div>";
-	exit();
-}
-
 $forms = [];
-if (!empty($vendorNewCompanyRegistration)) {
-	$stmt = $conn->prepare(
-		"SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status, rejectionReason
-		FROM registrationform
-		WHERE newCompanyRegistrationNumber = ?
-		ORDER BY registrationFormID DESC"
-	);
-	$stmt->bind_param("s", $vendorNewCompanyRegistration);
-	$stmt->execute();
-	$formsResult = $stmt->get_result();
-	while ($row = $formsResult->fetch_assoc()) {
-		$forms[] = $row;
-	}
+$stmt = $conn->prepare(
+	"SELECT registrationFormID, newCompanyRegistrationNumber, companyName AS CompanyName, formFirstSubmissionDate, status, rejectionReason
+	FROM registrationform
+	ORDER BY registrationFormID DESC"
+);
+$stmt->execute();
+$formsResult = $stmt->get_result();
+while ($row = $formsResult->fetch_assoc()) {
+	$forms[] = $row;
 }
 ?>
 
@@ -54,7 +28,7 @@ if (!empty($vendorNewCompanyRegistration)) {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Admin - Vendor Form List</title>
+	<title>Admin - Registration Forms</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<style>
 		:root {
@@ -411,8 +385,8 @@ if (!empty($vendorNewCompanyRegistration)) {
 	<div class="container-fluid">
 		<div class="d-flex align-items-center">
 			<div>
-				<div class="nav-welcome-text">Registration Forms for <?php echo htmlspecialchars($vendorUsername); ?></div>
-				<div class="nav-welcome-sub">View and manage all registration forms submitted by this vendor</div>
+				<div class="nav-welcome-text">Registration Forms</div>
+				<div class="nav-welcome-sub">View and manage all registration forms</div>
 			</div>
 		</div>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -487,12 +461,6 @@ if (!empty($vendorNewCompanyRegistration)) {
 	<div class="container-main">
 
 	<div class="forms-container">
-		<div class="form-card" style="margin-bottom:16px; padding:16px;">
-			<div class="form-card-header" style="margin:0;">
-				<div class="form-card-title">Registration Forms for <?php echo htmlspecialchars($vendorUsername); ?></div>
-				<a href="AdminVendorManagement.php" class="btn btn-secondary" style="margin-left:12px;">&larr; Back to Vendor List</a>
-			</div>
-		</div>
 		<?php if (empty($forms)): ?>
 			<div class="forms-empty">
 				<h3>No Forms Yet</h3>

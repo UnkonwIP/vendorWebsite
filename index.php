@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "session_bootstrap.php";
 require_once "config.php";
 
 // 1. Logic to handle the login attempt

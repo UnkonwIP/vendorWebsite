@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "session_bootstrap.php";
 
 require_once "config.php";
 
@@ -9,15 +9,72 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Get vendor list
+// Get vendor list and filter parameters
 $keyword = $_GET['keyword'] ?? '';
+$selectedTrades = $_GET['trade'] ?? [];
+$cidbGrade = $_GET['cidbGrade'] ?? '';
+$stateFilter = $_GET['state'] ?? '';
+$project_value_type = $_GET['project_value_type'] ?? ''; // 'min' or 'max'
+$project_value = $_GET['project_value'] ?? '';
+$project_value_max = $_GET['project_value_max'] ?? ''; // for range when 'min' is selected
 $vendors = [];
-$where = '';
+
+// Use fixed specialties list
+$fixedTrades = ['ISP', 'O&M', 'M&E', 'Others'];
+
+// Use fixed list of Malaysian states/territories for Location filter
+$fixedStates = [
+    'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Penang','Perak','Perlis',
+    'Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur','Putrajaya','Labuan'
+];
+
+// Build WHERE clauses
+$whereClauses = [];
+$whereClauses[] = "va.role = 'vendor'";
 if ($keyword !== '') {
     $kw = mysqli_real_escape_string($conn, $keyword);
-    $where = "WHERE username LIKE '%$kw%' OR newCompanyRegistrationNumber LIKE '%$kw%' OR email LIKE '%$kw%'";
+    $whereClauses[] = "(va.username LIKE '%$kw%' OR va.newCompanyRegistrationNumber LIKE '%$kw%' OR va.email LIKE '%$kw%' OR rf.companyName LIKE '%$kw%')";
 }
-$roleWhere = ($where ? "$where AND role = 'vendor'" : "WHERE role = 'vendor'");
+if (!empty($selectedTrades) && is_array($selectedTrades)) {
+    // Match vendors where trade or cidbSpecialization contains any selected term
+    $tradeParts = [];
+    foreach ($selectedTrades as $tval) {
+        $t = mysqli_real_escape_string($conn, $tval);
+        $tradeParts[] = "(rf.trade LIKE '%$t%' OR rf.cidbSpecialization LIKE '%$t%')";
+    }
+    if (!empty($tradeParts)) {
+        $whereClauses[] = '(' . implode(' OR ', $tradeParts) . ')';
+    }
+}
+if ($cidbGrade !== '') {
+    $cg = mysqli_real_escape_string($conn, $cidbGrade);
+    $whereClauses[] = "rf.cidbGrade = '$cg'";
+}
+if ($stateFilter !== '') {
+    $sf = mysqli_real_escape_string($conn, $stateFilter);
+    $whereClauses[] = "(TRIM(SUBSTRING_INDEX(rf.registeredAddress, ',', -1)) = '$sf' OR TRIM(SUBSTRING_INDEX(rf.correspondenceAddress, ',', -1)) = '$sf' OR TRIM(SUBSTRING_INDEX(rf.branch, ',', -1)) = '$sf')";
+}
+
+// Build HAVING clauses for aggregated project values
+$havingClauses = [];
+if ($project_value_type === 'min' && $project_value !== '' && is_numeric($project_value)) {
+    $pv = (float)$project_value;
+    $havingClauses[] = "MAX(ptr.projectValue) >= $pv";
+    if ($project_value_max !== '' && is_numeric($project_value_max)) {
+        $pv_max = (float)$project_value_max;
+        $havingClauses[] = "MAX(ptr.projectValue) <= $pv_max";
+    }
+} elseif ($project_value_type === 'max' && $project_value !== '' && is_numeric($project_value)) {
+    $pv = (float)$project_value;
+    $havingClauses[] = "MIN(ptr.projectValue) <= $pv";
+}
+
+// Combine clauses
+$whereSql = '';
+if (!empty($whereClauses)) {
+    $whereSql = 'WHERE ' . implode(' AND ', $whereClauses);
+}
+
 // Fetch vendor accounts with registration info and project stats
 $sql = "SELECT va.accountID, va.username, va.email, va.newCompanyRegistrationNumber, "
     . "rf.companyName, rf.trade, rf.cidbGrade, "
@@ -25,9 +82,14 @@ $sql = "SELECT va.accountID, va.username, va.email, va.newCompanyRegistrationNum
     . "FROM vendoraccount va "
     . "LEFT JOIN registrationform rf ON va.newCompanyRegistrationNumber = rf.newCompanyRegistrationNumber "
     . "LEFT JOIN projecttrackrecord ptr ON rf.registrationFormID = ptr.registrationFormID "
-    . $roleWhere . " "
-    . "GROUP BY va.accountID, va.username, va.email, va.newCompanyRegistrationNumber, rf.companyName, rf.trade, rf.cidbGrade "
-    . "ORDER BY va.accountID DESC";
+    . $whereSql . " "
+    . "GROUP BY va.accountID, va.username, va.email, va.newCompanyRegistrationNumber, rf.companyName, rf.trade, rf.cidbGrade ";
+
+if (!empty($havingClauses)) {
+    $sql .= ' HAVING ' . implode(' AND ', $havingClauses) . ' ';
+}
+
+$sql .= "ORDER BY va.accountID DESC";
 $result = mysqli_query($conn, $sql);
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
@@ -294,11 +356,88 @@ if ($result) {
             background: #a71d2a;
             color: white;
         }
-        .search-box {
-            background: #f5f5f5;
-            padding: 15px;
+        /* Filter card / search box styles (matches temp.php design) */
+        .search-box, .filter-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
             margin-bottom: 30px;
+            max-width: 100%;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 15px;
+            transition: border-color .15s, box-shadow .15s;
+            margin-bottom: 25px;
+        }
+        .search-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 6px rgba(59,130,246,0.06); }
+        .value-combined {
+            display: flex;
+            border: 1px solid #dcdcdc;
             border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .value-type {
+            border: none;
+            padding: 10px 12px;
+            background: #f3f4f6;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            min-width: 80px;
+        }
+        .value-type:focus { outline: none; }
+        .currency-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        .currency-wrapper span {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: #666;
+        }
+        .currency-wrapper input {
+            width: 100%;
+            padding: 10px 10px 10px 38px;
+            border: none;
+            font-size: 14px;
+            outline: none;
+        }
+        .value-combined:focus-within {
+            border-color: #1e6bd6;
+            box-shadow: 0 0 0 3px rgba(30,107,214,0.1);
+        }
+        .project-filter-second-input {
+            display: none;
+            margin-top: 8px;
+        }
+        .project-filter-second-input.show {
+            display: block;
+        }
+        .filter-row {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .filter-group { flex: 1; min-width: 180px; }
+        .filter-label { display:block; font-weight:600; margin-bottom:8px; color: #334155; font-size:13px; }
+        .checkbox-group label { display:block; margin-bottom:6px; font-size:14px; cursor:pointer; }
+        .checkbox-group input { margin-right:8px; }
+        .filter-actions { text-align: right; margin-top:12px; }
+        .btn-primary { background: linear-gradient(135deg,#1e6bd6,#3b82f6); border:none; color:white; }
+        .btn-secondary { background:#f1f1f1; color:#333; border:1px solid #e5e7eb; }
+        @media (max-width:768px) {
+            .filter-row { flex-direction: column; }
+            .filter-actions { text-align:center; }
         }
         .clickable-vendor-card:hover {
             box-shadow: 0 6px 16px rgba(5, 150, 105, 0.22);
@@ -371,7 +510,7 @@ if ($result) {
                     </a>
                 </li>
                 <li class="list-item">
-                    <a class="list-item__link" href="admin.php">
+                    <a class="list-item__link" href="AdminVendorManagement.php">
                         <span class="list-item__icon" aria-hidden="true">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="var(--cp-white)"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6v1H4v-1z" fill="var(--cp-white)"></path></svg>
                         </span>
@@ -379,7 +518,7 @@ if ($result) {
                     </a>
                 </li>
                 <li class="list-item">
-                    <a class="list-item__link" href="#" onclick="alert('Development in progress'); return false;">
+                    <a class="list-item__link" href="AdminRegistrationManagement.php">
                         <span class="list-item__icon" aria-hidden="true">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="var(--cp-white)"></circle></svg>
                         </span>
@@ -434,15 +573,72 @@ if ($result) {
                     }, 5000);
                 </script>
             <?php endif; ?>
-            <form method="get" class="search-box mb-4 row g-3 align-items-center">
-            <div class="col-md-8">
-                <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword); ?>" placeholder="Search by username, company, email..." class="form-control">
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">Search</button>
-                <a href="admin.php" class="btn btn-secondary">Reset</a>
-            </div>
-        </form>
+            <form method="get" class="filter-card search-box mb-4">
+                <input type="text" name="keyword" class="search-input" placeholder="🔍 Search by username, company, email" value="<?php echo htmlspecialchars($keyword); ?>">
+
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Specialties</label>
+                        <div class="checkbox-group" style="max-height:120px; overflow:auto; padding:8px; border:1px solid #eef2f7; border-radius:8px; background:#fff;">
+                            <?php foreach ($fixedTrades as $t): ?>
+                                <?php $tid = 'trade_' . md5($t); ?>
+                                <label><input type="checkbox" name="trade[]" value="<?php echo htmlspecialchars($t); ?>" id="<?php echo $tid; ?>" <?php echo (is_array($selectedTrades) && in_array($t, $selectedTrades)) ? 'checked' : ''; ?>> <?php echo htmlspecialchars($t); ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">CIDB Grade</label>
+                        <select name="cidbGrade" class="form-select">
+                            <option value="">All Grades</option>
+                            <?php for ($g = 1; $g <= 7; $g++): $val = 'G' . $g; ?>
+                                <option value="<?php echo $val; ?>" <?php echo ($cidbGrade === $val) ? 'selected' : ''; ?>><?php echo $val; ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">State / Location</label>
+                        <select name="state" class="form-select">
+                            <option value="">All States</option>
+                            <?php foreach ($fixedStates as $st): ?>
+                                <option value="<?php echo htmlspecialchars($st); ?>" <?php echo ($stateFilter === $st) ? 'selected' : ''; ?>><?php echo htmlspecialchars($st); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Project Value</label>
+                        <div class="value-combined">
+                            <select name="project_value_type" class="value-type" id="projectValueType">
+                                <option value="">None</option>
+                                <option value="min" <?php echo ($project_value_type === 'min') ? 'selected' : ''; ?>>Min</option>
+                                <option value="max" <?php echo ($project_value_type === 'max') ? 'selected' : ''; ?>>Max</option>
+                            </select>
+                            <div class="currency-wrapper">
+                                <span>RM</span>
+                                <input type="text" name="project_value" id="projectValue" placeholder="Enter amount" value="<?php echo htmlspecialchars($project_value); ?>">
+                            </div>
+                        </div>
+                        <div class="project-filter-second-input <?php echo ($project_value_type === 'min') ? 'show' : ''; ?>" id="projectValueMaxContainer">
+                            <div class="value-combined" style="border:1px solid #dcdcdc; border-radius:8px;">
+                                <select class="value-type" style="background:#f3f4f6; min-width:80px;" disabled>
+                                    <option>Max</option>
+                                </select>
+                                <div class="currency-wrapper">
+                                    <span>RM</span>
+                                    <input type="text" name="project_value_max" id="projectValueMax" placeholder="Enter amount" value="<?php echo htmlspecialchars($project_value_max); ?>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="AdminVendorManagement.php" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
 
         <?php if (empty($vendors)): ?>
             <div class="vendor-empty">
@@ -515,6 +711,44 @@ if ($result) {
     </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Show/hide second input for project value range when "min" is selected
+const projectValueTypeSelect = document.getElementById('projectValueType');
+const projectValueMaxContainer = document.getElementById('projectValueMaxContainer');
+
+if (projectValueTypeSelect) {
+    projectValueTypeSelect.addEventListener('change', function() {
+        if (this.value === 'min') {
+            projectValueMaxContainer.classList.add('show');
+        } else {
+            projectValueMaxContainer.classList.remove('show');
+        }
+    });
+}
+
+// Format currency input with comma separators
+function formatCurrency(input) {
+    let value = input.value.replace(/,/g, '');
+    if (!isNaN(value) && value !== '') {
+        input.value = Number(value).toLocaleString('en-MY');
+    }
+}
+
+const projectValueInput = document.getElementById('projectValue');
+const projectValueMaxInput = document.getElementById('projectValueMax');
+
+if (projectValueInput) {
+    projectValueInput.addEventListener('blur', function() {
+        formatCurrency(this);
+    });
+}
+
+if (projectValueMaxInput) {
+    projectValueMaxInput.addEventListener('blur', function() {
+        formatCurrency(this);
+    });
+}
+</script>
 </body>
 </html>
 

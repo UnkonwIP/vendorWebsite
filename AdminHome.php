@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "session_bootstrap.php";
 
 require_once "config.php";
 
@@ -467,7 +467,7 @@ if ($pfRes) {
                     </a>
                 </li>
                 <li class="list-item">
-                    <a class="list-item__link" href="#" onclick="alert('Development in progress'); return false;">
+                    <a class="list-item__link" href="AdminRegistrationManagement.php">
                         <span class="list-item__icon" aria-hidden="true">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="var(--cp-white)"></circle></svg>
                         </span>

@@ -257,7 +257,7 @@ CREATE TABLE `registrationform` (
   `legalDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
   `legalDepartmentComments` varchar(255) DEFAULT NULL,
   `projectDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
-  `projectDepartmentComments` varchar(255) DEFAULT NULL,
+  `projectDepartmentComments` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

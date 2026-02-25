@@ -107,18 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $hasError = true;
     }
 
-    // Check if email already exists (enforce uniqueness for admin accounts including heads)
-    if (!$hasError && ($role === 'admin' || $role === 'admin_head')) {
-        $checkStmt = $conn->prepare("SELECT username FROM vendoraccount WHERE email = ?");
-        $checkStmt->bind_param("s", $email);
-        $checkStmt->execute();
-        $checkResult = $checkStmt->get_result();
-        if ($checkResult->num_rows > 0) {
-            $message = "This email is already registered for an admin account.";
-            $messageType = "error";
-            $hasError = true;
-        }
-    }
+    // Note: duplicate emails allowed for now; skip uniqueness enforcement for admin accounts
 
     // If creating an admin_head, ensure only one head exists per department
     if (!$hasError && $role === 'admin_head') {

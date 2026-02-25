@@ -407,6 +407,9 @@ if (!empty($vendorNewCompanyRegistration)) {
                     </span>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="AccountManagement.php?accountID=<?php echo urlencode($_SESSION['accountID'] ?? ''); ?>">Account Settings</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link logout-link" href="logout.php">Logout</a>
                 </li>
             </ul>

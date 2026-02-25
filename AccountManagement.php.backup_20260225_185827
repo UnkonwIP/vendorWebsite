@@ -44,18 +44,7 @@ if ($result && $row = $result->fetch_assoc()) {
 $homeLink = (isset($_SESSION['role']) && $_SESSION['role'] === 'vendor') ? 'VendorHomepage.php' : 'AdminHome.php';
 
 // OTP pending state
-$otpPending = false;
-if (isset($_SESSION['otp_pending']) && is_array($_SESSION['otp_pending'])) {
-	$pending = &$_SESSION['otp_pending'];
-	// purge expired or exhausted pending OTPs so the UI doesn't auto-open
-	if (isset($pending['expires']) && time() > $pending['expires']) {
-		unset($_SESSION['otp_pending']);
-	} elseif (!empty($pending['attempts']) && $pending['attempts'] >= 5) {
-		unset($_SESSION['otp_pending']);
-	} else {
-		$otpPending = true;
-	}
-}
+$otpPending = isset($_SESSION['otp_pending']) && is_array($_SESSION['otp_pending']);
 
 // Handle POST update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -334,6 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					</div>
 					<div style="white-space:nowrap;">
 						<button type="button" id="editPassword" style="background:#f59e0b;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Edit Password</button>
+						<button type="button" id="savePassword" style="display:none;background:#16a34a;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;margin-left:6px;">Request OTP</button>
 						<button type="button" id="cancelPassword" style="display:none;background:#ef4444;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;margin-left:6px;">Cancel</button>
 					</div>
 				</div>
@@ -344,9 +334,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							<div class="form-group">
 								<label>Current Password</label>
 								<input type="password" name="current_password" placeholder="Enter current password" disabled>
-							</div>
-							<div style="text-align:right;margin-top:8px;">
-								<button type="button" id="savePassword" style="display:none;background:#16a34a;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Request OTP</button>
 							</div>
 						</div>
 					</div>
@@ -373,9 +360,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<label>Confirm New Password</label>
 						<input type="password" name="confirm_password" placeholder="Confirm new password" disabled>
 					</div>
-							<div style="text-align:right;margin-top:8px;">
-								<button type="button" id="setNewPasswordBtn" style="display:none;background:#0ea5a4;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Set New Password</button>
-							</div>
 				</div>
 			</div>
 			<div style="text-align:right;margin-top:8px;">
@@ -404,29 +388,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				}
 
 				function exitEdit(restore=true) {
-					inputs.forEach(function(i){
-						if (restore && original.hasOwnProperty(i.name)) {
-							i.value = original[i.name];
-						}
-						i.disabled = true;
-					});
-					document.querySelectorAll('.field-save').forEach(function(b){ b.style.display = 'none'; });
-					document.querySelectorAll('.field-cancel').forEach(function(b){ b.style.display = 'none'; });
-					document.querySelectorAll('.field-edit').forEach(function(b){ b.style.display = ''; });
-					if (passwordSection) passwordSection.style.display = 'none';
-					if (note) note.style.display = '';
-				}
-
-				// Attach edit handlers for each field edit button
-				document.querySelectorAll('.field-edit').forEach(function(btn){
+								if (verifyBtn) {
+									verifyBtn.addEventListener('click', function(ev){
+										ev.preventDefault();
+										var code = otpSection.querySelector('input[name=otp_code]').value;
+										// UX: disable button and show verifying state
+										verifyBtn.disabled = true;
+										var originalText = verifyBtn.textContent;
+										verifyBtn.textContent = 'Verifying...';
+										fetch('APIManageAccount.php', {
+											method: 'POST',
+											credentials: 'same-origin',
+											headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+											body: new URLSearchParams({ action: 'verify_otp', otp_code: code })
+										}).then(r => r.json()).then(function(j){
+											var m = document.getElementById('ajaxMessage'); if (!m) { m = document.createElement('div'); m.id='ajaxMessage'; m.style.marginBottom='12px'; form.parentNode.insertBefore(m, form);} 
+											m.textContent = j.message || (j.success? 'Verified' : 'Error'); m.className = j.success? 'message success' : 'message error';
+											if (j.success) {
+												// allow user to enter new password now
+												if (otpSection && otpSection.parentNode) otpSection.parentNode.removeChild(otpSection);
+												var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'block';
+												var newPasswordInput = form.querySelector('input[name=new_password]');
+												var confPasswordInput = form.querySelector('input[name=confirm_password]');
+												if (newPasswordInput) { newPasswordInput.disabled = false; newPasswordInput.focus(); }
+												if (confPasswordInput) confPasswordInput.disabled = false;
+												// switch save button to 'set' mode
+												savePassword.dataset.mode = 'set';
+												savePassword.textContent = 'Set New Password';
+												// enable inputs for new password
+												newPwd.disabled = false; confPwd.disabled = false;
+											} else {
+												// on failure, re-enable verify button
+												verifyBtn.disabled = false;
+												verifyBtn.textContent = originalText;
+											}
+										}).catch(function(){
+											alert('Request failed');
+											verifyBtn.disabled = false;
+											verifyBtn.textContent = originalText;
+										});
+									});
+								}
 					btn.addEventListener('click', function(e){
 						var field = btn.getAttribute('data-field');
 						var input = form.querySelector('input[name="' + field + '"]');
 						if (!input) return;
-						var saveBtn = form.querySelector('.field-save[data-field="' + field + '"]');
-						var cancelBtn = form.querySelector('.field-cancel[data-field="' + field + '"]');
-						if (saveBtn) saveBtn.style.display = '';
-						if (cancelBtn) cancelBtn.style.display = '';
+						// show save/cancel for this field
+						form.querySelectorAll('.field-save[data-field="' + field + '"]')[0].style.display = '';
+						form.querySelectorAll('.field-cancel[data-field="' + field + '"]')[0].style.display = '';
 						btn.style.display = 'none';
 						input.disabled = false;
 						input.focus();
@@ -485,16 +494,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				var curPwd = form.querySelector('input[name=current_password]');
 				var newPwd = form.querySelector('input[name=new_password]');
 				var confPwd = form.querySelector('input[name=confirm_password]');
-						var setNewBtn = document.getElementById('setNewPasswordBtn');
 				if (editPassword) {
 					editPassword.addEventListener('click', function(e){
 						e.preventDefault();
 						// reveal password section for entering current password
-								passwordSection.style.display = 'block';
-								// ensure current-password input group is visible when entering edit mode
-								var _cur = form.querySelector('input[name=current_password]');
-								if (_cur) { var _g = _cur.closest('.form-group'); if (_g) _g.style.display = ''; }
-								// hide masked display while editing
+						passwordSection.style.display = 'block';
+						// hide masked display while editing
 						var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = 'none';
 						editPassword.style.display = 'none';
 						savePassword.style.display = '';
@@ -509,20 +514,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				if (cancelPassword) {
 					cancelPassword.addEventListener('click', function(e){
 						e.preventDefault();
-								// cancel any pending OTP on the server
-								fetch('APIManageAccount.php', {
-									method: 'POST',
-									credentials: 'same-origin',
-									headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-									body: new URLSearchParams({ action: 'cancel_otp' })
-								}).then(r => r.json()).then(function(res){
-									var msgEl = document.getElementById('ajaxMessage');
-									if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
-									msgEl.textContent = res.message || (res.success ? 'Cancelled' : 'Error');
-									msgEl.className = res.success ? 'message info' : 'message error';
-								}).catch(function(){});
-								// remove any OTP input section in DOM
-								var otpSection = document.getElementById('otpSection'); if (otpSection && otpSection.parentNode) otpSection.parentNode.removeChild(otpSection);
 						editPassword.style.display = '';
 						savePassword.style.display = 'none';
 						cancelPassword.style.display = 'none';
@@ -530,12 +521,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 									var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'none';
 						curPwd.value = ''; newPwd.value = ''; confPwd.value = '';
 						curPwd.disabled = true; newPwd.disabled = true; confPwd.disabled = true;
-								// hide password section again when cancelling
-								passwordSection.style.display = 'none';
-								// ensure current-password input group is visible again for next edit
-								var _curShow = form.querySelector('input[name=current_password]'); if (_curShow) { var _g2 = _curShow.closest('.form-group'); if (_g2) _g2.style.display = ''; }
-								// restore masked display
-								var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
+						// hide password section again when cancelling
+						passwordSection.style.display = 'none';
+						// restore masked display
+						var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
 					});
 				}
 				if (savePassword) {
@@ -571,9 +560,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 									editPassword.style.display = '';
 									savePassword.style.display = 'none';
 									cancelPassword.style.display = 'none';
-									// hide new password UI and collapse password section
-									var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'none';
-									if (passwordSection) passwordSection.style.display = 'none';
 									// restore masked display
 									var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
 								}
@@ -601,11 +587,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 									otpSection.innerHTML = '<hr style="margin:16px 0;"><p style="margin:0 0 8px 0;font-size:90%;color:#374151">Enter OTP sent to your email</p><div class="form-group"><label>OTP Code</label><input type="text" name="otp_code" placeholder="6-digit code"></div><div style="text-align:right;"><button id="verifyOtpBtn" style="background:#059669;color:#fff;padding:8px 10px;border-radius:6px;border:none;">Verify OTP</button></div>';
 									passwordSection.parentNode.insertBefore(otpSection, passwordSection.nextSibling);
 								}
-									// hide current-password field once server accepted it and sent OTP
-									var _curHide = form.querySelector('input[name=current_password]');
-									if (_curHide) { var _grp = _curHide.closest('.form-group'); if (_grp) _grp.style.display = 'none'; }
-									// hide the Request OTP button as we've moved to OTP verification
-									if (savePassword) savePassword.style.display = 'none';
 								var verifyBtn = document.getElementById('verifyOtpBtn');
 								if (verifyBtn) {
 									verifyBtn.addEventListener('click', function(ev){
@@ -629,10 +610,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 																	// switch save button to 'set' mode
 																	savePassword.dataset.mode = 'set';
 																	savePassword.textContent = 'Set New Password';
-																	// show the Set New Password button (below confirm field)
-																	if (setNewBtn) setNewBtn.style.display = '';
-																	// hide the Request OTP button (if visible)
-																	if (savePassword) savePassword.style.display = 'none';
 																	// enable inputs for new password
 																	newPwd.disabled = false; confPwd.disabled = false;
 																}

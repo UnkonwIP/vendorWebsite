@@ -10,6 +10,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require  __DIR__ . '/PHPMailer/src/PHPMailer.php';
     require  __DIR__ . '/PHPMailer/src/SMTP.php';
 }
+require_once __DIR__ . '/session_bootstrap.php';
 require_once __DIR__ . '/config.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
@@ -18,43 +19,34 @@ $message = "";
 $messageType = ""; // success | error
 $tokenValid = false;
 $setupToken = "";
+$redirectLocation = "";
 
 // Check if token exists in URL
 if (isset($_GET['token'])) {
     $setupToken = trim($_GET['token']);
     
-    // Validate token against database (new schema: resetToken, resetExpiry)
+    // Validate token against database and capture account details
     $stmt = $conn->prepare(
-        "SELECT accountID, email FROM vendoraccount 
-        WHERE resetToken = ? AND resetExpiry > NOW() AND username LIKE 'PENDING_%'"
+        "SELECT accountID, email, role, vendorType FROM vendoraccount 
+        WHERE resetToken = ? AND resetExpiry > NOW() AND username LIKE 'PENDING_%' LIMIT 1"
     );
     $stmt->bind_param("s", $setupToken);
     $stmt->execute();
     $result = $stmt->get_result();
     
-    if ($result->num_rows === 1) {
+    if ($result && $row = $result->fetch_assoc()) {
         $tokenValid = true;
+        $tokenAccountID = isset($row['accountID']) ? intval($row['accountID']) : 0;
+        $tokenEmail = $row['email'] ?? '';
+        $userRole = $row['role'] ?? '';
+        $userVendorType = $row['vendorType'] ?? '';
     } else {
         $message = "Invalid or expired setup link. Please request a new account invitation.";
         $messageType = "error";
     }
 }
 
-// Get role and vendor type from token
-$userRole = '';
-$userVendorType = '';
-if ($tokenValid) {
-    $stmt = $conn->prepare(
-        "SELECT role, vendorType FROM vendoraccount 
-        WHERE resetToken = ? AND resetExpiry > NOW()"
-    );
-    $stmt->bind_param("s", $setupToken);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $userRole = $row['role'];
-    $userVendorType = $row['vendorType'];
-}
+// $userRole and $userVendorType are set above when token is validated
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
@@ -62,16 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
     $password  = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
 
-    // Get the email from the valid token
-    $stmt = $conn->prepare(
-        "SELECT email FROM vendoraccount 
-        WHERE resetToken = ? AND resetExpiry > NOW() AND username LIKE 'PENDING_%'"
-    );
-    $stmt->bind_param("s", $setupToken);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $email = $row['email'];
+    // Use email captured when token was validated
+    $email = $tokenEmail ?? '';
 
     // Validation
     if (empty($username) || empty($password) || empty($confirmPassword)) {
@@ -95,9 +79,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
         $updateStmt->bind_param("ssss", $username, $hashedPassword, $email, $setupToken);
 
         if ($updateStmt->execute()) {
-            $message = "Account setup completed successfully! You can now login with your account ID and password.";
+            // Auto-login the user: regenerate session and set session values
+            session_regenerate_id(true);
+            $_SESSION['accountID'] = isset($tokenAccountID) ? intval($tokenAccountID) : 0;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = isset($userRole) ? strtolower(trim($userRole)) : '';
+            $_SESSION['email'] = $email;
+
+            // Prepare a friendly success message and client-side redirect after 3 seconds
+            $location = ($_SESSION['role'] === 'vendor') ? 'VendorHomepage.php' : 'AdminHome.php';
+            $message = "Account setup successful. Redirecting you to your homepage...";
             $messageType = "success";
-            $tokenValid = false; // Hide form after successful setup
+            $redirectLocation = $location;
+            $tokenValid = false; // hide the setup form after successful setup
         } else {
             $message = "Error setting up account. Please try again.";
             $messageType = "error";
@@ -213,6 +207,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
         </div>
     <?php endif; ?>
 
+    <?php if (!empty($redirectLocation)): ?>
+        <script>
+            setTimeout(function() {
+                window.location.href = '<?php echo $redirectLocation; ?>';
+            }, 3000);
+        </script>
+    <?php endif; ?>
+
     <?php if ($tokenValid): ?>
         <p>Complete your account setup below.</p>
 
@@ -281,11 +283,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $tokenValid) {
         }
         </script>
     <?php else: ?>
-        <p>Please use the setup link sent to your email to create your account.</p>
-        
-        <div class="links">
-            <a href="index.php">← Back to Login</a>
-        </div>
+        <?php if (empty($redirectLocation)): ?>
+            <p>Please use the setup link sent to your email to create your account.</p>
+            <div class="links">
+                <a href="index.php">← Back to Login</a>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 
 </div>

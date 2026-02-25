@@ -10,7 +10,7 @@ The vendor registration form approval system now follows a multi-stage workflow 
 
 ### Stage 1: Data Completeness Review
 **Role:** General Admin (`role = 'admin'`)
-**Form Status:** `pending`
+**Form Status:** `pending/not reviewed`
 
 - General admin reviews the submitted registration form for data completeness
 - **If data is complete:**

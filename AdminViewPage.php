@@ -1036,15 +1036,80 @@
 
 </body>
 <?php
-// Floating approval bar: only show for admin and pending status
-if (($role === 'admin') && strtolower($RegistrationRow['status']) === 'pending') {
-        // Get vendor accountID for redirect
-        $stmtAcc = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
-        $stmtAcc->bind_param("s", $RegistrationRow['newCompanyRegistrationNumber']);
-        $stmtAcc->execute();
-        $accResult = $stmtAcc->get_result();
-        $vendorAccountID = ($accRow = $accResult->fetch_assoc()) ? $accRow['accountID'] : '';
-        $redirectUrl = 'AdminVendorFormList.php?accountID=' . urlencode($vendorAccountID);
+// Determine redirect URL
+$stmtAcc = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+$stmtAcc->bind_param("s", $RegistrationRow['newCompanyRegistrationNumber']);
+$stmtAcc->execute();
+$accResult = $stmtAcc->get_result();
+$vendorAccountID = ($accRow = $accResult->fetch_assoc()) ? $accRow['accountID'] : '';
+
+// Determine appropriate redirect based on role
+if ($role === 'admin') {
+    $redirectUrl = 'AdminRegistrationManagement.php';
+} elseif ($role === 'admin_head') {
+    $redirectUrl = 'AdminHeadRegisrationManagement.php';
+} else {
+    $redirectUrl = 'AdminVendorFormList.php?accountID=' . urlencode($vendorAccountID);
+}
+
+// Determine if we should show approval buttons and which type
+$showApprovalBar = false;
+$approvalType = ''; // 'general', 'department', 'head'
+$formStatus = strtolower($RegistrationRow['status'] ?? '');
+
+// Get user's department if admin or admin_head
+$userDepartment = '';
+$deptColumn = '';
+if (in_array($role, ['admin', 'admin_head'])) {
+    $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+    if ($vtStmt) {
+        $vtStmt->bind_param('s', $currentUserAccountID);
+        $vtStmt->execute();
+        $vtRes = $vtStmt->get_result();
+        if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
+            $userDepartment = $vtRow['vendorType'] ?? '';
+        }
+        $vtStmt->close();
+    }
+    
+    // Map to column
+    $vtLower = strtolower($userDepartment);
+    if (strpos($vtLower, 'finance') !== false) {
+        $deptColumn = 'financeDepartmentStatus';
+    } elseif (strpos($vtLower, 'project') !== false) {
+        $deptColumn = 'projectDepartmentStatus';
+    } elseif (strpos($vtLower, 'legal') !== false) {
+        $deptColumn = 'legalDepartmentStatus';
+    } elseif (strpos($vtLower, 'plan') !== false) {
+        $deptColumn = 'planDepartmentStatus';
+    }
+}
+
+// Case 1: General admin reviewing data completeness (form status = 'pending')
+if ($role === 'admin' && $formStatus === 'pending') {
+    $showApprovalBar = true;
+    $approvalType = 'general';
+}
+
+// Case 2: Department admin reviewing their part (form status = 'pending approval' AND their dept status = 'pending')
+if ($role === 'admin' && $formStatus === 'pending approval' && !empty($deptColumn)) {
+    $deptStatus = strtolower($RegistrationRow[$deptColumn] ?? '');
+    if ($deptStatus === 'pending') {
+        $showApprovalBar = true;
+        $approvalType = 'department';
+    }
+}
+
+// Case 3: Department head reviewing their part (form status = 'pending approval' AND their dept status = 'pending approval')
+if ($role === 'admin_head' && $formStatus === 'pending approval' && !empty($deptColumn)) {
+    $deptStatus = strtolower($RegistrationRow[$deptColumn] ?? '');
+    if ($deptStatus === 'pending approval') {
+        $showApprovalBar = true;
+        $approvalType = 'head';
+    }
+}
+
+if ($showApprovalBar) {
 ?>
 <style>
         .floating-approval-bar {
@@ -1062,23 +1127,43 @@ if (($role === 'admin') && strtolower($RegistrationRow['status']) === 'pending')
         }
 </style>
 <div class="floating-approval-bar">
+    <?php if ($approvalType === 'general'): ?>
+        <!-- General admin: data completeness check -->
         <form method="post" action="APIUpdateFormStatus.php" style="margin:0;">
                 <input type="hidden" name="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
                 <input type="hidden" name="status" value="approved">
                 <input type="hidden" name="redirectUrl" value="<?= htmlspecialchars($redirectUrl) ?>">
-                <button type="submit" class="btn btn-success btn-lg">Approve</button>
+                <button type="submit" class="btn btn-success btn-lg">Approve Data (Send to Departments)</button>
         </form>
-        <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject</button>
-        <a href="<?= htmlspecialchars($redirectUrl) ?>" class="btn btn-lg btn-primary">Return to Homepage</a>
+        <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject (Data Incomplete)</button>
+    <?php elseif ($approvalType === 'department' || $approvalType === 'head'): ?>
+        <!-- Department admin or head: department approval -->
+        <form method="post" action="APIDepartmentApproval.php" style="margin:0;">
+                <input type="hidden" name="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="redirectUrl" value="<?= htmlspecialchars($redirectUrl) ?>">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <?= $approvalType === 'head' ? 'Approve (Head of ' . htmlspecialchars($userDepartment) . ')' : 'Approve (' . htmlspecialchars($userDepartment) . ')' ?>
+                </button>
+        </form>
+        <form method="post" action="APIDepartmentApproval.php" style="margin:0;">
+                <input type="hidden" name="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="redirectUrl" value="<?= htmlspecialchars($redirectUrl) ?>">
+                <button type="submit" class="btn btn-danger btn-lg">Reject</button>
+        </form>
+    <?php endif; ?>
+    <a href="<?= htmlspecialchars($redirectUrl) ?>" class="btn btn-lg btn-primary">Return</a>
 </div>
 
-<!-- Modal for rejection reason -->
+<?php if ($approvalType === 'general'): ?>
+<!-- Modal for rejection reason (general admin only) -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="post" action="APIUpdateFormStatus.php">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="rejectModalLabel">Reject Form</h5>
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Form - Data Incomplete</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1098,6 +1183,8 @@ if (($role === 'admin') && strtolower($RegistrationRow['status']) === 'pending')
         </div>
     </div>
 </div>
+<?php endif; ?>
+
 <?php } ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="VendorUpdateScript.js"></script>

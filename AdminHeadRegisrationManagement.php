@@ -4,10 +4,10 @@ require_once "config.php";
 //
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Protect page (admin only)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-	header("Location: index.php");
-	exit();
+// Protect page (head admins only)
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin_head') {
+    header("Location: index.php");
+    exit();
 }
 
 $search = trim($_GET['search'] ?? '');
@@ -44,6 +44,43 @@ $forms = [];
 $conditions = [];
 $params = [];
 $types = '';
+
+// Determine the current head's department from vendoraccount.vendorType
+$accountID = $_SESSION['accountID'] ?? '';
+$vendorType = '';
+if (!empty($accountID)) {
+	$vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+	if ($vtStmt) {
+		$vtStmt->bind_param('s', $accountID);
+		$vtStmt->execute();
+		$vtRes = $vtStmt->get_result();
+		if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
+			$vendorType = $vtRow['vendorType'] ?? '';
+		}
+		$vtStmt->close();
+	}
+}
+
+// Map vendorType to the corresponding department status column
+$deptColumn = null;
+if ($vendorType !== '') {
+	$vtLower = strtolower($vendorType);
+	if (strpos($vtLower, 'finance') !== false) {
+		$deptColumn = 'financeDepartmentStatus';
+	} elseif (strpos($vtLower, 'project') !== false) {
+		$deptColumn = 'projectDepartmentStatus';
+	} elseif (strpos($vtLower, 'legal') !== false) {
+		$deptColumn = 'legalDepartmentStatus';
+	} elseif (strpos($vtLower, 'plan') !== false) {
+		$deptColumn = 'planDepartmentStatus';
+	}
+}
+
+// If a department column was identified, restrict results to forms requiring this department's attention
+if ($deptColumn !== null) {
+	// show forms where this department's status is explicitly 'pending'
+	$conditions[] = "LOWER($deptColumn) = 'pending'";
+}
 
 if ($search !== '') {
 	$like = "%{$search}%";

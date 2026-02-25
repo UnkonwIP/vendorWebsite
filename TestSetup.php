@@ -60,7 +60,7 @@ function createDefaultAdmin($conn) {
 
     // Insert admin account into vendoraccount, set as Head for General
     // Save admin role into vendorType; department column is no longer used
-    $vendorType = 'Head - General';
+    $vendorType = 'General';
     $stmt = $conn->prepare("INSERT INTO vendoraccount (accountID, username, passwordHash, email, role, vendorType) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param('ssssss', $accountID, $username, $password, $email, $role, $vendorType);
     if ($stmt->execute()) {

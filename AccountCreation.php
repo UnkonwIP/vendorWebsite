@@ -13,9 +13,9 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require  __DIR__ . '/PHPMailer/src/PHPMailer.php';
     require  __DIR__ . '/PHPMailer/src/SMTP.php';
 }
-require_once __DIR__ . '/config.php';
 
-session_start();
+require_once __DIR__ . '/session_bootstrap.php';
+require_once __DIR__ . '/config.php';
 
 // Prevent browser caching (important for back/refresh)
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -24,8 +24,8 @@ header("Expires: 0");
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Protect page (admin only) - Uncomment when ready
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Protect page (admin only or head-of-department)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'admin_head'], true)) {
     header("Location: index.php");
     exit();
 }
@@ -75,9 +75,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $newCompanyRegistrationNumber = isset($_POST['newcompanyregistration']) ? trim($_POST['newcompanyregistration']) : '';
 
     // Allowed roles and vendor types
-    $allowedRoles = ['admin', 'vendor'];
+    $allowedRoles = ['admin', 'vendor', 'admin_head'];
     $allowedVendorTypes = ['Civil Contractor', 'Supplier', 'TMP Contractor', 'General Contractor'];
-    $allowedAdminDepartments = ['General', 'Head - Finance', 'Head - Legal', 'Head - Project', 'Head - Plan'];
+    // Store simple department keys for vendorType: General, Finance, Legal, Project, Plan
+    $allowedAdminDepartments = ['General', 'Finance', 'Legal', 'Project', 'Plan'];
 
     $hasError = false;
     if (empty($email)) {
@@ -96,8 +97,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Please select a valid vendor type.";
         $messageType = "error";
         $hasError = true;
-    } elseif ($role === 'admin' && (empty($adminDepartment) || !in_array($adminDepartment, $allowedAdminDepartments))) {
-        $message = "Please select a valid admin type.";
+    } elseif (($role === 'admin' || $role === 'admin_head') && (empty($adminDepartment) || !in_array($adminDepartment, $allowedAdminDepartments))) {
+        $message = "Please select a valid admin department.";
         $messageType = "error";
         $hasError = true;
     } elseif ($role === 'vendor' && empty($newCompanyRegistrationNumber)) {
@@ -106,8 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $hasError = true;
     }
 
-    // Check if email already exists (only enforce uniqueness for admin accounts)
-    if (!$hasError && $role === 'admin') {
+    // Check if email already exists (enforce uniqueness for admin accounts including heads)
+    if (!$hasError && ($role === 'admin' || $role === 'admin_head')) {
         $checkStmt = $conn->prepare("SELECT username FROM vendoraccount WHERE email = ?");
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
@@ -119,9 +120,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // If admin selects a Head role, ensure only one admin has that head role
-    if (!$hasError && $role === 'admin' && stripos($adminDepartment, 'Head') === 0) {
-        $deptCheck = $conn->prepare("SELECT username FROM vendoraccount WHERE role = 'admin' AND vendorType = ? LIMIT 1");
+    // If creating an admin_head, ensure only one head exists per department
+    if (!$hasError && $role === 'admin_head') {
+        $deptCheck = $conn->prepare("SELECT username FROM vendoraccount WHERE vendorType = ? AND role = 'admin_head' LIMIT 1");
         $deptCheck->bind_param('s', $adminDepartment);
         $deptCheck->execute();
         $deptRes = $deptCheck->get_result();
@@ -163,11 +164,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $accountID = generateAccountID();
 
-        // For admin accounts, save the chosen admin type into `vendorType` (department column not used).
+        // For admin accounts, save the chosen admin department into `vendorType`.
         $storeVendorType = null;
-        // Save admin type into vendorType column per request; department column left null
-        if ($role === 'vendor') $storeVendorType = $vendorType;
-        if ($role === 'admin') $storeVendorType = $adminDepartment ?: 'General';
+        if ($role === 'vendor') {
+            $storeVendorType = $vendorType;
+        } elseif ($role === 'admin' || $role === 'admin_head') {
+            $storeVendorType = $adminDepartment ?: 'General';
+        }
         $storeNewCompanyRegistrationNumber = ($role === 'vendor') ? $newCompanyRegistrationNumber : null;
         $tempUsername = "PENDING_" . bin2hex(random_bytes(4));
 
@@ -394,7 +397,7 @@ function toggleVendorType() {
         adminDeptDiv.style.display = 'none';
         adminDeptSelect.required = false;
         adminDeptSelect.value = '';
-    } else if (roleSelect.value === 'admin') {
+    } else if (roleSelect.value === 'admin' || roleSelect.value === 'admin_head') {
         // Show admin department selector and hide vendor-only fields
         adminDeptDiv.style.display = 'block';
         adminDeptSelect.required = true;
@@ -452,19 +455,20 @@ window.addEventListener('load', function() {
             <select name="role" id="roleSelect" required onchange="toggleVendorType()">
                 <option value="">-- Select Role --</option>
                 <option value="admin">Admin</option>
+                <option value="admin_head">Admin - Head of Department</option>
                 <option value="vendor">Vendor</option>
             </select>
         </div>
 
             <div id="adminDeptDiv" style="display:none;">
                 <div class="form-group">
-                    <label for="adminDepartmentSelect">Admin Type</label>
+                    <label for="adminDepartmentSelect">Admin Department</label>
                     <select name="admin_department" id="adminDepartmentSelect">
                         <option value="General" selected>General</option>
-                        <option value="Head - Finance">Head - Finance</option>
-                        <option value="Head - Legal">Head - Legal</option>
-                        <option value="Head - Project">Head - Project</option>
-                        <option value="Head - Plan">Head - Plan</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Project">Project</option>
+                        <option value="Plan">Plan</option>
                     </select>
                 </div>
             </div>

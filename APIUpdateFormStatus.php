@@ -26,10 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    // General admin data completeness check
     if ($status === 'approved') {
-        $stmt = $conn->prepare("UPDATE registrationform SET status = ?, rejectionReason = NULL WHERE registrationFormID = ?");
-        $stmt->bind_param("si", $status, $registrationFormID);
+        // When general admin approves (data complete), set status to "pending approval"
+        // and initialize all department statuses to "pending"
+        $stmt = $conn->prepare("UPDATE registrationform SET 
+            status = 'pending approval', 
+            rejectionReason = NULL,
+            financeDepartmentStatus = 'pending',
+            projectDepartmentStatus = 'pending',
+            legalDepartmentStatus = 'pending',
+            planDepartmentStatus = 'pending'
+            WHERE registrationFormID = ?");
+        $stmt->bind_param("i", $registrationFormID);
     } else if ($status === 'rejected') {
+        // Rejection by general admin for data incompleteness
         $stmt = $conn->prepare("UPDATE registrationform SET status = ?, rejectionReason = ? WHERE registrationFormID = ?");
         $stmt->bind_param("ssi", $status, $rejectionReason, $registrationFormID);
     } else {

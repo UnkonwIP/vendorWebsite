@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/session_bootstrap.php';
 require_once __DIR__ . '/config.php';
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
@@ -10,15 +10,16 @@ if (!isset($_SESSION['role'])) {
     exit();
 }
 
-$accountID = $_SESSION['accountID'] ?? '';
+// Ensure we have an integer account id from session
+$accountID = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
 if (empty($accountID)) {
     header('Location: index.php');
     exit();
 }
 
 // Fetch vendor row
-$stmt = $conn->prepare('SELECT accountID, newCompanyRegistrationNumber, username, email, vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1');
-$stmt->bind_param('s', $accountID);
+ $stmt = $conn->prepare('SELECT accountID, newCompanyRegistrationNumber, username, email, vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1');
+ $stmt->bind_param('i', $accountID);
 $stmt->execute();
 $vendor = $stmt->get_result()->fetch_assoc();
 

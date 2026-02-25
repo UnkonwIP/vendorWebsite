@@ -67,11 +67,12 @@
                 <label for="newCRN">Company Registration No (new)</label>
                 <?php
                 $autoCRN = '';
-                session_start();
-                require_once "config.php";
+                require_once __DIR__ . '/session_bootstrap.php';
+                require_once __DIR__ . '/config.php';
                 if (isset($_SESSION['accountID'])) {
+                    $acct = intval($_SESSION['accountID']);
                     $stmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ?");
-                    $stmt->bind_param("s", $_SESSION['accountID']);
+                    $stmt->bind_param("i", $acct);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     if ($row = $result->fetch_assoc()) {

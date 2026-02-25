@@ -4,11 +4,12 @@ require_once "config.php";
 
 // 1. Logic to handle the login attempt
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
+    $login = trim($_POST['username'] ?? '');
     $password  = $_POST['accountPassword'] ?? '';
 
-    $stmt = $conn->prepare("SELECT accountID, username, passwordHash, role, email FROM vendoraccount WHERE username = ?");
-    $stmt->bind_param("s", $username);
+    // Allow login by username OR email (case-sensitive depending on DB collation)
+    $stmt = $conn->prepare("SELECT accountID, username, passwordHash, role, email FROM vendoraccount WHERE username = ? OR email = ? LIMIT 1");
+    $stmt->bind_param("ss", $login, $login);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -16,11 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['passwordHash'])) {
-            // Success: Secure the session and redirect
-            session_regenerate_id(true);
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role']      = $user['role'];
-            $_SESSION['accountID'] = $user['accountID'] ?? '';
+                // Success: Secure the session and redirect
+                session_regenerate_id(true);
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role']      = isset($user['role']) ? strtolower(trim($user['role'])) : '';
+                $_SESSION['accountID'] = isset($user['accountID']) ? intval($user['accountID']) : 0;
             // store email for vendor pages
             $_SESSION['email']     = $user['email'] ?? '';
 

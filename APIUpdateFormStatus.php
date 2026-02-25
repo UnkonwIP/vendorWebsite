@@ -1,18 +1,18 @@
 <?php
-session_start();
-require_once "config.php";
+require_once __DIR__ . '/session_bootstrap.php';
+require_once __DIR__ . '/config.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur'); // Fixed
 
 // Only admin can update status
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['role']) || strtolower(trim($_SESSION['role'])) !== 'admin') {
     http_response_code(403);
     echo "Unauthorized.";
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $registrationFormID = $_POST['registrationFormID'] ?? '';
+    $registrationFormID = isset($_POST['registrationFormID']) ? intval($_POST['registrationFormID']) : 0;
     $status = $_POST['status'] ?? '';
     $rejectionReason = $_POST['rejectionReason'] ?? null;
 

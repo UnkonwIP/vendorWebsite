@@ -1,6 +1,8 @@
 <?php
 // Admin sidebar include. Edit this file to change sidebar across admin pages.
 // Assumes the including page has already started session and loaded any required CSS.
+// Determine current page for active link highlighting
+$currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 ?>
 <aside class="sidebar">
     <div class="cp-main-menu__container">
@@ -56,6 +58,14 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v10H4z" fill="var(--cp-white)"></path></svg>
                     </span>
                     <span class="list-item__text">Contract</span>
+                </a>
+            </li>
+            <li class="list-item<?php echo $currentPage === 'AccountManagement.php' ? ' active' : ''; ?>">
+                <a class="list-item__link" href="AccountManagement.php"<?php echo $currentPage === 'AccountManagement.php' ? ' aria-current="page"' : ''; ?>>
+                    <span class="list-item__icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="6" rx="1" fill="var(--cp-white)"></rect><rect x="3" y="14" width="18" height="6" rx="1" fill="var(--cp-white)"></rect></svg>
+                    </span>
+                    <span class="list-item__text">Settings</span>
                 </a>
             </li>
         </ul>

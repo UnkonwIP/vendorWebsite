@@ -41,7 +41,8 @@
 <body>
     <?php
     // --- DATABASE CONNECTION & DATA FETCHING ---
-    require_once "config.php";
+    require_once __DIR__ . '/session_bootstrap.php';
+    require_once __DIR__ . '/config.php';
     if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
     $registrationFormID = $_POST['registrationFormID'] ?? '';
@@ -59,6 +60,21 @@
     $stmt->execute();
     $RegistrationRow = $stmt->get_result()->fetch_assoc();
     if (!$RegistrationRow) die("Error: Record not found.");
+    // Ensure the logged-in vendor owns this registration (prevent other vendors from viewing)
+    if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'vendor') {
+        echo "<div class='container mt-5'><div class='alert alert-danger'>Unauthorized access.</div></div>";
+        exit();
+    }
+    $acctId = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
+    $vstmt = $conn->prepare('SELECT newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ? LIMIT 1');
+    $vstmt->bind_param('i', $acctId);
+    $vstmt->execute();
+    $vrow = $vstmt->get_result()->fetch_assoc();
+    $vendorCRN = $vrow['newCompanyRegistrationNumber'] ?? '';
+    if (($RegistrationRow['newCompanyRegistrationNumber'] ?? '') !== $vendorCRN) {
+        echo "<div class='container mt-5'><div class='alert alert-danger'>You are not authorized to view this registration.</div></div>";
+        exit();
+    }
     // Parse trade and otherTradeDetails for UI
     $tradeStr = $RegistrationRow['trade'] ?? '';
     $tradeArr = array_map('trim', explode(',', $tradeStr));

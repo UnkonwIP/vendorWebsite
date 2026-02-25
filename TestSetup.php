@@ -44,7 +44,6 @@ function createDefaultAdmin($conn) {
     $password = password_hash(DEFAULT_ADMIN_PASSWORD, PASSWORD_DEFAULT);
     $email = DEFAULT_ADMIN_EMAIL;
     $role = 'admin';
-    $accountID = "admin";
 
     // Check if admin already exists in vendoraccount
     $stmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE username = ?");
@@ -61,8 +60,8 @@ function createDefaultAdmin($conn) {
     // Insert admin account into vendoraccount, set as Head for General
     // Save admin role into vendorType; department column is no longer used
     $vendorType = 'General';
-    $stmt = $conn->prepare("INSERT INTO vendoraccount (accountID, username, passwordHash, email, role, vendorType) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('ssssss', $accountID, $username, $password, $email, $role, $vendorType);
+    $stmt = $conn->prepare("INSERT INTO vendoraccount (username, passwordHash, email, role, vendorType) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param('sssss', $username, $password, $email, $role, $vendorType);
     if ($stmt->execute()) {
         echo "Default admin account created.\n";
     } else {

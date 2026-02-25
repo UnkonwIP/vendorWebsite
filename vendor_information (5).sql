@@ -301,7 +301,7 @@ CREATE TABLE `staff` (
 --
 
 CREATE TABLE `vendoraccount` (
-  `accountID` varchar(15) NOT NULL,
+  `accountID` int(11) NOT NULL,
   `newCompanyRegistrationNumber` varchar(20) DEFAULT NULL,
   `username` varchar(50) DEFAULT NULL,
   `passwordHash` varchar(255) DEFAULT NULL,
@@ -497,6 +497,12 @@ ALTER TABLE `shareholders`
 --
 ALTER TABLE `staff`
   MODIFY `staffID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `vendoraccount`
+--
+ALTER TABLE `vendoraccount`
+  MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

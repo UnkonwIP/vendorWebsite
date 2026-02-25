@@ -41,7 +41,8 @@
 <body>
     <?php
     // --- DATABASE CONNECTION & DATA FETCHING ---
-    require_once "config.php";   
+    require_once __DIR__ . '/session_bootstrap.php';
+    require_once __DIR__ . '/config.php';   
     if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
     // Accept registrationFormID from POST (preferred) or GET (link clicks)
@@ -63,9 +64,8 @@
     if (!$RegistrationRow) die("Error: Record not found.");
 
     // --- Determine if current user can edit ---
-    session_start();
-    $role = $_SESSION['role'] ?? '';
-    $currentUserAccountID = $_SESSION['accountID'] ?? '';
+    $role = isset($_SESSION['role']) ? strtolower(trim($_SESSION['role'])) : '';
+    $currentUserAccountID = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
     $ownerAccountID = '';
     if (!empty($RegistrationRow['newCompanyRegistrationNumber'])) {
         $stmtOwner = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
@@ -73,7 +73,7 @@
         $stmtOwner->execute();
         $ownerResult = $stmtOwner->get_result();
         if ($ownerRow = $ownerResult->fetch_assoc()) {
-            $ownerAccountID = $ownerRow['accountID'];
+            $ownerAccountID = isset($ownerRow['accountID']) ? intval($ownerRow['accountID']) : 0;
         }
     }
     $canEdit = ($role === 'vendor' && $currentUserAccountID === $ownerAccountID);
@@ -110,7 +110,7 @@
     <input type="hidden" id="registrationFormID" value="<?= htmlspecialchars($registrationFormID) ?>">
 
     <?php
-    // Show Back to Vendor List button for admin and approved/rejected forms
+    // Show Back to Vendor List / Management button for admin/admin_head and approved/rejected forms
     $showBackBtn = false;
     $vendorAccountID = '';
     if (!empty($RegistrationRow['newCompanyRegistrationNumber'])) {
@@ -120,14 +120,21 @@
         $accResultBtn = $stmtAccBtn->get_result();
         $vendorAccountID = ($accRowBtn = $accResultBtn->fetch_assoc()) ? $accRowBtn['accountID'] : '';
     }
-    if ($role === 'admin' && in_array(strtolower($RegistrationRow['status']), ['approved','rejected']) && !empty($vendorAccountID)) {
+    // determine back URL based on role
+    $backUrl = 'AdminVendorFormList.php?accountID=' . urlencode($vendorAccountID);
+    if ($role === 'admin_head') {
+        $backUrl = 'AdminHeadRegisrationManagement.php';
+    } elseif ($role === 'admin') {
+        $backUrl = 'AdminRegistrationManagement.php';
+    }
+    if (in_array($role, ['admin', 'admin_head']) && in_array(strtolower($RegistrationRow['status']), ['approved','rejected']) && !empty($vendorAccountID)) {
         $showBackBtn = true;
     }
     ?>
     <div class="container my-5">
         <?php if ($showBackBtn): ?>
         <div class="mb-3">
-            <a href="AdminVendorFormList.php?accountID=<?= urlencode($vendorAccountID) ?>" class="btn btn-secondary back-vendor-list-btn">&larr; Back to Registration Form List</a>
+            <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-secondary back-vendor-list-btn">&larr; Back to Registration Form List</a>
         </div>
         <style>
             .back-vendor-list-btn {
@@ -1063,7 +1070,8 @@ $deptColumn = '';
 if (in_array($role, ['admin', 'admin_head'])) {
     $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
     if ($vtStmt) {
-        $vtStmt->bind_param('s', $currentUserAccountID);
+        $acctId = $currentUserAccountID;
+        $vtStmt->bind_param('i', $acctId);
         $vtStmt->execute();
         $vtRes = $vtStmt->get_result();
         if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
@@ -1085,8 +1093,8 @@ if (in_array($role, ['admin', 'admin_head'])) {
     }
 }
 
-// Case 1: General admin reviewing data completeness (form status = 'pending')
-if ($role === 'admin' && $formStatus === 'pending') {
+// Case 1: General admin reviewing data completeness (form status = 'pending' or 'not reviewed')
+if ($role === 'admin' && in_array($formStatus, ['pending','not reviewed'])) {
     $showApprovalBar = true;
     $approvalType = 'general';
 }

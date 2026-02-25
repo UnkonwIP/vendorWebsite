@@ -1,9 +1,9 @@
 <?php
-session_start();
-require_once "config.php";
+require_once __DIR__ . '/session_bootstrap.php';
+require_once __DIR__ . '/config.php';
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'vendor') {
+if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'vendor') {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit();
@@ -30,8 +30,9 @@ if (!$r) {
 $newCRN = $r['newCompanyRegistrationNumber'] ?? null;
 $currentStatus = strtolower($r['status'] ?? '');
 
-$vstmt = $conn->prepare('SELECT accountID, newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ? LIMIT 1');
-$vstmt->bind_param('s', $_SESSION['accountID']);
+ $vstmt = $conn->prepare('SELECT accountID, newCompanyRegistrationNumber FROM vendoraccount WHERE accountID = ? LIMIT 1');
+ $acctId = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
+ $vstmt->bind_param('i', $acctId);
 $vstmt->execute();
 $vendor = $vstmt->get_result()->fetch_assoc();
 

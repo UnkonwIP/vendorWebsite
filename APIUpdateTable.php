@@ -1,14 +1,39 @@
 <?php
 // UpdateTableRow.php
+require_once __DIR__ . '/session_bootstrap.php';
 require_once "config.php";
 if ($conn->connect_error) { http_response_code(500); exit("DB connection failed"); }
 
+// Require expected params
 $required = ['field', 'value', 'registrationFormID', 'Table', 'idName'];
 foreach ($required as $key) { if (!isset($_POST[$key])) exit("Missing parameter: $key"); }
 
 $field  = $_POST['field'];
 $value  = trim($_POST['value']);
 $formID = $_POST['registrationFormID'];
+$formID = is_numeric($formID) ? intval($formID) : 0;
+
+if (empty($formID)) exit("Missing registrationFormID");
+
+// Permission: only admin/admin_head or owning vendor may update rows for this form
+$role = $_SESSION['role'] ?? '';
+$currentAccount = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
+if (!in_array($role, ['admin','admin_head'], true)) {
+    $pstmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM registrationform WHERE registrationFormID = ? LIMIT 1");
+    $pstmt->bind_param("i", $formID);
+    $pstmt->execute();
+    $prow = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $crn = $prow['newCompanyRegistrationNumber'] ?? '';
+    if (empty($crn)) exit("Forbidden");
+    $pstmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+    $pstmt->bind_param("s", $crn);
+    $pstmt->execute();
+    $owner = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $ownerID = isset($owner['accountID']) ? intval($owner['accountID']) : 0;
+    if ($ownerID !== $currentAccount) exit("Forbidden");
+}
 $table  = $_POST['Table'];
 $rowId  = $_POST['rowId']; 
 $idName = $_POST['idName']; 

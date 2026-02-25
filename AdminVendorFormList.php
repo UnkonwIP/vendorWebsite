@@ -506,8 +506,13 @@ if (!empty($vendorNewCompanyRegistration)) {
 							<div class="form-card-title">
 								<?php echo htmlspecialchars($form['CompanyName'] ?? 'Unnamed Company'); ?>
 							</div>
-							<span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
-								<?php echo htmlspecialchars($form['status'] ?? 'Pending'); ?>
+							<?php
+								$rawStatus = strtolower($form['status'] ?? '');
+								$displayStatus = in_array($rawStatus, ['', 'not review'], true) ? 'Not Review' : htmlspecialchars(ucfirst($form['status']));
+								$cssClass = 'status-' . str_replace(' ', '-', strtolower($form['status'] ?? 'draft'));
+							?>
+							<span class="status-badge <?php echo $cssClass; ?>">
+								<?php echo $displayStatus; ?>
 							</span>
 						</div>
 						<input type="hidden" name="registrationFormID" value="<?php echo htmlspecialchars($form['registrationFormID']); ?>">

@@ -48,9 +48,8 @@ if ($currentStatus !== 'rejected') {
     exit();
 }
 
-// Update status to pending and clear rejectionReason
 $ustmt = $conn->prepare('UPDATE registrationform SET status = ?, rejectionReason = NULL WHERE registrationFormID = ?');
-$newStatus = 'pending';
+$newStatus = 'not review';
 $ustmt->bind_param('si', $newStatus, $registrationFormID);
 if ($ustmt->execute()) {
     echo json_encode(['success' => true]);

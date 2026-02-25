@@ -250,13 +250,13 @@ CREATE TABLE `registrationform` (
   `advocatesYearOfService` int(11) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'DRAFT',
   `rejectionReason` varchar(255) DEFAULT NULL,
-  `planDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
+  `planDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `planDepartmentComments` varchar(255) DEFAULT NULL,
-  `financeDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
+  `financeDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `financeDepartmentComments` varchar(255) DEFAULT NULL,
-  `legalDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
+  `legalDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `legalDepartmentComments` varchar(255) DEFAULT NULL,
-  `projectDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not reviewed',
+  `projectDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `projectDepartmentComments` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

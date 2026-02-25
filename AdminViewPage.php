@@ -42,7 +42,13 @@
     <?php
     // --- DATABASE CONNECTION & DATA FETCHING ---
     require_once __DIR__ . '/session_bootstrap.php';
-    require_once __DIR__ . '/config.php';   
+    require_once __DIR__ . '/config.php';
+
+    // Protect page: allow only admin, admin_head, or the vendor owner
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head','vendor'], true)) {
+        header('Location: index.php');
+        exit();
+    }
     if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
     // Accept registrationFormID from POST (preferred) or GET (link clicks)
@@ -1093,16 +1099,16 @@ if (in_array($role, ['admin', 'admin_head'])) {
     }
 }
 
-// Case 1: General admin reviewing data completeness (form status = 'pending' or 'not reviewed')
-if ($role === 'admin' && in_array($formStatus, ['pending','not reviewed'])) {
+// Case 1: General admin reviewing data completeness (form status = 'not review')
+if ($role === 'admin' && $formStatus === 'not review') {
     $showApprovalBar = true;
     $approvalType = 'general';
 }
 
-// Case 2: Department admin reviewing their part (form status = 'pending approval' AND their dept status = 'pending')
-if ($role === 'admin' && $formStatus === 'pending approval' && !empty($deptColumn)) {
+// Case 2: Department admin reviewing their part (department status = 'not review')
+if ($role === 'admin' && !empty($deptColumn)) {
     $deptStatus = strtolower($RegistrationRow[$deptColumn] ?? '');
-    if ($deptStatus === 'pending') {
+    if ($deptStatus === 'not review') {
         $showApprovalBar = true;
         $approvalType = 'department';
     }

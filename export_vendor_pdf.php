@@ -4,7 +4,7 @@ require_once __DIR__ . '/config.php';
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 // Only vendor or admin with accountID allowed
-if (!isset($_SESSION['role'])) {
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['vendor','admin','admin_head'], true)) {
     header('HTTP/1.1 403 Forbidden');
     echo 'Forbidden';
     exit();

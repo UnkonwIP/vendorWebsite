@@ -66,7 +66,7 @@
     $AdvocatesPersonEmail = $_POST['AdvocatesPersonEmail'] ?? '';
     $AdvocatesPersonPhone = $_POST['AdvocatesPersonPhone'] ?? '';
     $AdvocatesYearOfService = $_POST['AdvocatesYearOfService'] ?? 0;
-    $Status = "not reviewed"; // default status for new submissions
+    $Status = "not review"; // default status for new submissions (canonical)
 
     // --- Main Insert ---
     // FIX: Corrected the bind param string types. 

@@ -1,13 +1,15 @@
 <?php
+
 // APIAddTableRow.php
 
 // 1. Disable error displaying to screen (prevents warnings from breaking JSON)
 error_reporting(E_ALL);
-ini_set('display_errors', 0); 
+ini_set('display_errors', 0);
 
 // 2. Set Header to JSON
 header('Content-Type: application/json');
 
+require_once __DIR__ . '/session_bootstrap.php';
 require_once "config.php";
 
 if ($conn->connect_error) {
@@ -21,6 +23,29 @@ $formID = $_POST['registrationFormID'] ?? '';
 if (!$table || !$formID) {
     echo json_encode(["success" => false, "error" => "Missing Table or ID"]);
     exit;
+}
+
+$formID = is_numeric($formID) ? intval($formID) : 0;
+if (empty($formID)) { echo json_encode(["success" => false, "error" => "Missing registrationFormID"]); exit; }
+
+// Permission: only admin/admin_head or owning vendor may add rows for this form
+$role = $_SESSION['role'] ?? '';
+$currentAccount = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
+if (!in_array($role, ['admin','admin_head'], true)) {
+    $pstmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM registrationform WHERE registrationFormID = ? LIMIT 1");
+    $pstmt->bind_param("i", $formID);
+    $pstmt->execute();
+    $prow = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $crn = $prow['newCompanyRegistrationNumber'] ?? '';
+    if (empty($crn)) { echo json_encode(["success" => false, "error" => "Forbidden"]); exit; }
+    $pstmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+    $pstmt->bind_param("s", $crn);
+    $pstmt->execute();
+    $owner = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $ownerID = isset($owner['accountID']) ? intval($owner['accountID']) : 0;
+    if ($ownerID !== $currentAccount) { echo json_encode(["success" => false, "error" => "Forbidden"]); exit; }
 }
 
 $stmt = false;

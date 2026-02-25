@@ -29,14 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // General admin data completeness check
     if ($status === 'approved') {
         // When general admin approves (data complete), set status to "pending approval"
-        // and initialize all department statuses to "pending"
+        // and initialize all department statuses to "not review"
         $stmt = $conn->prepare("UPDATE registrationform SET 
             status = 'pending approval', 
             rejectionReason = NULL,
-            financeDepartmentStatus = 'pending',
-            projectDepartmentStatus = 'pending',
-            legalDepartmentStatus = 'pending',
-            planDepartmentStatus = 'pending'
+            financeDepartmentStatus = 'not review',
+            projectDepartmentStatus = 'not review',
+            legalDepartmentStatus = 'not review',
+            planDepartmentStatus = 'not review'
             WHERE registrationFormID = ?");
         $stmt->bind_param("i", $registrationFormID);
     } else if ($status === 'rejected') {

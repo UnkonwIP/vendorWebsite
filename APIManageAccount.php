@@ -41,6 +41,21 @@ if ($action === 'save_field') {
     $value = trim($_POST['value'] ?? '');
     if ($field === 'username') {
         if ($value === '') out(['success' => false, 'message' => 'Username cannot be empty']);
+        // Ensure username is unique across accounts (allow keeping current username)
+        $checkStmt = $conn->prepare('SELECT accountID FROM vendoraccount WHERE username = ? LIMIT 1');
+        $checkStmt->bind_param('s', $value);
+        $checkStmt->execute();
+        $checkRes = $checkStmt->get_result();
+        if ($checkRes && $checkRes->num_rows > 0) {
+            $existing = $checkRes->fetch_assoc();
+            $existingID = isset($existing['accountID']) ? intval($existing['accountID']) : 0;
+            if ($existingID !== $accountID) {
+                $checkStmt->close();
+                out(['success' => false, 'message' => 'Username already taken']);
+            }
+        }
+        $checkStmt->close();
+
         $stmt = $conn->prepare('UPDATE vendoraccount SET username = ? WHERE accountID = ? LIMIT 1');
         $stmt->bind_param('si', $value, $accountID);
         if ($stmt->execute()) {

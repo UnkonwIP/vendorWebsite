@@ -445,8 +445,13 @@ if (!empty($vendorNewCompanyRegistration)) {
                             </div>
                             <div class="text-muted" style="font-size:12px;">Click to view details</div>
                         </div>
-                        <span class="status-badge status-<?php echo strtolower($form['status'] ?? 'draft'); ?>">
-                            <?php echo htmlspecialchars($form['status'] ?? 'Pending'); ?>
+                        <?php
+                            $rawStatus = strtolower($form['status'] ?? '');
+                            $displayStatus = in_array($rawStatus, ['', 'not review'], true) ? 'Not Review' : htmlspecialchars(ucfirst($form['status']));
+                            $cssClass = 'status-' . str_replace(' ', '-', strtolower($form['status'] ?? 'draft'));
+                        ?>
+                        <span class="status-badge <?php echo $cssClass; ?>">
+                            <?php echo $displayStatus; ?>
                         </span>
                     </div>
 

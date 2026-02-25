@@ -1,7 +1,7 @@
 <?php
 // APIDeleteRegistrationForm.php
 header('Content-Type: text/html');
-session_start();
+require_once __DIR__ . '/session_bootstrap.php';
 require_once "config.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -14,8 +14,25 @@ if (empty($registrationFormID) || !is_numeric($registrationFormID)) {
     echo "<div class='alert alert-danger'>Missing or invalid registrationFormID.</div>";
     exit();
 }
-
-// Optional: Check user permissions here (e.g., vendor owns this form)
+// Permission: only admin/admin_head or owning vendor can delete the form
+$role = $_SESSION['role'] ?? '';
+$currentAccount = isset($_SESSION['accountID']) ? intval($_SESSION['accountID']) : 0;
+if (!in_array($role, ['admin','admin_head'], true)) {
+    $pstmt = $conn->prepare("SELECT newCompanyRegistrationNumber FROM registrationform WHERE registrationFormID = ? LIMIT 1");
+    $pstmt->bind_param("i", $registrationFormID);
+    $pstmt->execute();
+    $prow = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $crn = $prow['newCompanyRegistrationNumber'] ?? '';
+    if (empty($crn)) { echo "<div class='alert alert-danger'>Forbidden.</div>"; exit(); }
+    $pstmt = $conn->prepare("SELECT accountID FROM vendoraccount WHERE newCompanyRegistrationNumber = ? LIMIT 1");
+    $pstmt->bind_param("s", $crn);
+    $pstmt->execute();
+    $owner = $pstmt->get_result()->fetch_assoc();
+    $pstmt->close();
+    $ownerID = isset($owner['accountID']) ? intval($owner['accountID']) : 0;
+    if ($ownerID !== $currentAccount) { echo "<div class='alert alert-danger'>Forbidden.</div>"; exit(); }
+}
 
 // Delete related rows in child tables first (if any)
 $tables = [

@@ -27,15 +27,22 @@ if ($result) {
 }
 
 // Count pending registration forms for the action notice
-$pendingApprovals = 0;
-$pendingRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending'");
-if ($pendingRes) {
-    $r = mysqli_fetch_assoc($pendingRes);
-    $pendingApprovals = (int) ($r['cnt'] ?? 0);
+// Count registration forms by canonical statuses
+$notReviewCount = 0;
+$pendingApprovalCount = 0;
+$notReviewRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'not review'");
+if ($notReviewRes) {
+    $r = mysqli_fetch_assoc($notReviewRes);
+    $notReviewCount = (int) ($r['cnt'] ?? 0);
 }
-// Load pending registration forms (id, reg number, submission date)
+$pendingApprovalRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending approval'");
+if ($pendingApprovalRes) {
+    $r = mysqli_fetch_assoc($pendingApprovalRes);
+    $pendingApprovalCount = (int) ($r['cnt'] ?? 0);
+}
+// Load pending registration forms that are not yet reviewed (for action list)
 $pendingForms = [];
-$pfRes = mysqli_query($conn, "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'pending' ORDER BY formFirstSubmissionDate DESC");
+$pfRes = mysqli_query($conn, "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'not review' ORDER BY formFirstSubmissionDate DESC");
 if ($pfRes) {
     while ($pf = mysqli_fetch_assoc($pfRes)) {
         $pendingForms[] = $pf;
@@ -449,7 +456,7 @@ if ($pfRes) {
 
     <div class="notice-board">
         <strong>Action Notice:</strong>
-        <div style="margin-top:6px; font-weight:700">Pending Approval (<?php echo htmlspecialchars($pendingApprovals); ?>)</div>
+        <div style="margin-top:6px; font-weight:700">Not Reviewed (<?php echo htmlspecialchars($notReviewCount); ?>) &nbsp;•&nbsp; Pending Approval (<?php echo htmlspecialchars($pendingApprovalCount); ?>)</div>
         <?php if (empty($pendingForms)): ?>
             <div style="margin-top:6px; color:var(--text-muted)">No pending approvals.</div>
         <?php else: ?>
@@ -480,7 +487,7 @@ if ($pfRes) {
         </div>
         <div class="card-stat pending">
             <div style="font-size:12px; color:var(--text-muted)">Pending Approvals</div>
-            <div style="font-size:22px; font-weight:700"><?php echo htmlspecialchars($pendingApprovals); ?></div>
+            <div style="font-size:22px; font-weight:700"><?php echo htmlspecialchars($pendingApprovalCount); ?></div>
         </div>
         <div class="card-stat active">
             <div style="font-size:12px; color:var(--text-muted)">Active Contracts</div>

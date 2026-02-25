@@ -20,7 +20,7 @@ $dateTo = trim($_GET['date_to'] ?? '');
 // Summary counts
 $counts = [
 	'total' => 0,
-	'pending' => 0,
+	'not review' => 0,
 	'approved' => 0,
 	'rejected' => 0,
 ];
@@ -37,7 +37,7 @@ if ($statusRes) {
 		}
 	}
 }
-$pendingAttention = $counts['pending'] ?? 0;
+$pendingAttention = $counts['not review'] ?? 0;
 
 // Build filtered query
 $forms = [];
@@ -78,8 +78,8 @@ if ($vendorType !== '') {
 
 // If a department column was identified, restrict results to forms requiring this department's attention
 if ($deptColumn !== null) {
-	// show forms where this department's status is explicitly 'pending'
-	$conditions[] = "LOWER($deptColumn) = 'pending'";
+	// show forms where this department's status is explicitly 'not review'
+	$conditions[] = "LOWER($deptColumn) = 'not review'";
 }
 
 if ($search !== '') {
@@ -140,7 +140,10 @@ if ($stmt) {
 
 function normalize_status($status) {
 	$val = strtolower(trim((string) $status));
-	return $val !== '' ? $val : 'pending';
+	if ($val === '' || $val === 'not review') {
+		return 'not review';
+	}
+	return $val;
 }
 
 function status_pill_class($status) {
@@ -150,8 +153,10 @@ function status_pill_class($status) {
 			return 'status-pill approved';
 		case 'rejected':
 			return 'status-pill rejected';
-		case 'pending':
-			return 'status-pill pending';
+		case 'not review':
+			return 'status-pill not-review';
+		case 'pending approval':
+			return 'status-pill pending-approval';
 		default:
 			return 'status-pill neutral';
 	}
@@ -668,8 +673,8 @@ function status_pill_class($status) {
 				<p>Total Registrations</p>
 			</div>
 			<div class="card pending">
-				<h3><?php echo htmlspecialchars($counts['pending']); ?></h3>
-				<p>Pending Review</p>
+				<h3><?php echo htmlspecialchars($counts['not review']); ?></h3>
+				<p>Not Review</p>
 			</div>
 			<div class="card approved">
 				<h3><?php echo htmlspecialchars($counts['approved']); ?></h3>
@@ -684,7 +689,7 @@ function status_pill_class($status) {
 		<div class="action-required">
 			<h2>⚠ Requires Your Attention</h2>
 			<ul>
-				<li><?php echo htmlspecialchars($pendingAttention); ?> forms pending review</li>
+				<li><?php echo htmlspecialchars($pendingAttention); ?> forms not reviewed</li>
 			</ul>
 		</div>
 
@@ -695,7 +700,8 @@ function status_pill_class($status) {
 				<input type="text" name="company" placeholder="Company Name" value="<?php echo htmlspecialchars($company); ?>">
 				<select name="status">
 					<option value="">Status</option>
-					<option value="pending" <?php echo ($statusFilter === 'pending') ? 'selected' : ''; ?>>Pending</option>
+					<option value="not review" <?php echo ($statusFilter === 'not review') ? 'selected' : ''; ?>>Not Review</option>
+					<option value="pending approval" <?php echo ($statusFilter === 'pending approval') ? 'selected' : ''; ?>>Pending Approval</option>
 					<option value="approved" <?php echo ($statusFilter === 'approved') ? 'selected' : ''; ?>>Approved</option>
 					<option value="rejected" <?php echo ($statusFilter === 'rejected') ? 'selected' : ''; ?>>Rejected</option>
 				</select>
@@ -733,11 +739,11 @@ function status_pill_class($status) {
 								<?php
 									$companyName = $form['companyName'] ?? '—';
 									$dateSubmitted = !empty($form['formFirstSubmissionDate']) ? date('Y-m-d', strtotime($form['formFirstSubmissionDate'])) : '—';
-									$generalStatus = $form['status'] ?? 'pending';
-									$financeStatus = $form['financeDepartmentStatus'] ?? 'pending';
-									$projectStatus = $form['projectDepartmentStatus'] ?? 'pending';
-									$legalStatus = $form['legalDepartmentStatus'] ?? 'pending';
-									$planStatus = $form['planDepartmentStatus'] ?? 'pending';
+									$generalStatus = $form['status'] ?? 'not review';
+									$financeStatus = $form['financeDepartmentStatus'] ?? 'not review';
+									$projectStatus = $form['projectDepartmentStatus'] ?? 'not review';
+									$legalStatus = $form['legalDepartmentStatus'] ?? 'not review';
+									$planStatus = $form['planDepartmentStatus'] ?? 'not review';
 								?>
 								<tr>
 									<td><?php echo htmlspecialchars($companyName); ?></td>

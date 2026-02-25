@@ -10,6 +10,32 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 	exit();
 }
 
+// Get vendorType to determine if this is a department admin
+$accountID = $_SESSION['accountID'] ?? '';
+$vendorType = '';
+$adminRoleType = 'general'; // default to general admin
+
+if (!empty($accountID)) {
+    $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+    if ($vtStmt) {
+        $vtStmt->bind_param('s', $accountID);
+        $vtStmt->execute();
+        $vtRes = $vtStmt->get_result();
+        if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
+            $vendorType = $vtRow['vendorType'] ?? '';
+            // If vendorType contains department name, this is a department admin
+            $vtLower = strtolower($vendorType);
+            if (strpos($vtLower, 'finance') !== false || 
+                strpos($vtLower, 'project') !== false || 
+                strpos($vtLower, 'legal') !== false || 
+                strpos($vtLower, 'plan') !== false) {
+                $adminRoleType = 'department';
+            }
+        }
+        $vtStmt->close();
+    }
+}
+
 $search = trim($_GET['search'] ?? '');
 $regId = trim($_GET['reg_id'] ?? '');
 $company = trim($_GET['company'] ?? '');
@@ -20,7 +46,7 @@ $dateTo = trim($_GET['date_to'] ?? '');
 // Summary counts
 $counts = [
 	'total' => 0,
-	'pending' => 0,
+	'not review' => 0,
 	'approved' => 0,
 	'rejected' => 0,
 ];
@@ -37,7 +63,7 @@ if ($statusRes) {
 		}
 	}
 }
-$pendingAttention = $counts['pending'] ?? 0;
+$pendingAttention = $counts['not review'] ?? 0;
 
 // Build filtered query
 $forms = [];
@@ -103,20 +129,50 @@ if ($stmt) {
 
 function normalize_status($status) {
 	$val = strtolower(trim((string) $status));
-	return $val !== '' ? $val : 'pending';
+	// Map empty/legacy tokens to the canonical 'not review'
+	if ($val === '' || $val === 'not review') {
+		return 'not review';
+	}
+	return $val;
 }
 
-function status_pill_class($status) {
+function status_pill_class($status, $adminRole = 'general', $column = 'general', $adminVendorType = '') {
 	$val = normalize_status($status);
-	switch ($val) {
-		case 'approved':
-			return 'status-pill approved';
-		case 'rejected':
-			return 'status-pill rejected';
-		case 'pending':
-			return 'status-pill pending';
-		default:
-			return 'status-pill neutral';
+
+	// Pending-approval (blue) is shown for both general and department contexts
+	if ($val === 'pending approval') {
+		return 'status-pill pending-approval';
+	}
+
+	if ($val === 'approved') return 'status-pill approved';
+	if ($val === 'rejected') return 'status-pill rejected';
+
+	// Data Compliance / overall column
+	if ($column === 'general') {
+		if ($val === 'not review') return 'status-pill not-review';
+		return 'status-pill neutral';
+	}
+
+	// For department columns: determine whether this admin is from the same department
+	$isOwnDept = false;
+	if ($adminRole === 'department' && !empty($adminVendorType)) {
+		$vtLower = strtolower($adminVendorType);
+		if (($column === 'finance' && strpos($vtLower, 'finance') !== false) ||
+			($column === 'project' && strpos($vtLower, 'project') !== false) ||
+			($column === 'legal' && strpos($vtLower, 'legal') !== false) ||
+			($column === 'plan' && strpos($vtLower, 'plan') !== false)) {
+			$isOwnDept = true;
+		}
+	}
+
+	if ($isOwnDept) {
+		// Own department: 'not review' => yellow, others handled above
+		if ($val === 'not review') return 'status-pill not-review';
+		return 'status-pill neutral';
+	} else {
+		// Other departments: 'not review' => gray
+		if ($val === 'not review') return 'status-pill not-review-department';
+		return 'status-pill neutral';
 	}
 }
 ?>
@@ -577,10 +633,14 @@ function status_pill_class($status) {
 				font-size: 12px;
 				text-transform: capitalize;
 			}
-			.status-pill.pending { background: #f59e0b; }
+			.status-pill.pending { background: #f59e0b; } /* Yellow for general admin */
 			.status-pill.approved { background: #10b981; }
 			.status-pill.rejected { background: #ef4444; }
 			.status-pill.neutral { background: #6b7280; }
+			.status-pill.not-review { background: #f59e0b; } /* Yellow for general admin */
+			.status-pill.pending-department { background: #ef4444; } /* Red for department admin */
+			.status-pill.not-review-department { background: #6b7280; } /* Gray for department admin */
+			.status-pill.pending-approval { background: #1e88e5; } /* Blue for pending approval */
 
 			.btn-small {
 				padding: 6px 10px;
@@ -631,8 +691,8 @@ function status_pill_class($status) {
 				<p>Total Registrations</p>
 			</div>
 			<div class="card pending">
-				<h3><?php echo htmlspecialchars($counts['pending']); ?></h3>
-				<p>Pending Review</p>
+				<h3><?php echo htmlspecialchars($counts['not review']); ?></h3>
+				<p>Not Review</p>
 			</div>
 			<div class="card approved">
 				<h3><?php echo htmlspecialchars($counts['approved']); ?></h3>
@@ -658,7 +718,8 @@ function status_pill_class($status) {
 				<input type="text" name="company" placeholder="Company Name" value="<?php echo htmlspecialchars($company); ?>">
 				<select name="status">
 					<option value="">Status</option>
-					<option value="pending" <?php echo ($statusFilter === 'pending') ? 'selected' : ''; ?>>Pending</option>
+					<option value="not review" <?php echo ($statusFilter === 'not review') ? 'selected' : ''; ?>>Not Review</option>
+					<option value="pending approval" <?php echo ($statusFilter === 'pending approval') ? 'selected' : ''; ?>>Pending Approval</option>
 					<option value="approved" <?php echo ($statusFilter === 'approved') ? 'selected' : ''; ?>>Approved</option>
 					<option value="rejected" <?php echo ($statusFilter === 'rejected') ? 'selected' : ''; ?>>Rejected</option>
 				</select>
@@ -696,20 +757,20 @@ function status_pill_class($status) {
 								<?php
 									$companyName = $form['companyName'] ?? '—';
 									$dateSubmitted = !empty($form['formFirstSubmissionDate']) ? date('Y-m-d', strtotime($form['formFirstSubmissionDate'])) : '—';
-									$generalStatus = $form['status'] ?? 'pending';
-									$financeStatus = $form['financeDepartmentStatus'] ?? 'pending';
-									$projectStatus = $form['projectDepartmentStatus'] ?? 'pending';
-									$legalStatus = $form['legalDepartmentStatus'] ?? 'pending';
-									$planStatus = $form['planDepartmentStatus'] ?? 'pending';
+									$generalStatus = $form['status'] ?? 'not review';
+									$financeStatus = $form['financeDepartmentStatus'] ?? 'not review';
+									$projectStatus = $form['projectDepartmentStatus'] ?? 'not review';
+									$legalStatus = $form['legalDepartmentStatus'] ?? 'not review';
+									$planStatus = $form['planDepartmentStatus'] ?? 'not review';
 								?>
 								<tr>
 									<td><?php echo htmlspecialchars($companyName); ?></td>
 									<td><?php echo htmlspecialchars($dateSubmitted); ?></td>
-									<td><span class="<?php echo status_pill_class($generalStatus); ?>"><?php echo htmlspecialchars(normalize_status($generalStatus)); ?></span></td>
-									<td><span class="<?php echo status_pill_class($financeStatus); ?>"><?php echo htmlspecialchars(normalize_status($financeStatus)); ?></span></td>
-									<td><span class="<?php echo status_pill_class($projectStatus); ?>"><?php echo htmlspecialchars(normalize_status($projectStatus)); ?></span></td>
-									<td><span class="<?php echo status_pill_class($legalStatus); ?>"><?php echo htmlspecialchars(normalize_status($legalStatus)); ?></span></td>
-									<td><span class="<?php echo status_pill_class($planStatus); ?>"><?php echo htmlspecialchars(normalize_status($planStatus)); ?></span></td>
+									<td><span class="<?php echo status_pill_class($generalStatus, $adminRoleType, 'general', $vendorType); ?>"><?php echo htmlspecialchars(normalize_status($generalStatus)); ?></span></td>
+									<td><span class="<?php echo status_pill_class($financeStatus, $adminRoleType, 'finance', $vendorType); ?>"><?php echo htmlspecialchars(normalize_status($financeStatus)); ?></span></td>
+									<td><span class="<?php echo status_pill_class($projectStatus, $adminRoleType, 'project', $vendorType); ?>"><?php echo htmlspecialchars(normalize_status($projectStatus)); ?></span></td>
+									<td><span class="<?php echo status_pill_class($legalStatus, $adminRoleType, 'legal', $vendorType); ?>"><?php echo htmlspecialchars(normalize_status($legalStatus)); ?></span></td>
+									<td><span class="<?php echo status_pill_class($planStatus, $adminRoleType, 'plan', $vendorType); ?>"><?php echo htmlspecialchars(normalize_status($planStatus)); ?></span></td>
 									<td>
 										<a class="btn-small" href="AdminViewPage.php?registrationFormID=<?php echo urlencode($form['registrationFormID']); ?>">View</a>
 									</td>

@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once "session_bootstrap.php";
 require_once "config.php";
 
-// Only allow admins (future proof for role-based access)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Allow admin and admin_head to trigger renewal (role-based access)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head'], true)) {
     header("Location: index.php");
     exit();
 }
@@ -16,6 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $_SESSION['form_renewal_message'] = 'Error updating vendor accounts.';
     }
-    header("Location: AdminVendorManagement.php");
+
+    // Redirect back to referrer when possible, else to the registration management view
+    $redirect = 'AdminRegistrationManagement.php';
+    if (!empty($_SERVER['HTTP_REFERER'])) {
+        $ref = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
+        // Only allow local redirects
+        if ($ref && basename($ref) !== '') {
+            $redirect = basename($ref);
+        }
+    }
+
+    header("Location: " . $redirect);
     exit();
 }

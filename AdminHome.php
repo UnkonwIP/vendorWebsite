@@ -3,11 +3,15 @@ require_once "session_bootstrap.php";
 
 require_once "config.php";
 
-// Protect admin page
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+require_once "status_helpers.php";
+
+// Protect admin page (allow general admin and heads)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'admin_head'], true)) {
     header("Location: index.php");
     exit();
 }
+
+// No one-time login info message displayed here anymore
 
 // Get vendor list
 $keyword = $_GET['keyword'] ?? '';
@@ -27,25 +31,78 @@ if ($result) {
 }
 
 // Count pending registration forms for the action notice
-// Count registration forms by canonical statuses
+// Role-aware counts and pending list
 $notReviewCount = 0;
 $pendingApprovalCount = 0;
-$notReviewRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'not review'");
-if ($notReviewRes) {
-    $r = mysqli_fetch_assoc($notReviewRes);
-    $notReviewCount = (int) ($r['cnt'] ?? 0);
-}
-$pendingApprovalRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending approval'");
-if ($pendingApprovalRes) {
-    $r = mysqli_fetch_assoc($pendingApprovalRes);
-    $pendingApprovalCount = (int) ($r['cnt'] ?? 0);
-}
-// Load pending registration forms that are not yet reviewed (for action list)
 $pendingForms = [];
-$pfRes = mysqli_query($conn, "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'not review' ORDER BY formFirstSubmissionDate DESC");
-if ($pfRes) {
-    while ($pf = mysqli_fetch_assoc($pfRes)) {
-        $pendingForms[] = $pf;
+
+// Determine department column for current admin (if any)
+$deptColumn = null;
+if (isset($_SESSION['accountID'])) {
+    $deptColumn = get_dept_column_for_account($conn, $_SESSION['accountID']);
+}
+
+$role = $_SESSION['role'] ?? '';
+
+// General admin (no dept mapping) -> show 'not review' items
+if ($role === 'admin' && $deptColumn === null) {
+    $notReviewRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'not review'");
+    if ($notReviewRes) {
+        $r = mysqli_fetch_assoc($notReviewRes);
+        $notReviewCount = (int) ($r['cnt'] ?? 0);
+    }
+
+    $pendingApprovalRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending approval'");
+    if ($pendingApprovalRes) {
+        $r = mysqli_fetch_assoc($pendingApprovalRes);
+        $pendingApprovalCount = (int) ($r['cnt'] ?? 0);
+    }
+
+    $pfRes = mysqli_query($conn, "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'not review' ORDER BY formFirstSubmissionDate DESC");
+    if ($pfRes) {
+        while ($pf = mysqli_fetch_assoc($pfRes)) {
+            $pendingForms[] = $pf;
+        }
+    }
+
+} else {
+    // Department admin or head admin behavior
+    // If no valid dept column was resolved, fall back to general admin behavior
+    if ($deptColumn === null) {
+        $notReviewRes = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'not review'");
+        if ($notReviewRes) {
+            $r = mysqli_fetch_assoc($notReviewRes);
+            $notReviewCount = (int) ($r['cnt'] ?? 0);
+        }
+        $pfRes = mysqli_query($conn, "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'not review' ORDER BY formFirstSubmissionDate DESC");
+        if ($pfRes) {
+            while ($pf = mysqli_fetch_assoc($pfRes)) {
+                $pendingForms[] = $pf;
+            }
+        }
+    } else {
+        if ($role === 'admin') {
+            // department admin: main 'pending approval' and dept column 'not review'
+            $countQuery = "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending approval' AND LOWER($deptColumn) = 'not review'";
+            $listQuery = "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'pending approval' AND LOWER($deptColumn) = 'not review' ORDER BY formFirstSubmissionDate DESC";
+        } else {
+            // admin_head: main 'pending approval' and dept column 'pending approval'
+            $countQuery = "SELECT COUNT(*) AS cnt FROM registrationform WHERE LOWER(status) = 'pending approval' AND LOWER($deptColumn) = 'pending approval'";
+            $listQuery = "SELECT registrationFormID, newCompanyRegistrationNumber, formFirstSubmissionDate, companyName FROM registrationform WHERE LOWER(status) = 'pending approval' AND LOWER($deptColumn) = 'pending approval' ORDER BY formFirstSubmissionDate DESC";
+        }
+
+        $countRes = mysqli_query($conn, $countQuery);
+        if ($countRes) {
+            $r = mysqli_fetch_assoc($countRes);
+            $pendingApprovalCount = (int) ($r['cnt'] ?? 0);
+        }
+
+        $pfRes = mysqli_query($conn, $listQuery);
+        if ($pfRes) {
+            while ($pf = mysqli_fetch_assoc($pfRes)) {
+                $pendingForms[] = $pf;
+            }
+        }
     }
 }
 ?>
@@ -453,6 +510,7 @@ if ($pfRes) {
     <main class="main-content">
         <div class="container-main">
     <!-- Welcome moved into navbar; duplicate block removed -->
+    <!-- login info message removed -->
 
     <div class="notice-board">
         <strong>Action Notice:</strong>

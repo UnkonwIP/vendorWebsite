@@ -23,9 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role']      = isset($user['role']) ? strtolower(trim($user['role'])) : '';
                 $_SESSION['accountID'] = isset($user['accountID']) ? intval($user['accountID']) : 0;
             // store email for vendor pages
-            $_SESSION['email']     = $user['email'] ?? '';
+                $_SESSION['email']     = $user['email'] ?? '';
 
-            $location = ($user['role'] === 'admin') ? "AdminHome.php" : "VendorHomepage.php";
+            // Send general admins and admin heads to the admin dashboard
+            $roleLower = strtolower(trim($user['role'] ?? ''));
+            if ($roleLower === 'admin' || $roleLower === 'admin_head') {
+                $location = "AdminHome.php";
+            } else {
+                $location = "VendorHomepage.php";
+            }
             header("Location: $location");
             exit();
         }

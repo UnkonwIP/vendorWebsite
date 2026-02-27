@@ -3,8 +3,8 @@ require_once "session_bootstrap.php";
 
 require_once "config.php";
 
-// Protect admin page
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Protect admin page (allow admin and admin_head)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head'], true)) {
     header("Location: index.php");
     exit();
 }
@@ -502,9 +502,6 @@ if ($result) {
         <div class="d-flex flex-wrap mb-3">
             <a href="AccountCreation.php" class="btn-add" style="display:inline; margin-right: 15px;">+ Add Account</a>
             <div>
-                <form method="post" action="APIRequestFormRenewal.php" style="display:inline" onsubmit="return confirm('Are you sure you want to request a new registration form from ALL vendors? This will reset their renewal status.');">
-                    <button type="submit" class="btn-add" style="background:#f59e42;">Request New Registration Form</button>
-                </form>
                 <form method="post" action="APIClearDatabase.php" style="display:inline" onsubmit="return confirm('Are you sure you want to clear the entire database?\nThis action cannot be undone.');">
                     <button type="submit" name="clear_database" class="btn-clear">Clear Database</button>
                 </form>

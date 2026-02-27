@@ -345,15 +345,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 								<label>Current Password</label>
 								<input type="password" name="current_password" placeholder="Enter current password" disabled>
 							</div>
-							<div style="text-align:right;margin-top:8px;">
-								<button type="button" id="savePassword" style="display:none;background:#16a34a;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Request OTP</button>
-							</div>
+							<div id="requestOtpContainer" style="text-align:right;margin-top:8px;">
+						<!-- Request OTP button will be created dynamically -->
+					</div>
 						</div>
 					</div>
 
 				<?php if ($otpPending || $otpSent): ?>
 					<div id="otpSection" style="margin-top:12px;">
-						<hr style="margin:16px 0;">
 						<p style="margin:0 0 8px 0;font-size:90%;color:#374151">Enter OTP sent to your email</p>
 						<div class="form-group">
 							<label>OTP Code</label>
@@ -480,12 +479,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 				// Password-specific controls
 				var editPassword = document.getElementById('editPassword');
-				var savePassword = document.getElementById('savePassword');
+				var requestOtpBtn = null;
 				var cancelPassword = document.getElementById('cancelPassword');
 				var curPwd = form.querySelector('input[name=current_password]');
 				var newPwd = form.querySelector('input[name=new_password]');
 				var confPwd = form.querySelector('input[name=confirm_password]');
 						var setNewBtn = document.getElementById('setNewPasswordBtn');
+
+						// Password strength and visibility helpers (mirror reset_password.php behavior)
+						var strengthFeedback = document.getElementById('strengthFeedback');
+						var toggleNewPassword = document.getElementById('toggleNewPassword');
+
+						function checkStrength(pw) {
+							var msgs = [];
+							if (pw.length < 8) msgs.push('at least 8 characters');
+							if (!/[A-Z]/.test(pw)) msgs.push('an uppercase letter');
+							if (!/[a-z]/.test(pw)) msgs.push('a lowercase letter');
+							if (!/[0-9]/.test(pw)) msgs.push('a number');
+							if (!/[^A-Za-z0-9]/.test(pw)) msgs.push('a symbol');
+							return msgs.length === 0 ? '' : 'Password must contain ' + msgs.join(', ') + '.';
+						}
+
+						function updateStrengthAndToggleSet() {
+							var pw = (newPwd && newPwd.value) || '';
+							var conf = (confPwd && confPwd.value) || '';
+							var msg = checkStrength(pw);
+							if (strengthFeedback) {
+								if (msg) {
+									strengthFeedback.textContent = msg;
+									strengthFeedback.classList.remove('text-success');
+									strengthFeedback.classList.add('text-danger');
+								} else {
+									strengthFeedback.textContent = 'Password strength: Good!';
+									strengthFeedback.classList.remove('text-danger');
+									strengthFeedback.classList.add('text-success');
+								}
+							}
+							// enable set button only when strength ok and confirmation matches and fields not empty
+							var enable = !msg && pw.length > 0 && pw === conf;
+							if (setNewBtn) setNewBtn.disabled = !enable;
+						}
+
+						if (newPwd) newPwd.addEventListener('input', updateStrengthAndToggleSet);
+						if (confPwd) confPwd.addEventListener('input', updateStrengthAndToggleSet);
+						// initialize state
+						updateStrengthAndToggleSet();
+
+						if (toggleNewPassword) {
+							toggleNewPassword.addEventListener('click', function(e){
+								e.preventDefault();
+								if (!newPwd) return;
+								if (newPwd.type === 'password') {
+									newPwd.type = 'text';
+									this.textContent = '🙈';
+								} else {
+									newPwd.type = 'password';
+									this.textContent = '👁️';
+								}
+							});
+						}
+						if (setNewBtn) {
+							setNewBtn.addEventListener('click', function(e){
+								e.preventDefault();
+								var nw = form.querySelector('input[name=new_password]').value;
+								var cf = form.querySelector('input[name=confirm_password]').value;
+								fetch('APIManageAccount.php', {
+									method: 'POST',
+									credentials: 'same-origin',
+									headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+									body: new URLSearchParams({ action: 'set_new_password', new_password: nw, confirm_password: cf })
+								}).then(r => r.json()).then(function(json){
+									var msgEl = document.getElementById('ajaxMessage');
+									if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
+									msgEl.textContent = json.message || (json.success ? 'Password set' : 'Error');
+									msgEl.className = json.success ? 'message success' : 'message error';
+									if (json.success) {
+										// reset UI (mirror savePassword success behavior)
+										form.querySelector('input[name=current_password]').value = '';
+										form.querySelector('input[name=new_password]').value = '';
+										form.querySelector('input[name=confirm_password]').value = '';
+										form.querySelector('input[name=new_password]').disabled = true;
+										form.querySelector('input[name=confirm_password]').disabled = true;
+										if (requestOtpBtn) { requestOtpBtn.dataset.mode = 'request'; requestOtpBtn.textContent = 'Request OTP'; requestOtpBtn.style.display = 'none'; }
+										editPassword.style.display = '';
+										if (cancelPassword) cancelPassword.style.display = 'none';
+										var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'none';
+										if (passwordSection) passwordSection.style.display = 'none';
+										var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
+										// hide the set button
+										setNewBtn.style.display = 'none';
+									}
+								}).catch(function(){ alert('Request failed'); });
+							});
+						}
 				if (editPassword) {
 					editPassword.addEventListener('click', function(e){
 						e.preventDefault();
@@ -497,11 +583,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 								// hide masked display while editing
 						var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = 'none';
 						editPassword.style.display = 'none';
-						savePassword.style.display = '';
 						cancelPassword.style.display = '';
-						// ensure request mode
-						savePassword.dataset.mode = 'request';
-						savePassword.textContent = 'Request OTP';
+						// create or show request OTP button
+						if (!requestOtpBtn) {
+							requestOtpBtn = document.createElement('button');
+							requestOtpBtn.type = 'button';
+							requestOtpBtn.id = 'requestOtpBtn';
+							requestOtpBtn.textContent = 'Request OTP';
+							requestOtpBtn.style.cssText = 'background:#16a34a;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;';
+							var reqCont = document.getElementById('requestOtpContainer');
+							if (reqCont) reqCont.appendChild(requestOtpBtn); else cancelPassword.parentNode.insertBefore(requestOtpBtn, cancelPassword);
+							requestOtpBtn.addEventListener('click', function(ev){
+								ev.preventDefault();
+								// request OTP (same as previous savePassword request branch)
+								var cur = form.querySelector('input[name=current_password]').value;
+								fetch('APIManageAccount.php', {
+									method: 'POST',
+									credentials: 'same-origin',
+									headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+									body: new URLSearchParams({ action: 'initiate_password_change', current_password: cur })
+								}).then(r => r.json()).then(function(json){
+									var msgEl = document.getElementById('ajaxMessage');
+									if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
+									msgEl.textContent = json.message || (json.success ? 'OTP sent' : 'Error');
+									msgEl.className = json.success ? 'message info' : 'message error';
+									if (json.success) {
+										// show OTP input and verify button
+										var otpSection = document.getElementById('otpSection');
+										if (!otpSection) {
+											otpSection = document.createElement('div'); otpSection.id = 'otpSection'; otpSection.style.marginTop = '12px';
+											otpSection.innerHTML = '<p style="margin:0 0 8px 0;font-size:90%;color:#374151">Enter OTP sent to your email</p><div class="form-group"><label>OTP Code</label><input type="text" name="otp_code" placeholder="6-digit code"></div><div style="text-align:right;"><button type="button" id="verifyOtpBtn" style="background:#059669;color:#fff;padding:8px 10px;border-radius:6px;border:none;">Verify OTP</button></div>';
+											passwordSection.appendChild(otpSection);
+										} else if (otpSection.parentNode !== passwordSection) {
+											// reuse existing server-rendered otpSection by moving it into the password section
+											passwordSection.appendChild(otpSection);
+										}
+										// hide current-password field once server accepted it and sent OTP
+										var _curHide = form.querySelector('input[name=current_password]');
+										if (_curHide) { var _grp = _curHide.closest('.form-group'); if (_grp) _grp.style.display = 'none'; }
+										// hide the Request OTP button as we've moved to OTP verification
+										if (requestOtpBtn) requestOtpBtn.style.display = 'none';
+									}
+								}).catch(function(){ alert('Request failed'); });
+							});
+
+						}
+						requestOtpBtn.style.display = '';
 						curPwd.disabled = false; newPwd.disabled = true; confPwd.disabled = true;
 						curPwd.focus();
 					});
@@ -510,22 +637,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					cancelPassword.addEventListener('click', function(e){
 						e.preventDefault();
 								// cancel any pending OTP on the server
-								fetch('APIManageAccount.php', {
-									method: 'POST',
-									credentials: 'same-origin',
-									headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-									body: new URLSearchParams({ action: 'cancel_otp' })
-								}).then(r => r.json()).then(function(res){
-									var msgEl = document.getElementById('ajaxMessage');
-									if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
-									msgEl.textContent = res.message || (res.success ? 'Cancelled' : 'Error');
-									msgEl.className = res.success ? 'message info' : 'message error';
-								}).catch(function(){});
-								// remove any OTP input section in DOM
-								var otpSection = document.getElementById('otpSection'); if (otpSection && otpSection.parentNode) otpSection.parentNode.removeChild(otpSection);
-						editPassword.style.display = '';
-						savePassword.style.display = 'none';
-						cancelPassword.style.display = 'none';
+										fetch('APIManageAccount.php', {
+											method: 'POST',
+											credentials: 'same-origin',
+											headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+											body: new URLSearchParams({ action: 'cancel_otp' })
+										}).then(r => r.json()).then(function(res){
+											var msgEl = document.getElementById('ajaxMessage');
+											if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
+											msgEl.textContent = res.message || (res.success ? 'Cancelled' : 'Error');
+											msgEl.className = res.success ? 'message info' : 'message error';
+										}).catch(function(){});
+										// remove any OTP input section in DOM
+										var otpSection = document.getElementById('otpSection'); if (otpSection && otpSection.parentNode) otpSection.parentNode.removeChild(otpSection);
+								editPassword.style.display = '';
+								if (requestOtpBtn) requestOtpBtn.style.display = 'none';
+								cancelPassword.style.display = 'none';
 									// hide new password fields after saving/cancelling
 									var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'none';
 						curPwd.value = ''; newPwd.value = ''; confPwd.value = '';
@@ -538,114 +665,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 								var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
 					});
 				}
-				if (savePassword) {
-					// start in 'request' mode: request OTP using current password
-					savePassword.dataset.mode = 'request';
-					savePassword.textContent = 'Request OTP';
-					savePassword.addEventListener('click', function(e){
-						e.preventDefault();
-						var mode = savePassword.dataset.mode || 'request';
-						if (mode === 'set') {
-							// set new password after OTP verified
-							var nw = form.querySelector('input[name=new_password]').value;
-							var cf = form.querySelector('input[name=confirm_password]').value;
-							fetch('APIManageAccount.php', {
-								method: 'POST',
-								credentials: 'same-origin',
-								headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-								body: new URLSearchParams({ action: 'set_new_password', new_password: nw, confirm_password: cf })
-							}).then(r => r.json()).then(function(json){
-								var msgEl = document.getElementById('ajaxMessage');
-								if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
-								msgEl.textContent = json.message || (json.success ? 'Password set' : 'Error');
-								msgEl.className = json.success ? 'message success' : 'message error';
-								if (json.success) {
-									// reset UI
-									form.querySelector('input[name=current_password]').value = '';
-									form.querySelector('input[name=new_password]').value = '';
-									form.querySelector('input[name=confirm_password]').value = '';
-									form.querySelector('input[name=new_password]').disabled = true;
-									form.querySelector('input[name=confirm_password]').disabled = true;
-									savePassword.dataset.mode = 'request';
-									savePassword.textContent = 'Request OTP';
-									editPassword.style.display = '';
-									savePassword.style.display = 'none';
-									cancelPassword.style.display = 'none';
-									// hide new password UI and collapse password section
-									var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = 'none';
-									if (passwordSection) passwordSection.style.display = 'none';
-									// restore masked display
-									var mp = document.getElementById('maskedPassword'); if (mp) mp.style.display = '';
-								}
-							}).catch(function(){ alert('Request failed'); });
-							return;
-						}
+                
 
-						// request OTP
-						var cur = form.querySelector('input[name=current_password]').value;
+				// Initialize per-field as view-only
+				exitEdit(false);
+
+				// Prevent full form submission when OTP input is present; route through AJAX verify
+				form.addEventListener('submit', function(e){
+					if (form.querySelector('input[name=otp_code]')) {
+						e.preventDefault();
+						var v = document.getElementById('verifyOtpBtn');
+						if (v) v.click();
+					}
+				});
+
+			// If server-rendered OTP section exists (rendered by PHP), ensure it has a verify button
+			var serverOtp = document.getElementById('otpSection');
+			if (serverOtp) {
+				if (!serverOtp.querySelector('#verifyOtpBtn')) {
+					var wrap = document.createElement('div'); wrap.style.textAlign = 'right';
+					var vbtn = document.createElement('button');
+					vbtn.type = 'button'; vbtn.id = 'verifyOtpBtn'; vbtn.textContent = 'Verify OTP';
+					vbtn.style.cssText = 'background:#059669;color:#fff;padding:8px 10px;border-radius:6px;border:none;';
+					wrap.appendChild(vbtn);
+					serverOtp.appendChild(wrap);
+					vbtn.addEventListener('click', function(ev){
+						ev.preventDefault();
+						var code = serverOtp.querySelector('input[name=otp_code]');
+						if (!code) return;
 						fetch('APIManageAccount.php', {
 							method: 'POST',
 							credentials: 'same-origin',
 							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-							body: new URLSearchParams({ action: 'initiate_password_change', current_password: cur })
-						}).then(r => r.json()).then(function(json){
+							body: new URLSearchParams({ action: 'verify_otp', otp_code: code.value })
+						}).then(r=>r.json()).then(function(json){
 							var msgEl = document.getElementById('ajaxMessage');
 							if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
-							msgEl.textContent = json.message || (json.success ? 'OTP sent' : 'Error');
-							msgEl.className = json.success ? 'message info' : 'message error';
+							msgEl.textContent = json.message || (json.success ? 'Verified' : 'Error');
+							msgEl.className = json.success ? 'message success' : 'message error';
 							if (json.success) {
-								// show OTP input and verify button
-								var otpSection = document.getElementById('otpSection');
-								if (!otpSection) {
-									otpSection = document.createElement('div'); otpSection.id = 'otpSection'; otpSection.style.marginTop = '12px';
-									otpSection.innerHTML = '<hr style="margin:16px 0;"><p style="margin:0 0 8px 0;font-size:90%;color:#374151">Enter OTP sent to your email</p><div class="form-group"><label>OTP Code</label><input type="text" name="otp_code" placeholder="6-digit code"></div><div style="text-align:right;"><button id="verifyOtpBtn" style="background:#059669;color:#fff;padding:8px 10px;border-radius:6px;border:none;">Verify OTP</button></div>';
-									passwordSection.parentNode.insertBefore(otpSection, passwordSection.nextSibling);
-								}
-									// hide current-password field once server accepted it and sent OTP
-									var _curHide = form.querySelector('input[name=current_password]');
-									if (_curHide) { var _grp = _curHide.closest('.form-group'); if (_grp) _grp.style.display = 'none'; }
-									// hide the Request OTP button as we've moved to OTP verification
-									if (savePassword) savePassword.style.display = 'none';
-								var verifyBtn = document.getElementById('verifyOtpBtn');
-								if (verifyBtn) {
-									verifyBtn.addEventListener('click', function(ev){
-										ev.preventDefault();
-										var code = otpSection.querySelector('input[name=otp_code]').value;
-										fetch('APIManageAccount.php', {
-											method: 'POST',
-											credentials: 'same-origin',
-											headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-											body: new URLSearchParams({ action: 'verify_otp', otp_code: code })
-										}).then(r => r.json()).then(function(j){
-											var m = document.getElementById('ajaxMessage'); if (!m) { m = document.createElement('div'); m.id='ajaxMessage'; m.style.marginBottom='12px'; form.parentNode.insertBefore(m, form);} 
-											m.textContent = j.message || (j.success? 'Verified' : 'Error'); m.className = j.success? 'message success' : 'message error';
-													if (j.success) {
-																	// allow user to enter new password now
-																	if (otpSection && otpSection.parentNode) otpSection.parentNode.removeChild(otpSection);
-																	var npf = document.getElementById('newPasswordFields');
-																	if (npf) npf.style.display = 'block';
-																	form.querySelector('input[name=new_password]').disabled = false;
-																	form.querySelector('input[name=confirm_password]').disabled = false;
-																	// switch save button to 'set' mode
-																	savePassword.dataset.mode = 'set';
-																	savePassword.textContent = 'Set New Password';
-																	// show the Set New Password button (below confirm field)
-																	if (setNewBtn) setNewBtn.style.display = '';
-																	// hide the Request OTP button (if visible)
-																	if (savePassword) savePassword.style.display = 'none';
-																	// enable inputs for new password
-																	newPwd.disabled = false; confPwd.disabled = false;
-																}
-										}).catch(function(){ alert('Request failed'); });
-									});
-								}
+								var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = '';
+								document.querySelector('input[name=new_password]').disabled = false;
+								document.querySelector('input[name=confirm_password]').disabled = false;
+								var setBtn = document.getElementById('setNewPasswordBtn'); if (setBtn) setBtn.style.display = '';
+								// hide/remove OTP section after successful verification
+								var otpSectionRem = document.getElementById('otpSection');
+								if (otpSectionRem && otpSectionRem.parentNode) otpSectionRem.parentNode.removeChild(otpSectionRem);
+								// ensure current-password input is cleared
+								var curHide = form.querySelector('input[name=current_password]'); if (curHide) curHide.value = '';
 							}
 						}).catch(function(){ alert('Request failed'); });
 					});
 				}
+			}
 
-				// Initialize per-field as view-only
-				exitEdit(false);
+				// Delegated handler: catch clicks on any Verify OTP button (covers dynamic or server-rendered)
+				if (passwordSection) {
+					passwordSection.addEventListener('click', function(e){
+						var t = e.target || e.srcElement;
+						if (!t || t.id !== 'verifyOtpBtn') return;
+						e.preventDefault();
+						var btn = t;
+						var codeInput = passwordSection.querySelector('input[name=otp_code]');
+						if (!codeInput) return;
+						btn.disabled = true; var prev = btn.textContent; btn.textContent = 'Verifying...';
+						fetch('APIManageAccount.php', {
+							method: 'POST',
+							credentials: 'same-origin',
+							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+							body: new URLSearchParams({ action: 'verify_otp', otp_code: codeInput.value })
+						}).then(function(r){ return r.json(); }).then(function(json){
+							var msgEl = document.getElementById('ajaxMessage');
+							if (!msgEl) { msgEl = document.createElement('div'); msgEl.id = 'ajaxMessage'; msgEl.style.marginBottom = '12px'; form.parentNode.insertBefore(msgEl, form); }
+							msgEl.textContent = json.message || (json.success ? 'Verified' : 'Error');
+							msgEl.className = json.success ? 'message success' : 'message error';
+							if (json.success) {
+								var npf = document.getElementById('newPasswordFields'); if (npf) npf.style.display = '';
+								document.querySelector('input[name=new_password]').disabled = false;
+								document.querySelector('input[name=confirm_password]').disabled = false;
+								var setBtn = document.getElementById('setNewPasswordBtn'); if (setBtn) setBtn.style.display = '';
+								// hide/remove OTP section after successful verification
+								var otpSectionRem2 = document.getElementById('otpSection');
+								if (otpSectionRem2 && otpSectionRem2.parentNode) otpSectionRem2.parentNode.removeChild(otpSectionRem2);
+								var curHide2 = form.querySelector('input[name=current_password]'); if (curHide2) curHide2.value = '';
+							}
+						}).catch(function(){ alert('Request failed'); }).finally(function(){ btn.disabled = false; btn.textContent = prev; });
+					});
+				}
 			})();
 		</script>
 			<?php if ($otpPending || $otpSent): ?>

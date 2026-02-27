@@ -3,8 +3,8 @@ session_start();
 require_once __DIR__ . '/config.php';
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Admin-only endpoint to export any vendor by accountID
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Admin or department head endpoint to export any vendor by accountID
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head'], true)) {
     header('HTTP/1.1 403 Forbidden');
     echo 'Forbidden';
     exit();

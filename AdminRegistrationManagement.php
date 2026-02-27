@@ -1,12 +1,18 @@
 <?php
 require_once "session_bootstrap.php";
 require_once "config.php";
+require_once "status_helpers.php";
 //
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Protect page (admin only)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Protect page (allow admin and admin_head; redirect head users to their management page)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head'], true)) {
 	header("Location: index.php");
+	exit();
+}
+// If this page is accessed by a department head, send them to the head management view
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin_head') {
+	header("Location: AdminHeadRegisrationManagement.php");
 	exit();
 }
 
@@ -14,26 +20,27 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $accountID = $_SESSION['accountID'] ?? '';
 $vendorType = '';
 $adminRoleType = 'general'; // default to general admin
+$deptColumn = null;
 
 if (!empty($accountID)) {
-    $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
-    if ($vtStmt) {
-        $vtStmt->bind_param('s', $accountID);
-        $vtStmt->execute();
-        $vtRes = $vtStmt->get_result();
-        if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
-            $vendorType = $vtRow['vendorType'] ?? '';
-            // If vendorType contains department name, this is a department admin
-            $vtLower = strtolower($vendorType);
-            if (strpos($vtLower, 'finance') !== false || 
-                strpos($vtLower, 'project') !== false || 
-                strpos($vtLower, 'legal') !== false || 
-                strpos($vtLower, 'plan') !== false) {
-                $adminRoleType = 'department';
-            }
-        }
-        $vtStmt->close();
-    }
+	// Resolve a whitelisted department column for this admin account (null if none)
+	$deptColumn = get_dept_column_for_account($conn, $accountID);
+
+	// Also fetch vendorType for display and existing status_pill_class usage
+	$vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+	if ($vtStmt) {
+		$vtStmt->bind_param('s', $accountID);
+		$vtStmt->execute();
+		$vtRes = $vtStmt->get_result();
+		if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
+			$vendorType = $vtRow['vendorType'] ?? '';
+		}
+		$vtStmt->close();
+	}
+
+	if ($deptColumn !== null) {
+		$adminRoleType = 'department';
+	}
 }
 
 $search = trim($_GET['search'] ?? '');
@@ -71,6 +78,9 @@ $conditions = [];
 $params = [];
 $types = '';
 
+// Show all statuses by default; filters below will apply if provided by the user.
+// Department-specific views are handled in the head/approval pages; do not restrict here.
+
 if ($search !== '') {
 	$like = "%{$search}%";
 	$conditions[] = "(companyName LIKE ? OR CAST(registrationFormID AS CHAR) LIKE ? OR newCompanyRegistrationNumber LIKE ?)";
@@ -92,6 +102,7 @@ if ($company !== '') {
 	$types .= 's';
 }
 if ($statusFilter !== '') {
+	// For AdminRegistrationManagement, treat status as a main-status filter only.
 	$conditions[] = "LOWER(status) = ?";
 	$params[] = strtolower($statusFilter);
 	$types .= 's';
@@ -106,6 +117,8 @@ if ($dateTo !== '') {
 	$params[] = $dateTo;
 	$types .= 's';
 }
+
+// (status dropdown now supports department-aware filtering for 'pending approval')
 
 $sql = "SELECT registrationFormID, newCompanyRegistrationNumber, companyName, formFirstSubmissionDate, status,
 		financeDepartmentStatus, projectDepartmentStatus, legalDepartmentStatus, planDepartmentStatus
@@ -127,14 +140,7 @@ if ($stmt) {
 	}
 }
 
-function normalize_status($status) {
-	$val = strtolower(trim((string) $status));
-	// Map empty/legacy tokens to the canonical 'not review'
-	if ($val === '' || $val === 'not review') {
-		return 'not review';
-	}
-	return $val;
-}
+// Use normalize_status() from status_helpers.php (centralized canonical mapping)
 
 function status_pill_class($status, $adminRole = 'general', $column = 'general', $adminVendorType = '') {
 	$val = normalize_status($status);
@@ -218,6 +224,32 @@ function status_pill_class($status, $adminRole = 'general', $column = 'general',
 			--cp-primary-text-emphasis: #001842;
 			--cp-body-font-family: "Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 		}
+
+			/* Modern primary action button matching admin UI */
+			.btn-add {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 8px 14px;
+				background: linear-gradient(90deg, #f59e42 0%, #de5c2e 100%);
+				color: #fff;
+				border: none;
+				border-radius: 10px;
+				font-weight: 700;
+				box-shadow: 0 8px 18px rgba(222,92,46,0.14);
+				cursor: pointer;
+				transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+			}
+
+			.btn-add:hover {
+				transform: translateY(-3px);
+				box-shadow: 0 14px 26px rgba(222,92,46,0.18);
+			}
+
+			.btn-add:focus {
+				outline: 2px solid rgba(13,110,253,0.12);
+				outline-offset: 2px;
+			}
 		body {
 			background: #f4f6f9;
 			font-family: 'Inter', -apple-system, sans-serif;
@@ -723,6 +755,7 @@ function status_pill_class($status, $adminRole = 'general', $column = 'general',
 					<option value="approved" <?php echo ($statusFilter === 'approved') ? 'selected' : ''; ?>>Approved</option>
 					<option value="rejected" <?php echo ($statusFilter === 'rejected') ? 'selected' : ''; ?>>Rejected</option>
 				</select>
+				<!-- Status dropdown will apply department-aware filtering when appropriate -->
 				<input type="date" name="date_from" value="<?php echo htmlspecialchars($dateFrom); ?>">
 				<input type="date" name="date_to" value="<?php echo htmlspecialchars($dateTo); ?>">
 				<button type="submit" class="btn-secondary">Apply Filter</button>
@@ -731,7 +764,12 @@ function status_pill_class($status, $adminRole = 'general', $column = 'general',
 		</form>
 
 		<div class="table-section">
-			<h2>Registration List</h2>
+			<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+				<h2 style="margin:0;">Registration List</h2>
+				<form method="post" action="APIRequestFormRenewal.php" style="display:inline;margin-left:auto;" onsubmit="return confirm('Are you sure you want to request a new registration form from ALL vendors? This will reset their renewal status.');">
+					<button type="submit" class="btn-add" style="background:#f59e42;">Request New Registration Form</button>
+				</form>
+			</div>
 			<?php if (empty($forms)): ?>
 				<div class="forms-empty">
 					<h3>No Forms Found</h3>

@@ -4,10 +4,10 @@ require_once "config.php";
 //
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Protect page (admin only)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-	header("Location: index.php");
-	exit();
+// Protect page (allow admin and admin_head)
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin','admin_head'], true)) {
+    header("Location: index.php");
+    exit();
 }
 
 $accountID = $_GET['accountID'] ?? '';
@@ -455,7 +455,8 @@ if (!empty($vendorNewCompanyRegistration)) {
 					</a>
 				</li>
 				<li class="list-item">
-					<a class="list-item__link" href="AdminRegistrationManagement.php">
+					<?php $regLink = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin_head') ? 'AdminHeadRegisrationManagement.php' : 'AdminRegistrationManagement.php'; ?>
+					<a class="list-item__link" href="<?php echo htmlspecialchars($regLink); ?>">
 						<span class="list-item__icon" aria-hidden="true">
 							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="var(--cp-white)"></circle></svg>
 						</span>

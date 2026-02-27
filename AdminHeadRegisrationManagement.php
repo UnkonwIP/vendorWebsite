@@ -78,8 +78,8 @@ if ($vendorType !== '') {
 
 // If a department column was identified, restrict results to forms requiring this department's attention
 if ($deptColumn !== null) {
-	// show forms where this department's status is explicitly 'not review'
-	$conditions[] = "LOWER($deptColumn) = 'not review'";
+	// Head admins finalize department approvals: show forms where this department's status is 'pending approval'
+	$conditions[] = "LOWER($deptColumn) = 'pending approval'";
 }
 
 if ($search !== '') {
@@ -708,7 +708,7 @@ function status_pill_class($status) {
 				<input type="date" name="date_from" value="<?php echo htmlspecialchars($dateFrom); ?>">
 				<input type="date" name="date_to" value="<?php echo htmlspecialchars($dateTo); ?>">
 				<button type="submit" class="btn-secondary">Apply Filter</button>
-				<a href="AdminRegistrationManagement.php" class="btn-secondary">Reset</a>
+				<a href="AdminHeadRegisrationManagement.php" class="btn-secondary">Reset</a>
 			</div>
 		</form>
 

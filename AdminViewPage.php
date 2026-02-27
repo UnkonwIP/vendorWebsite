@@ -142,6 +142,10 @@
         <div class="mb-3">
             <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-secondary back-vendor-list-btn">&larr; Back to Registration Form List</a>
         </div>
+        <?php elseif (in_array($role, ['admin', 'admin_head'])): ?>
+        <div class="mb-3">
+            <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-secondary back-vendor-list-btn">&larr; Back to Registration Form List</a>
+        </div>
         <style>
             .back-vendor-list-btn {
                 position: fixed;
@@ -1073,6 +1077,7 @@ $formStatus = strtolower($RegistrationRow['status'] ?? '');
 // Get user's department if admin or admin_head
 $userDepartment = '';
 $deptColumn = '';
+$isDepartmentAdmin = false;
 if (in_array($role, ['admin', 'admin_head'])) {
     $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
     if ($vtStmt) {
@@ -1097,10 +1102,15 @@ if (in_array($role, ['admin', 'admin_head'])) {
     } elseif (strpos($vtLower, 'plan') !== false) {
         $deptColumn = 'planDepartmentStatus';
     }
+    // Mark whether this admin is a department admin (to prevent them doing general approve)
+    if (!empty($userDepartment) && (strpos($vtLower, 'finance') !== false || strpos($vtLower, 'project') !== false || strpos($vtLower, 'legal') !== false || strpos($vtLower, 'plan') !== false)) {
+        $isDepartmentAdmin = true;
+    }
 }
 
 // Case 1: General admin reviewing data completeness (form status = 'not review')
-if ($role === 'admin' && $formStatus === 'not review') {
+// Only allow general admins (not department-specific admins) to perform the general approve
+if ($role === 'admin' && $formStatus === 'not review' && !$isDepartmentAdmin) {
     $showApprovalBar = true;
     $approvalType = 'general';
 }

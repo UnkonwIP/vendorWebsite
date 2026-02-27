@@ -6,8 +6,10 @@ if (!defined('STATUS_HELPERS_INCLUDED')) {
     $CANONICAL_STATUSES = ['not review', 'pending approval', 'approved', 'rejected'];
 
     function normalize_status($s) {
-        if ($s === null) return '';
-        return strtolower(trim((string)$s));
+        $val = strtolower(trim((string)$s));
+        // Map empty/legacy tokens to the canonical 'not review'
+        if ($val === '') return 'not review';
+        return $val;
     }
 
     function is_canonical_status($s) {
@@ -62,5 +64,65 @@ if (!defined('STATUS_HELPERS_INCLUDED')) {
         }
 
         return [false, false];
+    }
+
+    // Map vendorType to department column using an explicit whitelist.
+    // Returns the column name (e.g. 'financeDepartmentStatus') or null if no mapping.
+    function map_vendorType_to_dept_column($vendorType) {
+        $map = [
+            'finance' => 'financeDepartmentStatus',
+            'project' => 'projectDepartmentStatus',
+            'legal'   => 'legalDepartmentStatus',
+            'plan'    => 'planDepartmentStatus',
+        ];
+
+        if ($vendorType === null) return null;
+        $vt = strtolower(trim((string)$vendorType));
+
+        foreach ($map as $key => $col) {
+            if (strpos($vt, $key) !== false) return $col;
+        }
+        return null;
+    }
+
+    // Convenience: resolve a dept column for an accountID (returns column name or null)
+    function get_dept_column_for_account($conn, $accountID) {
+        $accountID = (int)$accountID;
+        $stmt = mysqli_prepare($conn, "SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+        if (!$stmt) return null;
+        mysqli_stmt_bind_param($stmt, 'i', $accountID);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $vendorType);
+        $dept = null;
+        if (mysqli_stmt_fetch($stmt)) {
+            $dept = map_vendorType_to_dept_column($vendorType);
+            // If we resolved a dept column, normalize the vendorType in the DB to a canonical label
+            if ($dept !== null) {
+                // derive canonical label from the mapping keys (e.g., 'finance' -> 'Finance')
+                $map = [
+                    'finance' => 'financeDepartmentStatus',
+                    'project' => 'projectDepartmentStatus',
+                    'legal'   => 'legalDepartmentStatus',
+                    'plan'    => 'planDepartmentStatus',
+                ];
+                $canonical = null;
+                foreach ($map as $k => $c) {
+                    if ($c === $dept) { $canonical = ucfirst($k); break; }
+                }
+                if ($canonical !== null) {
+                    $cur = trim((string)$vendorType);
+                    if ($cur !== $canonical) {
+                        $u = mysqli_prepare($conn, "UPDATE vendoraccount SET vendorType = ? WHERE accountID = ?");
+                        if ($u) {
+                            mysqli_stmt_bind_param($u, 'si', $canonical, $accountID);
+                            mysqli_stmt_execute($u);
+                            mysqli_stmt_close($u);
+                        }
+                    }
+                }
+            }
+        }
+        mysqli_stmt_close($stmt);
+        return $dept;
     }
 }

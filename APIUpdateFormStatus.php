@@ -12,6 +12,26 @@ if (!isset($_SESSION['role']) || strtolower(trim($_SESSION['role'])) !== 'admin'
     exit();
 }
 
+// Disallow department-specific admins from triggering general approve action
+$accountID = $_SESSION['accountID'] ?? '';
+if (!empty($accountID)) {
+    $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
+    if ($vtStmt) {
+        $vtStmt->bind_param('s', $accountID);
+        $vtStmt->execute();
+        $vtRes = $vtStmt->get_result();
+        if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
+            $vendorType = strtolower($vtRow['vendorType'] ?? '');
+            if (strpos($vendorType, 'finance') !== false || strpos($vendorType, 'project') !== false || strpos($vendorType, 'legal') !== false || strpos($vendorType, 'plan') !== false) {
+                http_response_code(403);
+                echo "Unauthorized: department admins cannot perform general approve.";
+                exit();
+            }
+        }
+        $vtStmt->close();
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $registrationFormID = isset($_POST['registrationFormID']) ? intval($_POST['registrationFormID']) : 0;
     $status = $_POST['status'] ?? '';
@@ -50,14 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Build update to set main status to 'pending approval' and reset department statuses
-        $stmt = $conn->prepare("UPDATE registrationform SET 
+        // Preserve any department status that is already 'approved'. Only reset non-approved depts to 'not review'.
+        $stmt = $conn->prepare(
+            "UPDATE registrationform SET 
             status = 'pending approval', 
             rejectionReason = NULL,
-            financeDepartmentStatus = 'not review',
-            projectDepartmentStatus = 'not review',
-            legalDepartmentStatus = 'not review',
-            planDepartmentStatus = 'not review'
-            WHERE registrationFormID = ?");
+            financeDepartmentStatus = CASE WHEN LOWER(financeDepartmentStatus) IN ('approved','pending approval') THEN financeDepartmentStatus ELSE 'not review' END,
+            projectDepartmentStatus = CASE WHEN LOWER(projectDepartmentStatus) IN ('approved','pending approval') THEN projectDepartmentStatus ELSE 'not review' END,
+            legalDepartmentStatus = CASE WHEN LOWER(legalDepartmentStatus) IN ('approved','pending approval') THEN legalDepartmentStatus ELSE 'not review' END,
+            planDepartmentStatus = CASE WHEN LOWER(planDepartmentStatus) IN ('approved','pending approval') THEN planDepartmentStatus ELSE 'not review' END
+            WHERE registrationFormID = ?"
+        );
         $stmt->bind_param("i", $registrationFormID);
     } else if ($requested === 'rejected') {
         // Rejection by general admin for data incompleteness: enforce idempotency

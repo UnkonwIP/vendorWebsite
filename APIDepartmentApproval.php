@@ -5,8 +5,10 @@ require_once __DIR__ . '/status_helpers.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Check user is logged in and has appropriate role
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'admin_head'])) {
+// Check user is logged in and is a department admin or head.
+// Department admins (`admin`) perform initial review -> set their department to 'pending approval'.
+// Department heads (`admin_head`) finalize from 'pending approval' -> 'approved' or can reject.
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'admin_head'], true)) {
     http_response_code(403);
     echo "Unauthorized.";
     exit();
@@ -44,7 +46,6 @@ if (!empty($accountID)) {
     }
 }
 
-$
 // Map vendorType to department column
 $deptColumn = null;
 $vtLower = strtolower($vendorType);
@@ -103,6 +104,19 @@ if (!$updateStmt->execute()) {
     exit();
 }
 
+// If a department rejected the form, mark the main status as 'rejected'
+// so the vendor can edit and resubmit. Store the rejection reason if provided.
+if (strtolower($action) === 'reject') {
+    $reason = is_null($rejectionReason) ? null : trim((string)$rejectionReason);
+    $mainUpdate = $conn->prepare("UPDATE registrationform SET status = 'rejected', rejectionReason = ? WHERE registrationFormID = ?");
+    if ($mainUpdate) {
+        // bind nullable string
+        mysqli_stmt_bind_param($mainUpdate, 'si', $reason, $registrationFormID);
+        $mainUpdate->execute();
+        mysqli_stmt_close($mainUpdate);
+    }
+}
+
 // If head approved, check if all departments are approved
 if ($role === 'admin_head' && $newStatus === 'approved') {
     $checkStmt = $conn->prepare("SELECT financeDepartmentStatus, projectDepartmentStatus, legalDepartmentStatus, planDepartmentStatus, status FROM registrationform WHERE registrationFormID = ?");
@@ -125,11 +139,15 @@ if ($role === 'admin_head' && $newStatus === 'approved') {
     }
 }
 
-// Redirect back
+// Redirect back (respect provided redirectUrl; otherwise send based on role)
 $redirectUrl = $_POST['redirectUrl'] ?? '';
 if (!empty($redirectUrl)) {
     header("Location: " . $redirectUrl);
 } else {
-    header("Location: AdminRegistrationManagement.php");
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin_head') {
+        header("Location: AdminHeadRegisrationManagement.php");
+    } else {
+        header("Location: AdminRegistrationManagement.php");
+    }
 }
 exit();

@@ -1,6 +1,7 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
 // Prefer Composer autoload when PHPMailer is installed into `vendor/`
 // If you installed PHPMailer via Composer: run `composer require phpmailer/phpmailer`
@@ -163,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mail = new PHPMailer(true);
 
             try {
-                $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
                 $mail->isSMTP();
                 $mail->Host       = MAIL_HOST;
                 $mail->SMTPAuth   = true;

@@ -32,8 +32,8 @@ function testEmailConnection() {
         $mail->Port       = MAIL_PORT; // Change as needed
 
         // Enable verbose debug output for SMTP (useful for diagnosing auth/connect problems)
-        $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
-        $mail->Debugoutput = 'echo';
+        // $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
+        // $mail->Debugoutput = 'echo';
         // Allow self-signed certs in test environments; remove/lock down in production
         $mail->SMTPOptions = [
             'ssl' => [

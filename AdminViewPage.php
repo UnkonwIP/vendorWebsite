@@ -1106,9 +1106,10 @@ if ($role === 'admin' && $formStatus === 'not review') {
 }
 
 // Case 2: Department admin reviewing their part (department status = 'not review')
+// Department admins may only act after the general admin has marked the form 'pending approval'
 if ($role === 'admin' && !empty($deptColumn)) {
     $deptStatus = strtolower($RegistrationRow[$deptColumn] ?? '');
-    if ($deptStatus === 'not review') {
+    if ($formStatus === 'pending approval' && $deptStatus === 'not review') {
         $showApprovalBar = true;
         $approvalType = 'department';
     }

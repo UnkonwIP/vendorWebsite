@@ -192,9 +192,9 @@ unset($_SESSION['error_msg']);
     <div class="links">
         <a href="forgot_password.php">Forgot Password?</a>
     </div>
-    <!-- <div class="links">
-        <a href="archive/TestSetup.php">Test Setup</a>
-</div> -->
+    <div class="links">
+        <a href="TestSetup.php">Test Setup</a>
+    </div>
 
 </body>
 </html>

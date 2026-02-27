@@ -1,0 +1,525 @@
+-- MySQL dump 10.13  Distrib 8.0.27, for macos11 (arm64)
+--
+-- Host: 127.0.0.1    Database: vendor_information
+-- ------------------------------------------------------
+-- Server version	8.0.33
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `bank`
+--
+
+DROP TABLE IF EXISTS `bank`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bank` (
+  `bankID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `bankName` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `bankAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `swiftCode` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`bankID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `bank_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bank`
+--
+
+LOCK TABLES `bank` WRITE;
+/*!40000 ALTER TABLE `bank` DISABLE KEYS */;
+INSERT INTO `bank` VALUES (1,1,'Test','Test','Test'),(2,2,'Test','Test','Test');
+/*!40000 ALTER TABLE `bank` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contacts`
+--
+
+DROP TABLE IF EXISTS `contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contacts` (
+  `contactID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `contactPersonName` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `department` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `telephoneNumber` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `emailAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `contactStatus` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`contactID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `contacts_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contacts`
+--
+
+LOCK TABLES `contacts` WRITE;
+/*!40000 ALTER TABLE `contacts` DISABLE KEYS */;
+INSERT INTO `contacts` VALUES (1,1,'Test','Test','Test','test@gmail.com','Primary'),(2,1,'Test','Test','Test','test@gmail.com','Secondary'),(3,2,'Test','Test','Test','test@gmail.com','Primary'),(4,2,'Test','Test','Test','test@gmail.com','Secondary');
+/*!40000 ALTER TABLE `contacts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `creditfacilities`
+--
+
+DROP TABLE IF EXISTS `creditfacilities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `creditfacilities` (
+  `facilityID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `typeOfCreditFacilities` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `financialInstitution` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `totalAmount` decimal(10,2) DEFAULT NULL,
+  `expiryDate` date DEFAULT NULL,
+  `unutilisedAmountCurrentlyAvailable` decimal(10,2) DEFAULT NULL,
+  `asAtDate` date DEFAULT NULL,
+  PRIMARY KEY (`facilityID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `creditfacilities_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `creditfacilities`
+--
+
+LOCK TABLES `creditfacilities` WRITE;
+/*!40000 ALTER TABLE `creditfacilities` DISABLE KEYS */;
+INSERT INTO `creditfacilities` VALUES (1,1,'Test','Test',22.00,'2024-01-01',9.00,'2024-01-01'),(2,2,'Test','Test',61.00,'2024-01-01',80.00,'2024-01-01');
+/*!40000 ALTER TABLE `creditfacilities` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `currentproject`
+--
+
+DROP TABLE IF EXISTS `currentproject`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `currentproject` (
+  `currentProjectID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `projectTitle` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `projectNature` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `location` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `clientName` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `projectValue` decimal(12,2) DEFAULT NULL,
+  `commencementDate` date DEFAULT NULL,
+  `completionDate` date DEFAULT NULL,
+  `progressOfTheWork` decimal(5,2) DEFAULT NULL,
+  PRIMARY KEY (`currentProjectID`),
+  KEY `fk_currentproject_registration` (`registrationFormID`),
+  CONSTRAINT `fk_currentproject_registration` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `currentproject`
+--
+
+LOCK TABLES `currentproject` WRITE;
+/*!40000 ALTER TABLE `currentproject` DISABLE KEYS */;
+INSERT INTO `currentproject` VALUES (1,1,'Test','Test','Test','Test',13.00,'2024-01-01','2024-01-01',91.00),(2,2,'Test','Test','Test','Test',50.00,'2024-01-01','2024-01-01',35.00);
+/*!40000 ALTER TABLE `currentproject` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `directorandsecretary`
+--
+
+DROP TABLE IF EXISTS `directorandsecretary`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `directorandsecretary` (
+  `directorID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `nationality` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `name` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `position` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `appointmentDate` date DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  PRIMARY KEY (`directorID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `directorandsecretary_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `directorandsecretary`
+--
+
+LOCK TABLES `directorandsecretary` WRITE;
+/*!40000 ALTER TABLE `directorandsecretary` DISABLE KEYS */;
+INSERT INTO `directorandsecretary` VALUES (1,1,'Test','Test','Test','2024-01-01','2024-01-01'),(2,2,'Test','Test','Test','2024-01-01','2024-01-01');
+/*!40000 ALTER TABLE `directorandsecretary` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `equipment`
+--
+
+DROP TABLE IF EXISTS `equipment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `equipment` (
+  `equipmentRecordID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `equipmentID` int NOT NULL,
+  `quantity` int DEFAULT NULL,
+  `brand` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `rating` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ownership` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `yearsOfManufacture` date DEFAULT NULL,
+  `registrationNo` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`equipmentRecordID`),
+  KEY `fk_equipment_form` (`registrationFormID`),
+  KEY `fk_equipment_type` (`equipmentID`),
+  CONSTRAINT `fk_equipment_form` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_equipment_type` FOREIGN KEY (`equipmentID`) REFERENCES `equipmentused` (`equipmentID`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `equipment`
+--
+
+LOCK TABLES `equipment` WRITE;
+/*!40000 ALTER TABLE `equipment` DISABLE KEYS */;
+INSERT INTO `equipment` VALUES (1,1,1,82,'Test','Test','Test','2024-01-01','Test'),(2,1,2,63,'Test','Test','Test','2024-01-01','Test'),(3,1,3,79,'Test','Test','Test','2024-01-01','Test'),(4,1,4,26,'Test','Test','Test','2024-01-01','Test'),(5,1,5,27,'Test','Test','Test','2024-01-01','Test'),(6,1,6,60,'Test','Test','Test','2024-01-01','Test'),(7,2,1,1,'Test','Test','Test','2024-01-01','Test'),(8,2,2,20,'Test','Test','Test','2024-01-01','Test'),(9,2,3,21,'Test','Test','Test','2024-01-01','Test'),(10,2,4,95,'Test','Test','Test','2024-01-01','Test'),(11,2,5,18,'Test','Test','Test','2024-01-01','Test'),(12,2,6,12,'Test','Test','Test','2024-01-01','Test');
+/*!40000 ALTER TABLE `equipment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `equipmentused`
+--
+
+DROP TABLE IF EXISTS `equipmentused`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `equipmentused` (
+  `equipmentID` int NOT NULL AUTO_INCREMENT,
+  `equipmentType` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`equipmentID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `equipmentused`
+--
+
+LOCK TABLES `equipmentused` WRITE;
+/*!40000 ALTER TABLE `equipmentused` DISABLE KEYS */;
+INSERT INTO `equipmentused` VALUES (1,'Bobcat/JCB'),(2,'HDD Equipment'),(3,'Splicing Equipment'),(4,'Optical Power Meter (OPM)'),(5,'OTDR'),(6,'Equipment/Test Gear');
+/*!40000 ALTER TABLE `equipmentused` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `management`
+--
+
+DROP TABLE IF EXISTS `management`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `management` (
+  `managementID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `nationality` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `name` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `position` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `yearsInPosition` int DEFAULT NULL,
+  `yearsInRelatedField` int DEFAULT NULL,
+  PRIMARY KEY (`managementID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `management_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `management`
+--
+
+LOCK TABLES `management` WRITE;
+/*!40000 ALTER TABLE `management` DISABLE KEYS */;
+INSERT INTO `management` VALUES (1,1,'Test','Test','Test',90,0),(2,2,'Test','Test','Test',54,67);
+/*!40000 ALTER TABLE `management` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `nettworth`
+--
+
+DROP TABLE IF EXISTS `nettworth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `nettworth` (
+  `networthID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `yearOf` year NOT NULL,
+  `totalLiabilities` decimal(15,2) DEFAULT NULL,
+  `totalAssets` decimal(15,2) DEFAULT NULL,
+  `netWorth` decimal(15,2) DEFAULT NULL,
+  `workingCapital` decimal(15,2) DEFAULT NULL,
+  PRIMARY KEY (`networthID`),
+  KEY `fk_nettworth_registration` (`registrationFormID`),
+  CONSTRAINT `fk_nettworth_registration` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `nettworth`
+--
+
+LOCK TABLES `nettworth` WRITE;
+/*!40000 ALTER TABLE `nettworth` DISABLE KEYS */;
+INSERT INTO `nettworth` VALUES (1,1,2025,51.00,22.00,49.00,5.00),(2,1,2024,7.00,44.00,71.00,44.00),(3,1,2023,87.00,71.00,95.00,76.00),(4,2,2025,11.00,7.00,1.00,17.00),(5,2,2024,4.00,63.00,27.00,94.00),(6,2,2023,18.00,16.00,43.00,68.00);
+/*!40000 ALTER TABLE `nettworth` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `projecttrackrecord`
+--
+
+DROP TABLE IF EXISTS `projecttrackrecord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projecttrackrecord` (
+  `projectRecordID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `projectTitle` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `projectNature` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `location` varchar(56) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `clientName` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `projectValue` decimal(12,2) DEFAULT NULL,
+  `commencementDate` date DEFAULT NULL,
+  `completionDate` date DEFAULT NULL,
+  PRIMARY KEY (`projectRecordID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `projecttrackrecord_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `projecttrackrecord`
+--
+
+LOCK TABLES `projecttrackrecord` WRITE;
+/*!40000 ALTER TABLE `projecttrackrecord` DISABLE KEYS */;
+INSERT INTO `projecttrackrecord` VALUES (1,1,'Test','Test','Test','Test',26.00,'2024-01-01','2024-01-01'),(2,2,'Test','Test','Test','Test',74.00,'2024-01-01','2024-01-01');
+/*!40000 ALTER TABLE `projecttrackrecord` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `registrationform`
+--
+
+DROP TABLE IF EXISTS `registrationform`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `registrationform` (
+  `registrationFormID` int NOT NULL AUTO_INCREMENT,
+  `newCompanyRegistrationNumber` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `formFirstSubmissionDate` date NOT NULL,
+  `companyName` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `taxRegistrationNumber` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `faxNo` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `companyOrganisation` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `oldCompanyRegistrationNumber` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `otherNames` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `telephoneNumber` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `emailAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `website` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `branch` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `authorisedCapital` decimal(12,2) DEFAULT NULL,
+  `paidUpCapital` decimal(12,2) DEFAULT NULL,
+  `countryOfIncorporation` varchar(56) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `dateOfIncorporation` date DEFAULT NULL,
+  `natureAndLineOfBusiness` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `registeredAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `correspondenceAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `typeOfOrganisation` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `parentCompany` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `parentCompanyCountry` varchar(56) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ultimateParentCompany` varchar(40) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ultimateParentCompanyCountry` varchar(56) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `bankruptHistory` varchar(5) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `description` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `cidbGrade` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `cidbSpecialization` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `cidbValidationTill` date DEFAULT NULL,
+  `trade` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `otherTradeDetails` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `valueOfSimilarProject` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `valueOfCurrentProject` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `yearsOfExperienceInIndustry` int DEFAULT NULL,
+  `creditFacilitiesStatus` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `verifierName` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `verifierDesignation` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `dateOfVerification` date DEFAULT NULL,
+  `auditorCompanyName` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `auditorCompanyAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `auditorName` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `auditorEmail` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `auditorPhone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `auditorYearOfService` int DEFAULT NULL,
+  `advocatesCompanyName` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `advocatesCompanyAddress` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `advocatesName` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `advocatesEmail` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `advocatesPhone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `advocatesYearOfService` int DEFAULT NULL,
+  `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'DRAFT',
+  `rejectionReason` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `planDepartmentStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'not reviewed',
+  `planDepartmentComments` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `financeDepartmentStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'not reviewed',
+  `financeDepartmentComments` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `legalDepartmentStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'not reviewed',
+  `legalDepartmentComments` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `projectDepartmentStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'not reviewed',
+  `projectDepartmentComments` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`registrationFormID`),
+  KEY `fk_registration_vendor` (`newCompanyRegistrationNumber`),
+  CONSTRAINT `fk_registration_vendor` FOREIGN KEY (`newCompanyRegistrationNumber`) REFERENCES `vendoraccount` (`newCompanyRegistrationNumber`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `registrationform`
+--
+
+LOCK TABLES `registrationform` WRITE;
+/*!40000 ALTER TABLE `registrationform` DISABLE KEYS */;
+INSERT INTO `registrationform` VALUES (1,'1002','2026-02-25','Test','70','8163169155','More than 15','37','Test','2714813554','test@gmail.com','Test','Test',99.00,2.00,'Test','2024-01-01','Test','Test','Test','Berhad','Test','Test','Test','Test','yes','Test','G4','Test','2024-01-01','ISP','','>15M','>5M',72,'Yes','Test','Test','2024-01-01','Test','Test','Test','test@gmail.com','Test',38,'Test','Test','Test','test@gmail.com','Test',16,'pending approval',NULL,'not review',NULL,'not review',NULL,'not review',NULL,'not review',NULL),(2,'1000','2026-02-25','Test','36','9052709247','More than 15','37','Test','3059395004','test@gmail.com','Test','Test',79.00,65.00,'Test','2024-01-01','Test','Test','Test','Berhad','Test','Test','Test','Test','yes','Test','G4','Test','2024-01-01','ISP','','>15M','>5M',31,'Yes','Test','Test','2024-01-01','Test','Test','Test','test@gmail.com','Test',24,'Test','Test','Test','test@gmail.com','Test',8,'not review',NULL,'not reviewed',NULL,'not reviewed',NULL,'not reviewed',NULL,'not reviewed',NULL);
+/*!40000 ALTER TABLE `registrationform` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `shareholders`
+--
+
+DROP TABLE IF EXISTS `shareholders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shareholders` (
+  `shareholderID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `companyShareholderID` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `nationality` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `sharePercentage` decimal(5,2) DEFAULT NULL,
+  PRIMARY KEY (`shareholderID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `fk_shareholder_registration` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE,
+  CONSTRAINT `shareholders_chk_1` CHECK (((`sharePercentage` >= 0) and (`sharePercentage` <= 100)))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `shareholders`
+--
+
+LOCK TABLES `shareholders` WRITE;
+/*!40000 ALTER TABLE `shareholders` DISABLE KEYS */;
+INSERT INTO `shareholders` VALUES (1,1,'Test','Test','Test','Test',100.00),(2,2,'Test','Test','Test','Test',100.00);
+/*!40000 ALTER TABLE `shareholders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `staff`
+--
+
+DROP TABLE IF EXISTS `staff`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `staff` (
+  `staffID` int NOT NULL AUTO_INCREMENT,
+  `registrationFormID` int NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `designation` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `qualification` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `yearsOfExperience` int DEFAULT NULL,
+  `employmentStatus` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `skills` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `relevantCertification` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`staffID`),
+  KEY `registrationFormID` (`registrationFormID`),
+  CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `staff`
+--
+
+LOCK TABLES `staff` WRITE;
+/*!40000 ALTER TABLE `staff` DISABLE KEYS */;
+INSERT INTO `staff` VALUES (1,1,'Test','Test','Test',21,'0','Test','Test'),(2,2,'Test','Test','Test',73,'0','Test','Test');
+/*!40000 ALTER TABLE `staff` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `vendoraccount`
+--
+
+DROP TABLE IF EXISTS `vendoraccount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendoraccount` (
+  `accountID` int NOT NULL AUTO_INCREMENT,
+  `newCompanyRegistrationNumber` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `passwordHash` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `role` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `vendorType` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `resetToken` varchar(64) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `resetExpiry` datetime DEFAULT NULL,
+  `formRenewalStatus` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'not complete',
+  PRIMARY KEY (`accountID`),
+  UNIQUE KEY `newCompanyRegistrationNumber` (`newCompanyRegistrationNumber`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vendoraccount`
+--
+
+LOCK TABLES `vendoraccount` WRITE;
+/*!40000 ALTER TABLE `vendoraccount` DISABLE KEYS */;
+INSERT INTO `vendoraccount` VALUES (1,NULL,'Admin','$2y$12$IAKewA3x54LMuzCEuvBGfukCONMEFxMRUq62OFGNyFjQveboHYUDq','danielhozhixuan@gmail.com','admin','General',NULL,NULL,'not complete'),(2,'1008','tmp','$2y$12$JVyvu8ve7.nTp17jdAJEseGj1HKiw7.vMpEf13UG8ea7ckn0NFP8O','danielhozhixuan@gmail.com','vendor','TMP Contractor',NULL,NULL,'not complete'),(3,'1002','3SuperVendor','$2y$12$haRY.syzOAPUk/OTe5LrOubhvVGsmmfp8Ur1gZMD4igTDnOXUjiHi','null','vendor','Civil Contractor',NULL,NULL,'done'),(4,'1234','sup','$2y$12$QmC8GOEJqdpzA2JWMbxb6eCqSiKhmrj6z/Sn2d.iiePRC/y.hxF.y','3superdreams@gmail.com','vendor','Supplier',NULL,NULL,'done'),(5,'1000','General Vendor 1','$2y$12$0S6e9I.qCF46nwP1jXmfGusysUv.5zUa/DMjXTtUr9CP71NrAtUMO','danielhozhixuan@gmail.com','vendor','General Contractor',NULL,NULL,'done'),(6,NULL,'PENDING_34627ae1',NULL,'danielhozhixuan@gmail.com','admin','Finance','2417d504e8595a48023f2900d68d9a181bc0fbd3edceb60e40fb3943f1196f49','2026-02-27 00:56:48','not complete'),(7,NULL,'PENDING_08b76beb',NULL,'danielhozhixuan@gmail.com','admin','Finance','1cfbebee342742946574242abf94274be30e7bb0733d7c5b0443074ef80c785d','2026-02-27 00:57:00','not complete'),(8,NULL,'PENDING_fc8bf7a6',NULL,'danielhozhixuan@gmail.com','admin','Finance','cdef0273a0bb430e819a110d95abe141de0a395a1a01db83d629ca5513b1d71b','2026-02-27 01:07:41','not complete'),(9,NULL,'PENDING_66fb8c56',NULL,'danielhozhixuan@gmail.com','admin','Finance','ff97663830c2baa7b0161e25c1887be29fdc4e05fc015b46b1e522910052244e','2026-02-27 01:11:01','not complete'),(10,NULL,'PENDING_224720cc',NULL,'danielhozhixuan@gmail.com','admin','Finance','2a9a7493e055d2269eb3448b9c0e7c445ca0782e88b3646130f418574991fe29','2026-02-27 01:14:36','not complete'),(11,NULL,'Finance','$2y$12$VxfuefeeRXh71VUw7MHWxeEg0xVLF0a15nHJJ3/tN83WeCOCG3L26','danielhozhixuan@gmail.com','admin','Finance',NULL,NULL,'not complete');
+/*!40000 ALTER TABLE `vendoraccount` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'vendor_information'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-02-26  8:52:49

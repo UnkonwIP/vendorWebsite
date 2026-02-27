@@ -163,15 +163,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mail = new PHPMailer(true);
 
             try {
+                $mail->SMTPDebug = SMTP::DEBUG_SERVER;
                 $mail->isSMTP();
                 $mail->Host       = MAIL_HOST;
                 $mail->SMTPAuth   = true;
                 $mail->Username = MAIL_USER;
                 $mail->Password = MAIL_PASS;
-                $mail->SMTPSecure = MAIL_ENCRYPTION;
+                // Normalize encryption/port: use ssl on 465 if tls was configured
+                $smtpSecure = MAIL_ENCRYPTION;
+                if (intval(MAIL_PORT) === 465 && strtolower(MAIL_ENCRYPTION) === 'tls') {
+                    $smtpSecure = 'ssl';
+                }
+                $mail->SMTPSecure = $smtpSecure;
                 $mail->Port       = MAIL_PORT;
 
-                $mail->setFrom(MAIL_USER, 'Vendor System');
+                // Ensure From address is valid; fallback to DEFAULT_ADMIN_EMAIL or a safe local address
+                $fromAddress = defined('MAIL_USER') && filter_var(MAIL_USER, FILTER_VALIDATE_EMAIL) ? MAIL_USER : (defined('DEFAULT_ADMIN_EMAIL') ? DEFAULT_ADMIN_EMAIL : 'no-reply@localhost');
+                $mail->setFrom($fromAddress, 'Vendor System');
                 $mail->addAddress($email);
 
                 $mail->isHTML(true);
@@ -197,8 +205,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $message = "Setup link has been sent to " . htmlspecialchars($email) . ".";
                 $messageType = "success";
             } catch (Exception $e) {
+                // Account was created but email failed — log details for debugging
+                $logMsg = date('Y-m-d H:i:s') . " - Mail send failed: " . $e->getMessage() . " | PHPMailerError: " . ($mail->ErrorInfo ?? '') . " | Request: " . json_encode(array_intersect_key($_POST, array_flip(['email','role','vendor_type','admin_department','newcompanyregistration']))) . "\n";
+                @file_put_contents('/tmp/vendorwebsite_errors.log', $logMsg, FILE_APPEND | LOCK_EX);
                 // Account was created but email failed
-                $message = "Account invitation created but failed to send email. Error: " . $mail->ErrorInfo;
+                $message = "Account invitation created but failed to send email. Error: " . ($mail->ErrorInfo ?: $e->getMessage());
                 $messageType = "error";
             }
         } else {

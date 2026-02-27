@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/session_bootstrap.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/status_helpers.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur'); // Fixed
 
@@ -27,9 +28,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // General admin data completeness check
-    if ($status === 'approved') {
-        // When general admin approves (data complete), set status to "pending approval"
-        // and initialize all department statuses to "not review"
+    // Validate requested status and enforce idempotent main transitions
+    // Normalize incoming status if it came as 'approved' (meaning general admin's approve action)
+    $requested = normalize_status($status);
+
+    // Fetch current main status
+    $curStmt = $conn->prepare("SELECT status FROM registrationform WHERE registrationFormID = ? LIMIT 1");
+    $curStmt->bind_param('i', $registrationFormID);
+    $curStmt->execute();
+    $curRes = $curStmt->get_result();
+    $currentRow = $curRes->fetch_assoc();
+    $currentStatus = normalize_status($currentRow['status'] ?? '');
+
+    if ($requested === 'approved' || $requested === 'pending approval') {
+        // Treat general admin 'approved' request as the action to set main -> 'pending approval'
+        list($newMain, $initDeps) = allowed_main_transition($currentStatus, 'pending approval');
+        if ($newMain === false) {
+            http_response_code(409);
+            echo "Invalid or duplicate main status transition.";
+            exit();
+        }
+
+        // Build update to set main status to 'pending approval' and reset department statuses
         $stmt = $conn->prepare("UPDATE registrationform SET 
             status = 'pending approval', 
             rejectionReason = NULL,
@@ -39,10 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             planDepartmentStatus = 'not review'
             WHERE registrationFormID = ?");
         $stmt->bind_param("i", $registrationFormID);
-    } else if ($status === 'rejected') {
-        // Rejection by general admin for data incompleteness
+    } else if ($requested === 'rejected') {
+        // Rejection by general admin for data incompleteness: enforce idempotency
+        list($newMain, $initDeps) = allowed_main_transition($currentStatus, 'rejected');
+        if ($newMain === false) {
+            http_response_code(409);
+            echo "Invalid or duplicate main status transition (already rejected).";
+            exit();
+        }
+
         $stmt = $conn->prepare("UPDATE registrationform SET status = ?, rejectionReason = ? WHERE registrationFormID = ?");
-        $stmt->bind_param("ssi", $status, $rejectionReason, $registrationFormID);
+        $stmt->bind_param("ssi", $newMain, $rejectionReason, $registrationFormID);
     } else {
         echo "Invalid status.";
         exit();

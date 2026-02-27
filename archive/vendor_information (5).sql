@@ -248,7 +248,7 @@ CREATE TABLE `registrationform` (
   `advocatesEmail` varchar(100) DEFAULT NULL,
   `advocatesPhone` varchar(20) DEFAULT NULL,
   `advocatesYearOfService` int(11) DEFAULT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'DRAFT',
+  `status` varchar(20) NOT NULL DEFAULT 'not review',
   `rejectionReason` varchar(255) DEFAULT NULL,
   `planDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `planDepartmentComments` varchar(255) DEFAULT NULL,
@@ -259,6 +259,14 @@ CREATE TABLE `registrationform` (
   `projectDepartmentStatus` varchar(20) NOT NULL DEFAULT 'not review',
   `projectDepartmentComments` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Enforce canonical status tokens for registration workflow
+ALTER TABLE `registrationform`
+  ADD CONSTRAINT chk_registration_status CHECK (status IN ('not review','pending approval','approved','rejected')),
+  ADD CONSTRAINT chk_plan_dept_status CHECK (planDepartmentStatus IN ('not review','pending approval','approved','rejected')),
+  ADD CONSTRAINT chk_finance_dept_status CHECK (financeDepartmentStatus IN ('not review','pending approval','approved','rejected')),
+  ADD CONSTRAINT chk_legal_dept_status CHECK (legalDepartmentStatus IN ('not review','pending approval','approved','rejected')),
+  ADD CONSTRAINT chk_project_dept_status CHECK (projectDepartmentStatus IN ('not review','pending approval','approved','rejected'));
 
 -- --------------------------------------------------------
 
@@ -581,6 +589,31 @@ ALTER TABLE `shareholders`
 --
 ALTER TABLE `staff`
   ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`registrationFormID`) REFERENCES `registrationform` (`registrationFormID`) ON DELETE CASCADE;
+-- Migration: normalize legacy status tokens and ensure canonical defaults
+-- (Safe to run when restoring the dump to bring existing data in line with application expectations)
+UPDATE registrationform
+SET status = 'not review'
+WHERE LOWER(status) IN ('draft', '', 'not reviewed', 'not_review');
+
+UPDATE registrationform
+SET planDepartmentStatus = 'not review'
+WHERE planDepartmentStatus IS NULL OR TRIM(planDepartmentStatus) = '';
+
+UPDATE registrationform
+SET financeDepartmentStatus = 'not review'
+WHERE financeDepartmentStatus IS NULL OR TRIM(financeDepartmentStatus) = '';
+
+UPDATE registrationform
+SET legalDepartmentStatus = 'not review'
+WHERE legalDepartmentStatus IS NULL OR TRIM(legalDepartmentStatus) = '';
+
+UPDATE registrationform
+SET projectDepartmentStatus = 'not review'
+WHERE projectDepartmentStatus IS NULL OR TRIM(projectDepartmentStatus) = '';
+
+-- Add index for faster status queries (if not present)
+CREATE INDEX idx_registration_status ON registrationform (status);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

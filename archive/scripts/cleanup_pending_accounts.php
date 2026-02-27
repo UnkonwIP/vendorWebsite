@@ -1,7 +1,7 @@
 <?php
 // Cleanup pending vendor accounts whose reset expiry has passed.
 // Place this file at: scripts/cleanup_pending_accounts.php
-// Run from CLI: php scripts/cleanup_pending_accounts.php
+// Run from CLI: php archive/scripts/cleanup_pending_accounts.php
 
 chdir(__DIR__ . '/..');
 require_once __DIR__ . '/../config.php';

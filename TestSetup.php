@@ -14,6 +14,12 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 require_once __DIR__ . '/config.php';
 
+if (class_exists('Dotenv\\Dotenv')) {
+  Dotenv\Dotenv::createImmutable(__DIR__)->safeLoad();
+}
+echo 'DB_HOST='.htmlspecialchars(getenv('DB_HOST')).'<br>';
+echo 'MAIL_USER='.htmlspecialchars(getenv('MAIL_USER')).'<br>';
+
 function testEmailConnection() {
     $mail = new PHPMailer(true);
     try {
@@ -24,6 +30,18 @@ function testEmailConnection() {
         $mail->Password   = MAIL_PASS; // Change as needed
         $mail->SMTPSecure = MAIL_ENCRYPTION; // Change as needed
         $mail->Port       = MAIL_PORT; // Change as needed
+
+        // Enable verbose debug output for SMTP (useful for diagnosing auth/connect problems)
+        $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
+        $mail->Debugoutput = 'echo';
+        // Allow self-signed certs in test environments; remove/lock down in production
+        $mail->SMTPOptions = [
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true,
+            ],
+        ];
 
         $mail->setFrom(MAIL_USER, 'Test System');
         $mail->addAddress(DEFAULT_ADMIN_EMAIL);

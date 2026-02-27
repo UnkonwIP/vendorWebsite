@@ -1,6 +1,7 @@
 <?php
 require_once "session_bootstrap.php";
 require_once "config.php";
+require_once __DIR__ . '/status_helpers.php';
 //
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
@@ -45,35 +46,11 @@ $conditions = [];
 $params = [];
 $types = '';
 
-// Determine the current head's department from vendoraccount.vendorType
+// Determine the current head's department column using the centralized helper
 $accountID = $_SESSION['accountID'] ?? '';
-$vendorType = '';
-if (!empty($accountID)) {
-	$vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
-	if ($vtStmt) {
-		$vtStmt->bind_param('s', $accountID);
-		$vtStmt->execute();
-		$vtRes = $vtStmt->get_result();
-		if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
-			$vendorType = $vtRow['vendorType'] ?? '';
-		}
-		$vtStmt->close();
-	}
-}
-
-// Map vendorType to the corresponding department status column
 $deptColumn = null;
-if ($vendorType !== '') {
-	$vtLower = strtolower($vendorType);
-	if (strpos($vtLower, 'finance') !== false) {
-		$deptColumn = 'financeDepartmentStatus';
-	} elseif (strpos($vtLower, 'project') !== false) {
-		$deptColumn = 'projectDepartmentStatus';
-	} elseif (strpos($vtLower, 'legal') !== false) {
-		$deptColumn = 'legalDepartmentStatus';
-	} elseif (strpos($vtLower, 'plan') !== false) {
-		$deptColumn = 'planDepartmentStatus';
-	}
+if (!empty($accountID)) {
+	$deptColumn = get_dept_column_for_account($conn, $accountID);
 }
 
 // If a department column was identified, restrict results to forms requiring this department's attention
@@ -136,14 +113,6 @@ if ($stmt) {
 	while ($row = $formsResult->fetch_assoc()) {
 		$forms[] = $row;
 	}
-}
-
-function normalize_status($status) {
-	$val = strtolower(trim((string) $status));
-	if ($val === '' || $val === 'not review') {
-		return 'not review';
-	}
-	return $val;
 }
 
 function status_pill_class($status) {

@@ -28,38 +28,11 @@ if (empty($registrationFormID) || empty($action)) {
     exit();
 }
 
-// Get current user's role and department
+// Get current user's role and determine department column via helper
 $accountID = $_SESSION['accountID'] ?? '';
 $role = $_SESSION['role'];
-$vendorType = '';
 
-if (!empty($accountID)) {
-    $vtStmt = $conn->prepare("SELECT vendorType FROM vendoraccount WHERE accountID = ? LIMIT 1");
-    if ($vtStmt) {
-        $vtStmt->bind_param('s', $accountID);
-        $vtStmt->execute();
-        $vtRes = $vtStmt->get_result();
-        if ($vtRes && ($vtRow = $vtRes->fetch_assoc())) {
-            $vendorType = $vtRow['vendorType'] ?? '';
-        }
-        $vtStmt->close();
-    }
-}
-
-// Map vendorType to department column
-$deptColumn = null;
-$vtLower = strtolower($vendorType);
-
-if (strpos($vtLower, 'finance') !== false) {
-    $deptColumn = 'financeDepartmentStatus';
-} elseif (strpos($vtLower, 'project') !== false) {
-    $deptColumn = 'projectDepartmentStatus';
-} elseif (strpos($vtLower, 'legal') !== false) {
-    $deptColumn = 'legalDepartmentStatus';
-} elseif (strpos($vtLower, 'plan') !== false) {
-    $deptColumn = 'planDepartmentStatus';
-}
-
+$deptColumn = get_dept_column_for_account($conn, $accountID);
 if ($deptColumn === null) {
     echo "Unable to determine department.";
     exit();

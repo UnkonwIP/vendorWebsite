@@ -27,10 +27,9 @@ if ($_SESSION['fp_attempts'] > 10) {
 }
 $_SESSION['fp_attempts']++;
 
-$email = trim($_POST['email'] ?? '');
-$regNo = trim($_POST['newCompanyRegistration'] ?? '');
+$identifier = trim($_POST['identifier'] ?? '');
 
-if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if ($identifier === '') {
 	echo json_encode([
 		'status' => 'error',
 		'message' => 'If the information is correct, you will receive a reset link.'
@@ -38,9 +37,9 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 	exit;
 }
 
-// Find user by email
-$stmt = $conn->prepare('SELECT va.username, va.role, va.newCompanyRegistrationNumber, va.email FROM vendoraccount va WHERE va.email = ? LIMIT 1');
-$stmt->bind_param('s', $email);
+// Find user by username OR company registration number
+$stmt = $conn->prepare('SELECT va.username, va.role, va.newCompanyRegistrationNumber, va.email FROM vendoraccount va WHERE va.username = ? OR va.newCompanyRegistrationNumber = ? LIMIT 1');
+$stmt->bind_param('ss', $identifier, $identifier);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows !== 1) {
@@ -52,17 +51,6 @@ if ($result->num_rows !== 1) {
 	exit;
 }
 $user = $result->fetch_assoc();
-
-// If vendor, require regNo and check
-if ($user['role'] === 'vendor') {
-	if (empty($regNo) || $regNo !== $user['newCompanyRegistrationNumber']) {
-		echo json_encode([
-			'status' => 'success',
-			'message' => 'If the information is correct, you will receive a reset link.'
-		]);
-		exit;
-	}
-}
 
 
 // Generate reset token and expiry (Asia/Kuala_Lumpur)
@@ -87,7 +75,7 @@ try {
 	$mail->SMTPSecure = MAIL_ENCRYPTION;
 	$mail->Port       = MAIL_PORT;
 	$mail->setFrom(MAIL_USER, 'Vendor System');
-	$mail->addAddress($email);
+	$mail->addAddress($user['email']);
 	$mail->isHTML(true);
 	$mail->Subject = 'Password Reset Request';
 	$mail->Body =

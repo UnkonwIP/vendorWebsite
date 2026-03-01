@@ -5,61 +5,26 @@ require_once "config.php";
 // Use Asia/Kuala_Lumpur for reset expiry comparison
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-$token = $_POST['token'] ?? $_GET['token'] ?? "";
+$token = $_GET['token'] ?? "";
 $message = "";
-$success = false;
-// DEBUG: Show token and DB row for troubleshooting
-// echo '<div style="background:#fffbe6;border:1px solid #ffe58f;padding:10px;margin-bottom:15px;font-size:0.95em;">';
-// echo '<b>DEBUG:</b><br>Token from URL/POST: <code>' . htmlspecialchars($token ?? '') . '</code><br>';
-// if ($token) {
-//     $debug = $conn->query("SELECT accountID, resetToken, resetExpiry, NOW() as now FROM vendoraccount WHERE resetToken = '" . $conn->real_escape_string($token) . "'");
-//     if ($debug && $debug->num_rows > 0) {
-//         $row = $debug->fetch_assoc();
-//         echo 'DB resetToken: <code>' . htmlspecialchars($row['resetToken']) . '</code><br>';
-//         echo 'DB resetExpiry: <code>' . htmlspecialchars($row['resetExpiry']) . '</code><br>';
-//         echo 'DB NOW(): <code>' . htmlspecialchars($row['now']) . '</code><br>';
-//         echo 'DB accountID: <code>' . htmlspecialchars($row['accountID']) . '</code><br>';
-//     } else {
-//         echo 'No matching token found in DB.';
-//     }
-// }
-// echo '</div>';
+$tokenValid = false;
 
 if (!$token) {
     $message = "Invalid reset link.";
-} else if (isset($_POST['update'])) {
-    $password = $_POST['password'] ?? '';
-    // Server-side password strength validation
-    $valid = strlen($password) >= 8 &&
-        preg_match('/[A-Z]/', $password) &&
-        preg_match('/[a-z]/', $password) &&
-        preg_match('/[0-9]/', $password) &&
-        preg_match('/[^A-Za-z0-9]/', $password);
-    if (!$valid) {
-        $message = "Password does not meet strength requirements.";
+} else {
+    // Validate token exists and is not expired
+    $stmt = $conn->prepare(
+        "SELECT accountID FROM vendoraccount
+         WHERE resetToken = ? AND resetExpiry > NOW() LIMIT 1"
+    );
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result && $result->num_rows === 1) {
+        $tokenValid = true;
     } else {
-        $stmt = $conn->prepare(
-            "SELECT accountID, resetExpiry FROM vendoraccount
-             WHERE resetToken = ? AND resetExpiry > NOW()"
-        );
-        $stmt->bind_param("s", $token);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result && $result->num_rows === 1) {
-            $row = $result->fetch_assoc();
-            $newPassword = password_hash($password, PASSWORD_DEFAULT);
-            $update = $conn->prepare(
-                "UPDATE vendoraccount
-                 SET passwordHash=?, resetToken=NULL, resetExpiry=NULL
-                 WHERE accountID=?"
-            );
-            $update->bind_param("ss", $newPassword, $row['accountID']);
-            $update->execute();
-            $success = true;
-            $message = "Password updated successfully. Redirecting to <a href='index.php'>login</a>...";
-        } else {
-            $message = "Invalid or expired reset link.";
-        }
+        $message = "Invalid or expired reset link.";
     }
 }
 ?>
@@ -70,50 +35,204 @@ if (!$token) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .reset-container { background: #fff; padding: 2.5rem 2rem; border-radius: 1rem; box-shadow: 0 2px 16px rgba(0,0,0,0.08); max-width: 400px; width: 100%; }
-        .form-label { font-weight: 500; }
-        .strength-feedback { font-size: 0.95em; margin-top: 0.25rem; }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: #fff;
+            width: 450px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .card button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #2a5298;
+            border: none;
+            color: white;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .card button[type="submit"]:hover {
+            background: #1e3c72;
+        }
+
+        .card button[type="submit"]:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .success {
+            color: green;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            color: red;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .links {
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .links a {
+            color: #2a5298;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .password-field {
+            position: relative;
+            width: 100%;
+            display: block;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .password-field input {
+            width: 100%;
+            padding: 12px 45px 12px 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 0;
+        }
+
+        .password-field button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+            padding: 5px;
+            width: auto;
+            height: auto;
+            line-height: 1;
+            z-index: 10;
+        }
+
+        .form-text {
+            text-align: left;
+            margin-bottom: 0.5em;
+            font-size: 13px;
+        }
+
+        .strength-feedback {
+            font-size: 13px;
+            color: #d32f2f;
+            text-align: left;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-<div class="reset-container">
-    <h2 class="mb-4 text-center">Reset Password</h2>
+<div class="card">
+    <h2>Reset Password</h2>
     <?php if ($message): ?>
-        <div class="alert alert-<?php echo $success ? 'success' : 'danger'; ?>" role="alert">
+        <div class="message <?php echo ($message === 'Invalid or expired reset link.') ? 'error' : 'success'; ?>">
             <?php echo $message; ?>
         </div>
-        <?php if ($success): ?>
-        <script>
-            setTimeout(function(){ window.location.href = 'index.php'; }, 5000);
-        </script>
-        <?php endif; ?>
     <?php endif; ?>
-    <?php if (!$success): ?>
-    <form method="post" autocomplete="off" id="resetForm">
-        <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
-        <div class="mb-3">
-            <label for="password" class="form-label">New Password</label>
-            <div class="input-group">
-                <input type="password" name="password" id="password" class="form-control" required aria-describedby="passwordHelp">
-                <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1"><span id="eyeIcon">👁️</span></button>
-            </div>
-            <div id="passwordHelp" class="form-text">Must be at least 8 characters, include upper/lowercase, number, and symbol.</div>
-            <div id="strengthFeedback" class="strength-feedback text-danger"></div>
+
+    <?php if ($tokenValid): ?>
+    <form id="resetForm" autocomplete="off">
+        <div class="password-field">
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <button type="button" id="togglePassword" tabindex="-1">
+                👁️
+            </button>
         </div>
-        <button type="submit" name="update" class="btn btn-primary w-100" id="submitBtn">Update Password</button>
+        <div class="form-text">Must be at least 8 characters, include upper/lowercase, number, and symbol.</div>
+        <div id="strengthFeedback" class="strength-feedback"></div>
+
+        <div class="password-field">
+            <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
+            <button type="button" id="toggleConfirmPassword" tabindex="-1">
+                👁️
+            </button>
+        </div>
+
+        <button type="submit" id="submitBtn">Update Password</button>
+        <div id="formLoading" style="display:none; margin:10px 0; color:#2a5298;">Processing...</div>
     </form>
+    <?php else: ?>
+        <p>Please use the reset link sent to your email to reset your password.</p>
+        <div class="links">
+            <a href="index.php">← Back to Login</a>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($tokenValid): ?>
+    <div class="links">
+        <a href="index.php">← Back to Login</a>
+    </div>
     <?php endif; ?>
 </div>
 <script>
 // Password strength validation
 const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
 const feedback = document.getElementById('strengthFeedback');
 const submitBtn = document.getElementById('submitBtn');
 const togglePassword = document.getElementById('togglePassword');
-const eyeIcon = document.getElementById('eyeIcon');
+const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+const form = document.getElementById('resetForm');
+const formLoading = document.getElementById('formLoading');
+const token = "<?php echo htmlspecialchars($token); ?>";
 
 function checkStrength(pw) {
     let msg = [];
@@ -125,34 +244,182 @@ function checkStrength(pw) {
     return msg.length === 0 ? '' : 'Password must contain ' + msg.join(', ') + '.';
 }
 
+function showMessage(msg, type) {
+    let msgDiv = document.querySelector('.message');
+    if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.className = 'message';
+        form.insertBefore(msgDiv, form.firstChild);
+    }
+    msgDiv.textContent = msg;
+    msgDiv.className = 'message ' + (type || '');
+    msgDiv.setAttribute('role', 'alert');
+}
+
+function clearMessage() {
+    let msgDiv = document.querySelector('.message');
+    if (msgDiv) msgDiv.remove();
+}
+
 function updateStrength() {
     const pw = passwordInput.value;
+    const confirmPw = confirmPasswordInput.value;
     const msg = checkStrength(pw);
-    feedback.textContent = msg;
+    
+    // If strength messages exist, show them immediately
     if (msg) {
-        feedback.classList.remove('text-success');
-        feedback.classList.add('text-danger');
+        feedback.textContent = msg;
+        feedback.style.color = '#d32f2f';
         submitBtn.disabled = true;
-    } else {
-        feedback.textContent = 'Password strength: Good!';
-        feedback.classList.remove('text-danger');
-        feedback.classList.add('text-success');
-        submitBtn.disabled = false;
+        return;
     }
+
+    // Password meets strength requirements — show positive feedback
+    // If confirm password exists and doesn't match, show mismatch error
+    if (confirmPw && pw !== confirmPw) {
+        feedback.textContent = 'Passwords do not match.';
+        feedback.style.color = '#d32f2f';
+        submitBtn.disabled = true;
+        return;
+    }
+
+    // Good strength (and either no confirm entered yet, or confirm matches)
+    feedback.textContent = 'Password strength: Good!';
+    feedback.style.color = '#388e3c';
+    // Enable submit only when confirm is present and matches; otherwise keep disabled
+    submitBtn.disabled = !(confirmPw && pw === confirmPw);
 }
+
 if (passwordInput) {
     passwordInput.addEventListener('input', updateStrength);
     updateStrength();
 }
+
+if (confirmPasswordInput) {
+    confirmPasswordInput.addEventListener('input', updateStrength);
+}
+
+// Click and hold: show password while button is pressed
 if (togglePassword) {
-    togglePassword.addEventListener('click', function() {
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            eyeIcon.textContent = '🙈';
-        } else {
-            passwordInput.type = 'password';
-            eyeIcon.textContent = '👁️';
+    togglePassword.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        passwordInput.type = 'text';
+        togglePassword.textContent = '🙈';
+    });
+    
+    togglePassword.addEventListener('mouseup', function(e) {
+        e.preventDefault();
+        passwordInput.type = 'password';
+        togglePassword.textContent = '👁️';
+    });
+    
+    togglePassword.addEventListener('mouseleave', function(e) {
+        e.preventDefault();
+        passwordInput.type = 'password';
+        togglePassword.textContent = '👁️';
+    });
+    
+    // Touch support
+    togglePassword.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        passwordInput.type = 'text';
+        togglePassword.textContent = '🙈';
+    });
+    
+    togglePassword.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        passwordInput.type = 'password';
+        togglePassword.textContent = '👁️';
+    });
+}
+
+// Click and hold: show confirm password while button is pressed
+if (toggleConfirmPassword) {
+    toggleConfirmPassword.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        confirmPasswordInput.type = 'text';
+        toggleConfirmPassword.textContent = '🙈';
+    });
+    
+    toggleConfirmPassword.addEventListener('mouseup', function(e) {
+        e.preventDefault();
+        confirmPasswordInput.type = 'password';
+        toggleConfirmPassword.textContent = '👁️';
+    });
+    
+    toggleConfirmPassword.addEventListener('mouseleave', function(e) {
+        e.preventDefault();
+        confirmPasswordInput.type = 'password';
+        toggleConfirmPassword.textContent = '👁️';
+    });
+    
+    // Touch support
+    toggleConfirmPassword.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        confirmPasswordInput.type = 'text';
+        toggleConfirmPassword.textContent = '🙈';
+    });
+    
+    toggleConfirmPassword.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        confirmPasswordInput.type = 'password';
+        toggleConfirmPassword.textContent = '👁️';
+    });
+}
+
+// Form submission with AJAX
+if (form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearMessage();
+        
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+        
+        // Validate locally
+        const strengthMsg = checkStrength(password);
+        if (strengthMsg) {
+            showMessage(strengthMsg, 'error');
+            return;
         }
+        
+        if (password !== confirmPassword) {
+            showMessage('Passwords do not match.', 'error');
+            return;
+        }
+        
+        // Show loading and disable button
+        formLoading.style.display = 'block';
+        submitBtn.disabled = true;
+        
+        // AJAX: submit reset password
+        const params = new URLSearchParams();
+        params.append('token', token);
+        params.append('password', password);
+        
+        fetch('APIResetPasswordHandler.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        })
+        .then(res => res.json())
+        .then(data => {
+            formLoading.style.display = 'none';
+            submitBtn.disabled = false;
+            showMessage(data.message, data.status);
+            if (data.status === 'success') {
+                form.reset();
+                // Redirect after success
+                setTimeout(function() {
+                    window.location.href = 'index.php';
+                }, 2000);
+            }
+        })
+        .catch(() => {
+            formLoading.style.display = 'none';
+            submitBtn.disabled = false;
+            showMessage('Error updating password. Please try again.', 'error');
+        });
     });
 }
 </script>

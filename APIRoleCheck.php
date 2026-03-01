@@ -3,14 +3,14 @@
 header('Content-Type: application/json');
 require_once 'config.php';
 
-$email = trim($_POST['email'] ?? '');
-if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+$identifier = trim($_POST['identifier'] ?? '');
+if ($identifier === '') {
 	echo json_encode(['role' => 'other']);
 	exit;
 }
 
-$stmt = $conn->prepare('SELECT role FROM vendoraccount WHERE email = ? LIMIT 1');
-$stmt->bind_param('s', $email);
+$stmt = $conn->prepare('SELECT role FROM vendoraccount WHERE username = ? OR newCompanyRegistrationNumber = ? LIMIT 1');
+$stmt->bind_param('ss', $identifier, $identifier);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows === 1) {
